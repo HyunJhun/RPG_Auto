@@ -1,0 +1,613 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb86bc06a6d29df4eb8bf4839e4f09c6, type: 3}
+  m_Name: StatDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Data.StatDatabase
+  playerLevels:
+  - level: 1
+    requiredExp: 100
+    stats:
+      maxHp: 400
+      maxMp: 100
+      hpRegen: 2
+      mpRegen: 3
+      str: 10
+      dex: 8
+      luk: 5
+      intelligence: 5
+      physicalAttack: 15
+      magicAttack: 5
+      accuracy: 10
+      physicalDefense: 5
+      magicDefense: 3
+  - level: 2
+    requiredExp: 283
+    stats:
+      maxHp: 445
+      maxMp: 106
+      hpRegen: 2.2
+      mpRegen: 3.1
+      str: 12
+      dex: 9.5
+      luk: 6
+      intelligence: 6
+      physicalAttack: 18
+      magicAttack: 6
+      accuracy: 12
+      physicalDefense: 7
+      magicDefense: 4.5
+  - level: 3
+    requiredExp: 520
+    stats:
+      maxHp: 490
+      maxMp: 112
+      hpRegen: 2.4
+      mpRegen: 3.2
+      str: 14
+      dex: 11
+      luk: 7
+      intelligence: 7
+      physicalAttack: 21
+      magicAttack: 7
+      accuracy: 14
+      physicalDefense: 9
+      magicDefense: 6
+  - level: 4
+    requiredExp: 800
+    stats:
+      maxHp: 535
+      maxMp: 118
+      hpRegen: 2.6
+      mpRegen: 3.3
+      str: 16
+      dex: 12.5
+      luk: 8
+      intelligence: 8
+      physicalAttack: 24
+      magicAttack: 8
+      accuracy: 16
+      physicalDefense: 11
+      magicDefense: 7.5
+  - level: 5
+    requiredExp: 1118
+    stats:
+      maxHp: 580
+      maxMp: 124
+      hpRegen: 2.8
+      mpRegen: 3.4
+      str: 18
+      dex: 14
+      luk: 9
+      intelligence: 9
+      physicalAttack: 27
+      magicAttack: 9
+      accuracy: 18
+      physicalDefense: 13
+      magicDefense: 9
+  - level: 6
+    requiredExp: 1470
+    stats:
+      maxHp: 625
+      maxMp: 130
+      hpRegen: 3
+      mpRegen: 3.5
+      str: 20
+      dex: 15.5
+      luk: 10
+      intelligence: 10
+      physicalAttack: 30
+      magicAttack: 10
+      accuracy: 20
+      physicalDefense: 15
+      magicDefense: 10.5
+  - level: 7
+    requiredExp: 1852
+    stats:
+      maxHp: 670
+      maxMp: 136
+      hpRegen: 3.2
+      mpRegen: 3.6
+      str: 22
+      dex: 17
+      luk: 11
+      intelligence: 11
+      physicalAttack: 33
+      magicAttack: 11
+      accuracy: 22
+      physicalDefense: 17
+      magicDefense: 12
+  - level: 8
+    requiredExp: 2263
+    stats:
+      maxHp: 715
+      maxMp: 142
+      hpRegen: 3.4
+      mpRegen: 3.7
+      str: 24
+      dex: 18.5
+      luk: 12
+      intelligence: 12
+      physicalAttack: 36
+      magicAttack: 12
+      accuracy: 24
+      physicalDefense: 19
+      magicDefense: 13.5
+  - level: 9
+    requiredExp: 2700
+    stats:
+      maxHp: 760
+      maxMp: 148
+      hpRegen: 3.6
+      mpRegen: 3.8
+      str: 26
+      dex: 20
+      luk: 13
+      intelligence: 13
+      physicalAttack: 39
+      magicAttack: 13
+      accuracy: 26
+      physicalDefense: 21
+      magicDefense: 15
+  - level: 10
+    requiredExp: 3162
+    stats:
+      maxHp: 805
+      maxMp: 154
+      hpRegen: 3.8
+      mpRegen: 3.9
+      str: 28
+      dex: 21.5
+      luk: 14
+      intelligence: 14
+      physicalAttack: 42
+      magicAttack: 14
+      accuracy: 28
+      physicalDefense: 23
+      magicDefense: 16.5
+  - level: 11
+    requiredExp: 3648
+    stats:
+      maxHp: 850
+      maxMp: 160
+      hpRegen: 4
+      mpRegen: 4
+      str: 30
+      dex: 23
+      luk: 15
+      intelligence: 15
+      physicalAttack: 45
+      magicAttack: 15
+      accuracy: 30
+      physicalDefense: 25
+      magicDefense: 18
+  - level: 12
+    requiredExp: 4157
+    stats:
+      maxHp: 895
+      maxMp: 166
+      hpRegen: 4.2
+      mpRegen: 4.1
+      str: 32
+      dex: 24.5
+      luk: 16
+      intelligence: 16
+      physicalAttack: 48
+      magicAttack: 16
+      accuracy: 32
+      physicalDefense: 27
+      magicDefense: 19.5
+  - level: 13
+    requiredExp: 4687
+    stats:
+      maxHp: 940
+      maxMp: 172
+      hpRegen: 4.4
+      mpRegen: 4.2
+      str: 34
+      dex: 26
+      luk: 17
+      intelligence: 17
+      physicalAttack: 51
+      magicAttack: 17
+      accuracy: 34
+      physicalDefense: 29
+      magicDefense: 21
+  - level: 14
+    requiredExp: 5238
+    stats:
+      maxHp: 985
+      maxMp: 178
+      hpRegen: 4.6
+      mpRegen: 4.3
+      str: 36
+      dex: 27.5
+      luk: 18
+      intelligence: 18
+      physicalAttack: 54
+      magicAttack: 18
+      accuracy: 36
+      physicalDefense: 31
+      magicDefense: 22.5
+  - level: 15
+    requiredExp: 5809
+    stats:
+      maxHp: 1030
+      maxMp: 184
+      hpRegen: 4.8
+      mpRegen: 4.4
+      str: 38
+      dex: 29
+      luk: 19
+      intelligence: 19
+      physicalAttack: 57
+      magicAttack: 19
+      accuracy: 38
+      physicalDefense: 33
+      magicDefense: 24
+  - level: 16
+    requiredExp: 6400
+    stats:
+      maxHp: 1075
+      maxMp: 190
+      hpRegen: 5
+      mpRegen: 4.5
+      str: 40
+      dex: 30.5
+      luk: 20
+      intelligence: 20
+      physicalAttack: 60
+      magicAttack: 20
+      accuracy: 40
+      physicalDefense: 35
+      magicDefense: 25.5
+  - level: 17
+    requiredExp: 7009
+    stats:
+      maxHp: 1120
+      maxMp: 196
+      hpRegen: 5.2
+      mpRegen: 4.6
+      str: 42
+      dex: 32
+      luk: 21
+      intelligence: 21
+      physicalAttack: 63
+      magicAttack: 21
+      accuracy: 42
+      physicalDefense: 37
+      magicDefense: 27
+  - level: 18
+    requiredExp: 7637
+    stats:
+      maxHp: 1165
+      maxMp: 202
+      hpRegen: 5.4
+      mpRegen: 4.7
+      str: 44
+      dex: 33.5
+      luk: 22
+      intelligence: 22
+      physicalAttack: 66
+      magicAttack: 22
+      accuracy: 44
+      physicalDefense: 39
+      magicDefense: 28.5
+  - level: 19
+    requiredExp: 8282
+    stats:
+      maxHp: 1210
+      maxMp: 208
+      hpRegen: 5.6
+      mpRegen: 4.8
+      str: 46
+      dex: 35
+      luk: 23
+      intelligence: 23
+      physicalAttack: 69
+      magicAttack: 23
+      accuracy: 46
+      physicalDefense: 41
+      magicDefense: 30
+  - level: 20
+    requiredExp: 8944
+    stats:
+      maxHp: 1255
+      maxMp: 214
+      hpRegen: 5.8
+      mpRegen: 4.9
+      str: 48
+      dex: 36.5
+      luk: 24
+      intelligence: 24
+      physicalAttack: 72
+      magicAttack: 24
+      accuracy: 48
+      physicalDefense: 43
+      magicDefense: 31.5
+  - level: 21
+    requiredExp: 9623
+    stats:
+      maxHp: 1300
+      maxMp: 220
+      hpRegen: 6
+      mpRegen: 5
+      str: 50
+      dex: 38
+      luk: 25
+      intelligence: 25
+      physicalAttack: 75
+      magicAttack: 25
+      accuracy: 50
+      physicalDefense: 45
+      magicDefense: 33
+  - level: 22
+    requiredExp: 10319
+    stats:
+      maxHp: 1345
+      maxMp: 226
+      hpRegen: 6.2
+      mpRegen: 5.1
+      str: 52
+      dex: 39.5
+      luk: 26
+      intelligence: 26
+      physicalAttack: 78
+      magicAttack: 26
+      accuracy: 52
+      physicalDefense: 47
+      magicDefense: 34.5
+  - level: 23
+    requiredExp: 11030
+    stats:
+      maxHp: 1390
+      maxMp: 232
+      hpRegen: 6.4
+      mpRegen: 5.2
+      str: 54
+      dex: 41
+      luk: 27
+      intelligence: 27
+      physicalAttack: 81
+      magicAttack: 27
+      accuracy: 54
+      physicalDefense: 49
+      magicDefense: 36
+  - level: 24
+    requiredExp: 11758
+    stats:
+      maxHp: 1435
+      maxMp: 238
+      hpRegen: 6.6
+      mpRegen: 5.3
+      str: 56
+      dex: 42.5
+      luk: 28
+      intelligence: 28
+      physicalAttack: 84
+      magicAttack: 28
+      accuracy: 56
+      physicalDefense: 51
+      magicDefense: 37.5
+  - level: 25
+    requiredExp: 12500
+    stats:
+      maxHp: 1480
+      maxMp: 244
+      hpRegen: 6.8
+      mpRegen: 5.4
+      str: 58
+      dex: 44
+      luk: 29
+      intelligence: 29
+      physicalAttack: 87
+      magicAttack: 29
+      accuracy: 58
+      physicalDefense: 53
+      magicDefense: 39
+  - level: 26
+    requiredExp: 13257
+    stats:
+      maxHp: 1525
+      maxMp: 250
+      hpRegen: 7
+      mpRegen: 5.5
+      str: 60
+      dex: 45.5
+      luk: 30
+      intelligence: 30
+      physicalAttack: 90
+      magicAttack: 30
+      accuracy: 60
+      physicalDefense: 55
+      magicDefense: 40.5
+  - level: 27
+    requiredExp: 14030
+    stats:
+      maxHp: 1570
+      maxMp: 256
+      hpRegen: 7.2
+      mpRegen: 5.6
+      str: 62
+      dex: 47
+      luk: 31
+      intelligence: 31
+      physicalAttack: 93
+      magicAttack: 31
+      accuracy: 62
+      physicalDefense: 57
+      magicDefense: 42
+  - level: 28
+    requiredExp: 14816
+    stats:
+      maxHp: 1615
+      maxMp: 262
+      hpRegen: 7.4
+      mpRegen: 5.7
+      str: 64
+      dex: 48.5
+      luk: 32
+      intelligence: 32
+      physicalAttack: 96
+      magicAttack: 32
+      accuracy: 64
+      physicalDefense: 59
+      magicDefense: 43.5
+  - level: 29
+    requiredExp: 15617
+    stats:
+      maxHp: 1660
+      maxMp: 268
+      hpRegen: 7.6
+      mpRegen: 5.8
+      str: 66
+      dex: 50
+      luk: 33
+      intelligence: 33
+      physicalAttack: 99
+      magicAttack: 33
+      accuracy: 66
+      physicalDefense: 61
+      magicDefense: 45
+  - level: 30
+    requiredExp: 0
+    stats:
+      maxHp: 1705
+      maxMp: 274
+      hpRegen: 7.8
+      mpRegen: 5.9
+      str: 68
+      dex: 51.5
+      luk: 34
+      intelligence: 34
+      physicalAttack: 102
+      magicAttack: 34
+      accuracy: 68
+      physicalDefense: 63
+      magicDefense: 46.5
+  monsters:
+  - monsterId: M001
+    displayName: Goblin
+    grade: 0
+    level: 2
+    stats:
+      maxHp: 120
+      maxMp: 0
+      hpRegen: 0
+      mpRegen: 0
+      str: 6
+      dex: 5
+      luk: 2
+      intelligence: 1
+      physicalAttack: 6
+      magicAttack: 0
+      accuracy: 8
+      physicalDefense: 4
+      magicDefense: 2
+    moveSpeed: 3.5
+    attackRange: 1.8
+    attackInterval: 1.6
+    expReward: 25
+  - monsterId: M002
+    displayName: Goblin Warrior
+    grade: 0
+    level: 7
+    stats:
+      maxHp: 260
+      maxMp: 0
+      hpRegen: 0
+      mpRegen: 0
+      str: 12
+      dex: 8
+      luk: 3
+      intelligence: 2
+      physicalAttack: 12
+      magicAttack: 0
+      accuracy: 18
+      physicalDefense: 12
+      magicDefense: 6
+    moveSpeed: 3.6
+    attackRange: 1.8
+    attackInterval: 1.5
+    expReward: 70
+  - monsterId: M003
+    displayName: Goblin Chief
+    grade: 1
+    level: 12
+    stats:
+      maxHp: 700
+      maxMp: 0
+      hpRegen: 0
+      mpRegen: 0
+      str: 22
+      dex: 12
+      luk: 6
+      intelligence: 4
+      physicalAttack: 22
+      magicAttack: 0
+      accuracy: 30
+      physicalDefense: 25
+      magicDefense: 15
+    moveSpeed: 3.2
+    attackRange: 2
+    attackInterval: 1.8
+    expReward: 300
+  statFormula:
+    str:
+      maxHp: 5
+      maxMp: 0
+      hpRegen: 0
+      mpRegen: 0
+      physicalAttack: 1
+      magicAttack: 0
+      accuracy: 0
+      physicalDefense: 0.5
+      magicDefense: 0
+    dex:
+      maxHp: 0
+      maxMp: 0
+      hpRegen: 0
+      mpRegen: 0
+      physicalAttack: 0.3
+      magicAttack: 0
+      accuracy: 1
+      physicalDefense: 0
+      magicDefense: 0
+    luk:
+      maxHp: 0
+      maxMp: 0
+      hpRegen: 0
+      mpRegen: 0
+      physicalAttack: 0
+      magicAttack: 0
+      accuracy: 0.5
+      physicalDefense: 0
+      magicDefense: 0.3
+    intelligence:
+      maxHp: 0
+      maxMp: 3
+      hpRegen: 0
+      mpRegen: 0.05
+      physicalAttack: 0
+      magicAttack: 1
+      accuracy: 0
+      physicalDefense: 0
+      magicDefense: 0.5
+  combatFormula:
+    hitBase: 0.9
+    accuracyPerLevel: 5
+    hitPerAccuracy: 0.005
+    hitMin: 0.3
+    hitMax: 0.99
+    defenseConstant: 100
+    damageVariance: 0.1
+  sourceFile: Assets/_Project/Data/Excel/StatTable.xlsx
+  importedAt: 2026-11-03 18:15:09

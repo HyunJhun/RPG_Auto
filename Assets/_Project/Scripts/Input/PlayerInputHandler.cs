@@ -1,0 +1,264 @@
+﻿using System;
+using System.Collections.Generic;
+using RPGAuto.Monster;
+using RPGAuto.UI;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+
+namespace RPGAuto.InputHandling
+{
+    /// <summary>
+    /// 키보드/가상 조이스틱/포인터/UI 버튼 입력을 모아 이벤트로 알린다 (Observer).
+    /// UI 버튼도 Press* 메서드를 거치므로 키보드와 동일한 경로로 처리된다.
+    /// </summary>
+    // EventSystem(UI 입력 모듈)이 이번 프레임 포인터를 처리한 뒤에 실행되도록 늦춘다
+    [DefaultExecutionOrder(100)]
+    public class PlayerInputHandler : MonoBehaviour
+    {
+        [Header("References")]
+        [SerializeField] private VirtualJoystick joystick;
+        [SerializeField] private Camera viewCamera;
+
+        [Header("Pointer")]
+        [SerializeField] private LayerMask groundMask = ~0;
+        [SerializeField] private LayerMask targetMask;
+        [SerializeField] private float rayDistance = 500f;
+        [Tooltip("몬스터 탭 판정: 누른 지점에서 이만큼(px) 이상 움직이면 탭이 아닌 지면 드래그로 전환")]
+        [SerializeField] private float tapMaxMovePixels = 25f;
+        [SerializeField] private float tapMaxDuration = 0.5f;
+
+        [Header("Hold To Move")]
+        [Tooltip("터치 유지 중 목적지 갱신 주기(초)")]
+        [SerializeField] private float holdUpdateInterval = 0.1f;
+        [Tooltip("목적지가 이 거리(m) 이상 바뀌었을 때만 갱신")]
+        [SerializeField] private float holdMinMoveDistance = 0.3f;
+
+        /// <summary>정규화된 이동 입력 (x: 좌우, y: 앞뒤), 크기 0~1</summary>
+        public Vector2 MoveInput { get; private set; }
+
+        /// <summary>지면을 누른 채 유지 중 (자동 전투 재개를 미룸)</summary>
+        public bool IsHoldingGround => _pressing && _isGroundHold;
+
+        /// <summary>지면 이동 명령 — 누르는 순간 + 누른 채 위치가 바뀔 때마다 발생</summary>
+        public event Action<Vector3> OnGroundTapped;
+        public event Action<MonsterController> OnTargetTapped;
+        public event Action OnAttackPressed;
+        /// <summary>퀵슬롯 사용 (0~5 스킬, 6~9 물약)</summary>
+        public event Action<int> OnQuickSlotPressed;
+        public event Action OnStatWindowTogglePressed;
+        public event Action OnAutoCombatTogglePressed;
+
+        private bool _pressing;
+        private bool _pressStartedOverUI;
+        private Vector2 _pressPosition;
+        private float _pressTime;
+        private MonsterController _pressedMonster;
+        private bool _isGroundHold;
+        private Vector3 _lastHoldPoint;
+        private float _holdTimer;
+
+        // 퀵슬롯 단축키: 1~6 스킬, 7~0 물약
+        private static readonly Key[] QuickSlotKeys =
+        {
+            Key.Digit1, Key.Digit2, Key.Digit3, Key.Digit4, Key.Digit5,
+            Key.Digit6, Key.Digit7, Key.Digit8, Key.Digit9, Key.Digit0
+        };
+
+        private PointerEventData _pointerEventData;
+        private readonly List<RaycastResult> _uiRaycastResults = new();
+
+        private void Awake()
+        {
+            if (viewCamera == null) viewCamera = Camera.main;
+        }
+
+        private void Update()
+        {
+            MoveInput = ReadMoveInput();
+            ReadActionKeys();
+            ReadPointer();
+        }
+
+        // UI 버튼용 진입점
+        public void PressAttack() => OnAttackPressed?.Invoke();
+        public void PressQuickSlot(int index) => OnQuickSlotPressed?.Invoke(index);
+        public void PressStatWindowToggle() => OnStatWindowTogglePressed?.Invoke();
+        public void PressAutoCombatToggle() => OnAutoCombatTogglePressed?.Invoke();
+
+        private Vector2 ReadMoveInput()
+        {
+            Vector2 value = Vector2.zero;
+
+            var kb = Keyboard.current;
+            if (kb != null)
+            {
+                if (kb.wKey.isPressed) value.y += 1f;
+                if (kb.sKey.isPressed) value.y -= 1f;
+                if (kb.dKey.isPressed) value.x += 1f;
+                if (kb.aKey.isPressed) value.x -= 1f;
+            }
+
+            if (joystick != null) value += joystick.Direction;
+            return Vector2.ClampMagnitude(value, 1f);
+        }
+
+        private void ReadActionKeys()
+        {
+            var kb = Keyboard.current;
+            if (kb == null) return;
+
+            if (kb.spaceKey.wasPressedThisFrame) PressAttack();
+            if (kb.fKey.wasPressedThisFrame) PressAutoCombatToggle();
+            if (kb.cKey.wasPressedThisFrame) PressStatWindowToggle();
+            for (int i = 0; i < QuickSlotKeys.Length; i++)
+                if (kb[QuickSlotKeys[i]].wasPressedThisFrame) PressQuickSlot(i);
+        }
+
+        private void ReadPointer()
+        {
+            var pointer = Pointer.current;
+            if (pointer == null) return;
+
+            Vector2 screenPos = pointer.position.ReadValue();
+
+            if (pointer.press.wasPressedThisFrame) BeginPress(screenPos);
+
+            if (_pressing && !_pressStartedOverUI) UpdatePress(screenPos);
+
+            if (_pressing && pointer.press.wasReleasedThisFrame) EndPress(screenPos);
+        }
+
+        private void BeginPress(Vector2 screenPos)
+        {
+            _pressing = true;
+            _pressPosition = screenPos;
+            _pressTime = Time.unscaledTime;
+            _pressStartedOverUI = IsOverUI(screenPos);
+            _pressedMonster = null;
+            _isGroundHold = false;
+
+            if (_pressStartedOverUI) return;
+            if (!RaycastWorld(screenPos, groundMask | targetMask, out var hit)) return;
+
+            var monster = hit.collider.GetComponentInParent<MonsterController>();
+            if (monster != null)
+            {
+                _pressedMonster = monster; // 떼는 순간 탭이면 타겟 지정
+                return;
+            }
+
+            StartGroundHold(hit.point);
+        }
+
+        private void UpdatePress(Vector2 screenPos)
+        {
+            // 몬스터를 누른 뒤 손가락을 끌면 지면 이동으로 전환
+            if (_pressedMonster != null)
+            {
+                if ((screenPos - _pressPosition).sqrMagnitude <= tapMaxMovePixels * tapMaxMovePixels) return;
+                _pressedMonster = null;
+                if (RaycastWorld(screenPos, groundMask, out var groundHit)) StartGroundHold(groundHit.point);
+                return;
+            }
+
+            if (!_isGroundHold) return;
+
+            _holdTimer -= Time.unscaledDeltaTime;
+            if (_holdTimer > 0f) return;
+            _holdTimer = holdUpdateInterval;
+
+            // 유지 중에는 지면만 검사 (몬스터 위를 지나가도 끊기지 않게)
+            if (RaycastWorld(screenPos, groundMask, out var hit)) UpdateHoldPoint(hit.point);
+        }
+
+        private void EndPress(Vector2 screenPos)
+        {
+            _pressing = false;
+            if (_pressStartedOverUI) return;
+
+            if (_isGroundHold)
+            {
+                if (RaycastWorld(screenPos, groundMask, out var hit)) UpdateHoldPoint(hit.point);
+                _isGroundHold = false;
+                return;
+            }
+
+            if (_pressedMonster != null)
+            {
+                bool isTap = (screenPos - _pressPosition).sqrMagnitude <= tapMaxMovePixels * tapMaxMovePixels
+                             && Time.unscaledTime - _pressTime <= tapMaxDuration;
+                if (isTap && _pressedMonster.IsAlive) OnTargetTapped?.Invoke(_pressedMonster);
+                _pressedMonster = null;
+            }
+        }
+
+        private void StartGroundHold(Vector3 point)
+        {
+            _isGroundHold = true;
+            _holdTimer = holdUpdateInterval;
+            _lastHoldPoint = point;
+            OnGroundTapped?.Invoke(point);
+        }
+
+        private void UpdateHoldPoint(Vector3 point)
+        {
+            if ((point - _lastHoldPoint).sqrMagnitude < holdMinMoveDistance * holdMinMoveDistance) return;
+            _lastHoldPoint = point;
+            OnGroundTapped?.Invoke(point);
+        }
+
+        /// <summary>화면 좌표 단발 탭 처리 (테스트/외부 호출용): 몬스터면 타겟 지정, 아니면 지면 이동</summary>
+        public void HandleWorldTap(Vector2 screenPosition)
+        {
+            if (!RaycastWorld(screenPosition, groundMask | targetMask, out var hit)) return;
+
+            var monster = hit.collider.GetComponentInParent<MonsterController>();
+            if (monster != null)
+            {
+                if (monster.IsAlive) OnTargetTapped?.Invoke(monster);
+                return;
+            }
+            OnGroundTapped?.Invoke(hit.point);
+        }
+
+        private bool RaycastWorld(Vector2 screenPos, LayerMask mask, out RaycastHit hit)
+        {
+            hit = default;
+            if (viewCamera == null) return false;
+            Ray ray = viewCamera.ScreenPointToRay(screenPos);
+            return Physics.Raycast(ray, out hit, rayDistance, mask, QueryTriggerInteraction.Ignore);
+        }
+
+        /// <summary>
+        /// 포인터가 UI 위인지 판정. UI 입력 모듈의 판정을 우선 사용한다
+        /// (에디터 Game 뷰 배율 등으로 포인터 좌표와 UI 좌표가 어긋나는 경우에도 정확).
+        /// 보조로 현재 좌표 레이캐스트도 확인한다.
+        /// </summary>
+        private bool IsOverUI(Vector2 screenPosition)
+        {
+            var eventSystem = EventSystem.current;
+            if (eventSystem == null) return false;
+
+            // 마우스/펜 (가장 최근 포인터)
+            if (eventSystem.IsPointerOverGameObject()) return true;
+
+            // 터치: 현재 눌린 터치 ID 기준
+            var touchscreen = Touchscreen.current;
+            if (touchscreen != null)
+            {
+                foreach (var touch in touchscreen.touches)
+                {
+                    if (!touch.press.isPressed) continue;
+                    if (eventSystem.IsPointerOverGameObject(touch.touchId.ReadValue())) return true;
+                }
+            }
+
+            _pointerEventData ??= new PointerEventData(eventSystem);
+            _pointerEventData.position = screenPosition;
+            _uiRaycastResults.Clear();
+            eventSystem.RaycastAll(_pointerEventData, _uiRaycastResults);
+            return _uiRaycastResults.Count > 0;
+        }
+    }
+}
