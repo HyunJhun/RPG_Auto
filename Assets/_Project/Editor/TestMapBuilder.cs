@@ -247,13 +247,14 @@ namespace RPGAuto.EditorTools
             BuildDamageTextLayer(canvas, playerStats, cam);
 
             var joystickGo = (GameObject)PrefabUtility.InstantiatePrefab(CreateJoystickPrefab(), canvas);
+            Set(joystickGo.GetComponent<VirtualJoystick>(), ("input", inputHandler));
 
             var statBarPrefab = CreateStatBarPrefab();
             BuildPlayerStatusUI(canvas, statBarPrefab, playerStats, progression);
             BuildTargetInfoUI(canvas, statBarPrefab, playerCombat, progression);
             BuildExpBarUI(canvas, progression);
             BuildQuickSlotPanelUI(canvas, inputHandler, playerCombat, quickSlotBar);
-            var statButton = BuildMenuBarUI(canvas);
+            var statButton = BuildMenuBarUI(canvas, inputHandler);
             BuildStatWindowUI(canvas, playerStats, progression, inputHandler, statButton);
 
             // ---------- Wiring ----------
@@ -478,13 +479,14 @@ namespace RPGAuto.EditorTools
             Set(bar.gameObject.AddComponent<ExpBarView>(), ("progression", progression), ("fill", fill), ("percentText", text));
         }
 
-        private static Button BuildMenuBarUI(Transform canvas)
+        private static Button BuildMenuBarUI(Transform canvas, PlayerInputHandler input)
         {
             var bar = CreateRect("UI_MenuBar", canvas, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-20f, -20f), new Vector2(400f, 70f));
             var statRt = CreateRect("UI_MenuBar_Button_Stat", bar, new Vector2(1f, 1f), new Vector2(1f, 1f), Vector2.zero, new Vector2(110f, 70f));
             AddImage(statRt.gameObject, new Color(0.15f, 0.15f, 0.18f, 0.9f), _uiSprite).type = Image.Type.Sliced;
             var button = statRt.gameObject.AddComponent<Button>();
-            AddText(CreateStretch("UI_MenuBar_Button_Stat_Label", statRt, 0f).gameObject, "STAT\n<size=15>C</size>", 22, TextAnchor.MiddleCenter, Color.white);
+            AddText(CreateRect("UI_MenuBar_Button_Stat_Label", statRt, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 8f), new Vector2(110f, 30f)).gameObject, "STAT", 22, TextAnchor.MiddleCenter, Color.white);
+            AddKeyHint(statRt, "UI_MenuBar_Button_Stat_KeyHint", new Vector2(0.5f, 0f), new Vector2(0f, 6f), new Vector2(100f, 20f), 15, TextAnchor.LowerCenter, input, "ToggleStatWindow");
             return button;
         }
 
@@ -538,7 +540,8 @@ namespace RPGAuto.EditorTools
             var attackRt = CreateRect("UI_Button_Attack", panel, br, new Vector2(0.5f, 0.5f), attackCenter, new Vector2(170f, 170f));
             AddImage(attackRt.gameObject, new Color(0.7f, 0.2f, 0.2f, 0.92f), _knobSprite);
             var attackButton = attackRt.gameObject.AddComponent<Button>();
-            AddText(CreateStretch("UI_Button_Attack_Label", attackRt, 0f).gameObject, "ATK\n<size=18>Space</size>", 38, TextAnchor.MiddleCenter, Color.white);
+            AddText(CreateRect("UI_Button_Attack_Label", attackRt, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 8f), new Vector2(160f, 50f)).gameObject, "ATK", 38, TextAnchor.MiddleCenter, Color.white);
+            AddKeyHint(attackRt, "UI_Button_Attack_KeyHint", new Vector2(0.5f, 0f), new Vector2(0f, 34f), new Vector2(120f, 24f), 18, TextAnchor.LowerCenter, input, "Attack");
 
             // 자동 전투 버튼
             var autoRt = CreateRect("UI_Button_AutoCombat", panel, br, new Vector2(0.5f, 0.5f), new Vector2(-70f, 470f), new Vector2(110f, 60f));
@@ -546,8 +549,7 @@ namespace RPGAuto.EditorTools
             autoBg.type = Image.Type.Sliced;
             var autoButton = autoRt.gameObject.AddComponent<Button>();
             var autoLabel = AddText(CreateStretch("UI_Button_AutoCombat_Label", autoRt, 0f).gameObject, "AUTO\nOFF", 22, TextAnchor.MiddleCenter, Color.white);
-            AddText(CreateRect("UI_Button_AutoCombat_KeyHint", autoRt, Vector2.zero, Vector2.zero, new Vector2(5f, 3f), new Vector2(24f, 20f)).gameObject,
-                "F", 15, TextAnchor.LowerLeft, new Color(1f, 1f, 1f, 0.7f));
+            AddKeyHint(autoRt, "UI_Button_AutoCombat_KeyHint", Vector2.zero, new Vector2(5f, 3f), new Vector2(60f, 20f), 15, TextAnchor.LowerLeft, input, "ToggleAutoCombat");
 
             Set(panel.gameObject.AddComponent<CombatButtonsView>(), ("input", input), ("combat", combat), ("attackButton", attackButton),
                 ("autoButton", autoButton), ("autoBackground", autoBg), ("autoLabel", autoLabel));
@@ -583,7 +585,8 @@ namespace RPGAuto.EditorTools
             rt.pivot = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = pos;
             rt.sizeDelta = new Vector2(size, size);
-            Set(go.GetComponent<QuickSlotView>(), ("bar", bar), ("input", input), ("slotIndex", index), ("keyLabel", key));
+            Set(go.GetComponent<QuickSlotView>(), ("bar", bar), ("input", input), ("slotIndex", index));
+            Set(go.transform.Find("UI_QuickSlot_KeyHint").GetComponent<KeyHintText>(), ("input", input), ("actionName", $"QuickSlot{index + 1}"));
         }
 
         private static GameObject CreateQuickSlotPrefab()
@@ -639,7 +642,8 @@ namespace RPGAuto.EditorTools
             AddImage(badgeRt.gameObject, new Color(1f, 0.8f, 0.25f), _uiSprite, false).type = Image.Type.Sliced;
             AddText(CreateStretch("UI_QuickSlot_AutoBadge_Label", badgeRt, 0f).gameObject, "AUTO", 14, TextAnchor.MiddleCenter, Color.black).fontStyle = FontStyle.Bold;
 
-            Set(root.gameObject.AddComponent<QuickSlotView>(), ("icon", icon), ("label", label), ("keyHint", key), ("countText", count),
+            key.gameObject.AddComponent<KeyHintText>();
+            Set(root.gameObject.AddComponent<QuickSlotView>(), ("icon", icon), ("label", label), ("countText", count),
                 ("cooldownOverlay", cd), ("cooldownText", cdText), ("autoGlow", glow), ("autoShine", shineRt),
                 ("autoBadge", badgeRt.gameObject));
 
@@ -700,6 +704,17 @@ namespace RPGAuto.EditorTools
         }
 
         // ================= UI helpers =================
+
+        /// <summary>현재 입력 방식에 맞는 키를 표시하는 텍스트 (KeyHintText)</summary>
+        private static Text AddKeyHint(Transform parent, string name, Vector2 anchor, Vector2 pos, Vector2 size, int fontSize,
+            TextAnchor align, PlayerInputHandler input, string actionName)
+        {
+            var pivot = new Vector2(anchor.x, anchor.y);
+            var rt = CreateRect(name, parent, anchor, pivot, pos, size);
+            var text = AddText(rt.gameObject, string.Empty, fontSize, align, new Color(1f, 1f, 1f, 0.8f));
+            Set(rt.gameObject.AddComponent<KeyHintText>(), ("input", input), ("actionName", actionName));
+            return text;
+        }
 
         private static RectTransform CreateRect(string name, Transform parent, Vector2 anchor, Vector2 pivot, Vector2 pos, Vector2 size)
         {

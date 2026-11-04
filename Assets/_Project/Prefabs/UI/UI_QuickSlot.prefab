@@ -91,6 +91,7 @@ GameObject:
   - component: {fileID: 1025686804446258192}
   - component: {fileID: 791273815779931105}
   - component: {fileID: 328445749454538894}
+  - component: {fileID: 7100607856414587105}
   m_Layer: 5
   m_Name: UI_QuickSlot_KeyHint
   m_TagString: Untagged
@@ -174,6 +175,20 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &7100607856414587105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 531062439799676551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e93a6c56980aa9e4492d2500dde3599e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.UI.KeyHintText
+  input: {fileID: 0}
+  actionName: 
 --- !u!1 &1390400955059267006
 GameObject:
   m_ObjectHideFlags: 0
@@ -496,10 +511,8 @@ MonoBehaviour:
   bar: {fileID: 0}
   input: {fileID: 0}
   slotIndex: 0
-  keyLabel: 1
   icon: {fileID: 7968642801798335607}
   label: {fileID: 8352591221312698312}
-  keyHint: {fileID: 791273815779931105}
   countText: {fileID: 919961897059574598}
   cooldownOverlay: {fileID: 8491276997083135474}
   cooldownText: {fileID: 8185830293245169636}

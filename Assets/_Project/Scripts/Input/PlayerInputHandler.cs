@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RPGAuto.Monster;
 using UnityEngine;
@@ -44,6 +44,15 @@ namespace RPGAuto.InputHandling
         /// <summary>입력 액션 (키 변경·바인딩 확인 등 외부에서 접근할 때 사용)</summary>
         public RPGAutoInputActions Actions => _actions;
 
+        /// <summary>마지막으로 입력이 들어온 장치 기준의 입력 방식</summary>
+        public InputScheme CurrentScheme { get; private set; }
+
+        /// <summary>이동 입력이 실제 게임패드에서 오는 중 (화면 조이스틱 핸들 표시용)</summary>
+        public bool IsMoveFromGamepad { get; private set; }
+
+        /// <summary>입력 방식 변경 알림 (Observer) — 키 표시 UI 등이 구독</summary>
+        public event Action<InputScheme> OnInputSchemeChanged;
+
         /// <summary>지면 이동 명령 — 누르는 순간 + 누른 채 위치가 바뀔 때마다 발생</summary>
         public event Action<Vector3> OnGroundTapped;
         public event Action<MonsterController> OnTargetTapped;
@@ -74,6 +83,7 @@ namespace RPGAuto.InputHandling
             if (viewCamera == null) viewCamera = Camera.main;
 
             _actions = new RPGAutoInputActions();
+            CurrentScheme = DetectInitialScheme();
             var p = _actions.Player;
             _quickSlotActions = new[]
             {
@@ -95,6 +105,7 @@ namespace RPGAuto.InputHandling
             p.ToggleAutoCombat.performed += HandleToggleAuto;
             p.ToggleStatWindow.performed += HandleToggleStat;
             for (int i = 0; i < QuickSlotCount; i++) _quickSlotActions[i].performed += _quickSlotHandlers[i];
+            p.Get().actionTriggered += HandleAnyAction;
             p.Enable();
         }
 
@@ -106,6 +117,7 @@ namespace RPGAuto.InputHandling
             p.ToggleAutoCombat.performed -= HandleToggleAuto;
             p.ToggleStatWindow.performed -= HandleToggleStat;
             for (int i = 0; i < QuickSlotCount; i++) _quickSlotActions[i].performed -= _quickSlotHandlers[i];
+            p.Get().actionTriggered -= HandleAnyAction;
 
             _pressing = false;
             _isGroundHold = false;
@@ -116,8 +128,52 @@ namespace RPGAuto.InputHandling
 
         private void Update()
         {
-            MoveInput = Vector2.ClampMagnitude(_actions.Player.Move.ReadValue<Vector2>(), 1f);
+            var move = _actions.Player.Move;
+            MoveInput = Vector2.ClampMagnitude(move.ReadValue<Vector2>(), 1f);
+            var moveControl = move.activeControl;
+            IsMoveFromGamepad = moveControl != null && IsPhysicalGamepad(moveControl.device);
             ReadPointer();
+        }
+
+        // ---------------- 입력 방식 ----------------
+
+        /// <summary>현재 입력 방식 기준으로 액션의 키 이름 (없으면 빈 문자열)</summary>
+        public string GetBindingLabel(string actionName) => GetBindingLabel(actionName, CurrentScheme);
+
+        public string GetBindingLabel(string actionName, InputScheme scheme) =>
+            InputBindingLabels.Get(_actions.asset.FindAction(actionName), scheme);
+
+        private void HandleAnyAction(InputAction.CallbackContext ctx)
+        {
+            var device = ctx.control?.device;
+            if (device == null) return;
+
+            InputScheme? scheme = device switch
+            {
+                Touchscreen => InputScheme.Touch,
+                Gamepad => IsPhysicalGamepad(device) ? InputScheme.Gamepad : (InputScheme?)null, // 화면 조이스틱의 가상 패드는 무시
+                Keyboard or Mouse or Pen => InputScheme.KeyboardMouse,
+                _ => null
+            };
+            if (scheme.HasValue) SetScheme(scheme.Value);
+        }
+
+        private void SetScheme(InputScheme scheme)
+        {
+            if (CurrentScheme == scheme) return;
+            CurrentScheme = scheme;
+            OnInputSchemeChanged?.Invoke(scheme);
+        }
+
+        /// <summary>실제 연결된 게임패드인지 (OnScreenControl이 만든 가상 패드는 native가 아님)</summary>
+        private static bool IsPhysicalGamepad(InputDevice device) => device is Gamepad && device.native;
+
+        private static InputScheme DetectInitialScheme()
+        {
+            if (Application.isMobilePlatform) return InputScheme.Touch;
+            foreach (var device in InputSystem.devices)
+                if (IsPhysicalGamepad(device) && Keyboard.current == null) return InputScheme.Gamepad;
+            return InputScheme.KeyboardMouse;
         }
 
         // 액션 콜백

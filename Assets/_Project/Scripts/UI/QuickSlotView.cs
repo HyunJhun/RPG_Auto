@@ -1,4 +1,4 @@
-using RPGAuto.InputHandling;
+﻿using RPGAuto.InputHandling;
 using RPGAuto.QuickSlots;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -18,12 +18,10 @@ namespace RPGAuto.UI
         [SerializeField] private QuickSlotBar bar;
         [SerializeField] private PlayerInputHandler input;
         [SerializeField] private int slotIndex;
-        [SerializeField] private string keyLabel = "1";
 
         [Header("Parts")]
         [SerializeField] private Image icon;
         [SerializeField] private Text label;
-        [SerializeField] private Text keyHint;
         [SerializeField] private Text countText;
         [SerializeField] private Image cooldownOverlay;
         [SerializeField] private Text cooldownText;
@@ -51,7 +49,6 @@ namespace RPGAuto.UI
         {
             _canvas = GetComponentInParent<Canvas>();
             _slot = bar != null ? bar.GetSlot(slotIndex) : null;
-            if (keyHint != null) keyHint.text = keyLabel;
             if (_slot == null) return;
 
             _slot.OnActionChanged += HandleActionChanged;
