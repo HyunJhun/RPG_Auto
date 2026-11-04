@@ -247,7 +247,6 @@ namespace RPGAuto.EditorTools
             BuildDamageTextLayer(canvas, playerStats, cam);
 
             var joystickGo = (GameObject)PrefabUtility.InstantiatePrefab(CreateJoystickPrefab(), canvas);
-            var joystick = joystickGo.GetComponent<VirtualJoystick>();
 
             var statBarPrefab = CreateStatBarPrefab();
             BuildPlayerStatusUI(canvas, statBarPrefab, playerStats, progression);
@@ -258,7 +257,7 @@ namespace RPGAuto.EditorTools
             BuildStatWindowUI(canvas, playerStats, progression, inputHandler, statButton);
 
             // ---------- Wiring ----------
-            Set(inputHandler, ("joystick", joystick), ("viewCamera", cam),
+            Set(inputHandler, ("viewCamera", cam),
                 ("groundMask", (1 << groundLayer) | (1 << obstacleLayer)), ("targetMask", 1 << monsterLayer));
             Set(controller, ("input", inputHandler), ("viewCamera", cam), ("bodyRenderer", player.GetComponent<Renderer>()));
 

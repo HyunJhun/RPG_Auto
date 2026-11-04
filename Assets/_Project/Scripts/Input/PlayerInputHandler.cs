@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using RPGAuto.Monster;
-using RPGAuto.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -9,15 +8,17 @@ using UnityEngine.InputSystem;
 namespace RPGAuto.InputHandling
 {
     /// <summary>
-    /// 키보드/가상 조이스틱/포인터/UI 버튼 입력을 모아 이벤트로 알린다 (Observer).
-    /// UI 버튼도 Press* 메서드를 거치므로 키보드와 동일한 경로로 처리된다.
+    /// Input Action(RPGAutoInput.inputactions)을 읽어 게임 이벤트로 바꿔 알린다 (Observer).
+    /// 키보드·게임패드·가상 조이스틱·마우스·터치는 모두 액션 바인딩에서 합쳐지므로
+    /// 이 클래스는 장치를 직접 알지 않는다. UI 버튼도 Press* 메서드로 같은 경로를 탄다.
     /// </summary>
     // EventSystem(UI 입력 모듈)이 이번 프레임 포인터를 처리한 뒤에 실행되도록 늦춘다
     [DefaultExecutionOrder(100)]
     public class PlayerInputHandler : MonoBehaviour
     {
+        public const int QuickSlotCount = 10;
+
         [Header("References")]
-        [SerializeField] private VirtualJoystick joystick;
         [SerializeField] private Camera viewCamera;
 
         [Header("Pointer")]
@@ -40,6 +41,9 @@ namespace RPGAuto.InputHandling
         /// <summary>지면을 누른 채 유지 중 (자동 전투 재개를 미룸)</summary>
         public bool IsHoldingGround => _pressing && _isGroundHold;
 
+        /// <summary>입력 액션 (키 변경·바인딩 확인 등 외부에서 접근할 때 사용)</summary>
+        public RPGAutoInputActions Actions => _actions;
+
         /// <summary>지면 이동 명령 — 누르는 순간 + 누른 채 위치가 바뀔 때마다 발생</summary>
         public event Action<Vector3> OnGroundTapped;
         public event Action<MonsterController> OnTargetTapped;
@@ -48,6 +52,10 @@ namespace RPGAuto.InputHandling
         public event Action<int> OnQuickSlotPressed;
         public event Action OnStatWindowTogglePressed;
         public event Action OnAutoCombatTogglePressed;
+
+        private RPGAutoInputActions _actions;
+        private InputAction[] _quickSlotActions;
+        private Action<InputAction.CallbackContext>[] _quickSlotHandlers;
 
         private bool _pressing;
         private bool _pressStartedOverUI;
@@ -58,75 +66,81 @@ namespace RPGAuto.InputHandling
         private Vector3 _lastHoldPoint;
         private float _holdTimer;
 
-        // 퀵슬롯 단축키: 1~6 스킬, 7~0 물약
-        private static readonly Key[] QuickSlotKeys =
-        {
-            Key.Digit1, Key.Digit2, Key.Digit3, Key.Digit4, Key.Digit5,
-            Key.Digit6, Key.Digit7, Key.Digit8, Key.Digit9, Key.Digit0
-        };
-
         private PointerEventData _pointerEventData;
         private readonly List<RaycastResult> _uiRaycastResults = new();
 
         private void Awake()
         {
             if (viewCamera == null) viewCamera = Camera.main;
+
+            _actions = new RPGAutoInputActions();
+            var p = _actions.Player;
+            _quickSlotActions = new[]
+            {
+                p.QuickSlot1, p.QuickSlot2, p.QuickSlot3, p.QuickSlot4, p.QuickSlot5,
+                p.QuickSlot6, p.QuickSlot7, p.QuickSlot8, p.QuickSlot9, p.QuickSlot10
+            };
+            _quickSlotHandlers = new Action<InputAction.CallbackContext>[QuickSlotCount];
+            for (int i = 0; i < QuickSlotCount; i++)
+            {
+                int index = i; // 클로저 캡처용
+                _quickSlotHandlers[i] = _ => PressQuickSlot(index);
+            }
         }
+
+        private void OnEnable()
+        {
+            var p = _actions.Player;
+            p.Attack.performed += HandleAttack;
+            p.ToggleAutoCombat.performed += HandleToggleAuto;
+            p.ToggleStatWindow.performed += HandleToggleStat;
+            for (int i = 0; i < QuickSlotCount; i++) _quickSlotActions[i].performed += _quickSlotHandlers[i];
+            p.Enable();
+        }
+
+        private void OnDisable()
+        {
+            var p = _actions.Player;
+            p.Disable();
+            p.Attack.performed -= HandleAttack;
+            p.ToggleAutoCombat.performed -= HandleToggleAuto;
+            p.ToggleStatWindow.performed -= HandleToggleStat;
+            for (int i = 0; i < QuickSlotCount; i++) _quickSlotActions[i].performed -= _quickSlotHandlers[i];
+
+            _pressing = false;
+            _isGroundHold = false;
+            MoveInput = Vector2.zero;
+        }
+
+        private void OnDestroy() => _actions?.Dispose();
 
         private void Update()
         {
-            MoveInput = ReadMoveInput();
-            ReadActionKeys();
+            MoveInput = Vector2.ClampMagnitude(_actions.Player.Move.ReadValue<Vector2>(), 1f);
             ReadPointer();
         }
 
-        // UI 버튼용 진입점
+        // 액션 콜백
+        private void HandleAttack(InputAction.CallbackContext _) => PressAttack();
+        private void HandleToggleAuto(InputAction.CallbackContext _) => PressAutoCombatToggle();
+        private void HandleToggleStat(InputAction.CallbackContext _) => PressStatWindowToggle();
+
+        // UI 버튼/액션 공용 진입점
         public void PressAttack() => OnAttackPressed?.Invoke();
         public void PressQuickSlot(int index) => OnQuickSlotPressed?.Invoke(index);
         public void PressStatWindowToggle() => OnStatWindowTogglePressed?.Invoke();
         public void PressAutoCombatToggle() => OnAutoCombatTogglePressed?.Invoke();
 
-        private Vector2 ReadMoveInput()
-        {
-            Vector2 value = Vector2.zero;
-
-            var kb = Keyboard.current;
-            if (kb != null)
-            {
-                if (kb.wKey.isPressed) value.y += 1f;
-                if (kb.sKey.isPressed) value.y -= 1f;
-                if (kb.dKey.isPressed) value.x += 1f;
-                if (kb.aKey.isPressed) value.x -= 1f;
-            }
-
-            if (joystick != null) value += joystick.Direction;
-            return Vector2.ClampMagnitude(value, 1f);
-        }
-
-        private void ReadActionKeys()
-        {
-            var kb = Keyboard.current;
-            if (kb == null) return;
-
-            if (kb.spaceKey.wasPressedThisFrame) PressAttack();
-            if (kb.fKey.wasPressedThisFrame) PressAutoCombatToggle();
-            if (kb.cKey.wasPressedThisFrame) PressStatWindowToggle();
-            for (int i = 0; i < QuickSlotKeys.Length; i++)
-                if (kb[QuickSlotKeys[i]].wasPressedThisFrame) PressQuickSlot(i);
-        }
-
         private void ReadPointer()
         {
-            var pointer = Pointer.current;
-            if (pointer == null) return;
+            var p = _actions.Player;
+            Vector2 screenPos = p.Point.ReadValue<Vector2>();
 
-            Vector2 screenPos = pointer.position.ReadValue();
-
-            if (pointer.press.wasPressedThisFrame) BeginPress(screenPos);
+            if (p.Press.WasPressedThisFrame()) BeginPress(screenPos);
 
             if (_pressing && !_pressStartedOverUI) UpdatePress(screenPos);
 
-            if (_pressing && pointer.press.wasReleasedThisFrame) EndPress(screenPos);
+            if (_pressing && p.Press.WasReleasedThisFrame()) EndPress(screenPos);
         }
 
         private void BeginPress(Vector2 screenPos)
@@ -231,8 +245,7 @@ namespace RPGAuto.InputHandling
         }
 
         /// <summary>
-        /// 포인터가 UI 위인지 판정. UI 입력 모듈의 판정을 우선 사용한다
-        /// (에디터 Game 뷰 배율 등으로 포인터 좌표와 UI 좌표가 어긋나는 경우에도 정확).
+        /// 포인터가 UI 위인지 판정. UI 입력 모듈의 판정을 우선 사용하고(마우스/펜, 터치 ID별),
         /// 보조로 현재 좌표 레이캐스트도 확인한다.
         /// </summary>
         private bool IsOverUI(Vector2 screenPosition)
@@ -240,10 +253,8 @@ namespace RPGAuto.InputHandling
             var eventSystem = EventSystem.current;
             if (eventSystem == null) return false;
 
-            // 마우스/펜 (가장 최근 포인터)
             if (eventSystem.IsPointerOverGameObject()) return true;
 
-            // 터치: 현재 눌린 터치 ID 기준
             var touchscreen = Touchscreen.current;
             if (touchscreen != null)
             {

@@ -1,17 +1,34 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.Layouts;
+using UnityEngine.InputSystem.OnScreen;
+using UnityEngine.Serialization;
 
 namespace RPGAuto.UI
 {
-    /// <summary>UGUI 기반 가상 조이스틱 (모바일 직접 이동용, PC에서도 마우스로 조작 가능)</summary>
-    public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
+    /// <summary>
+    /// UGUI 가상 조이스틱. Input System의 화면 컨트롤(OnScreenControl)로 동작해
+    /// 드래그 방향을 가상 게임패드의 왼쪽 스틱으로 보낸다.
+    /// → Input Action "Move"가 키보드·실제 게임패드·이 조이스틱을 똑같이 받는다.
+    /// </summary>
+    public class VirtualJoystick : OnScreenControl, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
         [SerializeField] private RectTransform background;
         [SerializeField] private RectTransform handle;
         [SerializeField, Range(0f, 1f)] private float deadZone = 0.1f;
         [Tooltip("배경 반지름 대비 핸들이 움직일 수 있는 비율")]
         [SerializeField, Range(0.1f, 1.5f)] private float handleRange = 1f;
+
+        [InputControl(layout = "Vector2")]
+        [FormerlySerializedAs("controlPath")]
+        [SerializeField] private string m_ControlPath = "<Gamepad>/leftStick";
+
+        protected override string controlPathInternal
+        {
+            get => m_ControlPath;
+            set => m_ControlPath = value;
+        }
 
         /// <summary>현재 조이스틱 방향 (크기 0~1)</summary>
         public Vector2 Direction { get; private set; }
@@ -27,7 +44,11 @@ namespace RPGAuto.UI
             _canvas = GetComponentInParent<Canvas>();
         }
 
-        private void OnDisable() => ResetHandle();
+        protected override void OnDisable()
+        {
+            ResetHandle();
+            base.OnDisable();
+        }
 
         public void OnPointerDown(PointerEventData eventData) => OnDrag(eventData);
 
@@ -59,6 +80,7 @@ namespace RPGAuto.UI
         {
             if (value == Direction) return;
             Direction = value;
+            if (control != null) SendValueToControl(value);
             OnDirectionChanged?.Invoke(value);
         }
     }

@@ -1,0 +1,60 @@
+{
+    "name": "RPGAutoInput",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "b8b4b24c-fab7-4ca8-969f-995f1d0aac32",
+            "actions": [
+                {"name": "Move", "type": "Value", "id": "d12ba040-2312-4c6b-8d57-267fd6c06f07", "expectedControlType": "Vector2", "processors": "", "interactions": "", "initialStateCheck": true},
+                {"name": "Point", "type": "PassThrough", "id": "7f84be37-0ab8-4eda-8fb0-29317098b41c", "expectedControlType": "Vector2", "processors": "", "interactions": "", "initialStateCheck": true},
+                {"name": "Press", "type": "Button", "id": "b0a99980-6690-4eda-a7ad-c066e76b0941", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "Attack", "type": "Button", "id": "2125b407-cdb9-4ba4-b9d7-47c0ea2a61fe", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "ToggleAutoCombat", "type": "Button", "id": "77b65bd0-a895-4e1b-acfe-7b2d2a3a5d94", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "ToggleStatWindow", "type": "Button", "id": "83d70d1a-42a5-48d3-8d81-ab54ef1b4431", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "QuickSlot1", "type": "Button", "id": "2ce4c985-5d6a-447e-a0d8-1ce682fcf4b3", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "QuickSlot2", "type": "Button", "id": "07dd25bf-b9e8-4fd6-9f68-cfa7d557336f", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "QuickSlot3", "type": "Button", "id": "1ad674c0-0367-4614-9871-e13ba835fd2d", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "QuickSlot4", "type": "Button", "id": "ab743811-370c-41f7-b945-52f8086b18fe", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "QuickSlot5", "type": "Button", "id": "d08c97fb-c25e-47d6-b1f8-290daf39e910", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "QuickSlot6", "type": "Button", "id": "09935299-45e0-40c3-95d2-69f4b5cedca5", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "QuickSlot7", "type": "Button", "id": "2a5a0b98-763e-4533-92c1-f5a543fd8200", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "QuickSlot8", "type": "Button", "id": "6de6242e-c15d-420a-a5a1-6823075f1759", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "QuickSlot9", "type": "Button", "id": "aa534361-4863-4e2c-8204-af2aa048e662", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false},
+                {"name": "QuickSlot10", "type": "Button", "id": "881dd973-1684-42e6-b524-61a86a37c322", "expectedControlType": "Button", "processors": "", "interactions": "", "initialStateCheck": false}
+            ],
+            "bindings": [
+                {"name": "WASD", "id": "b1e6fc7b-9ebf-4958-ab1b-92dc7a965485", "path": "2DVector", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": true, "isPartOfComposite": false},
+                {"name": "up", "id": "1a00fc76-f0a9-40c6-b1c6-a7f0f9586713", "path": "<Keyboard>/w", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": true},
+                {"name": "down", "id": "7e2afd3f-d9b3-4785-b63d-01fc196eb81f", "path": "<Keyboard>/s", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": true},
+                {"name": "left", "id": "ca5d89a9-181f-4a5f-a8a3-aa0accf1c50f", "path": "<Keyboard>/a", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": true},
+                {"name": "right", "id": "91b4c4ce-753c-43c5-af62-4771152c70cf", "path": "<Keyboard>/d", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": true},
+                {"name": "", "id": "f38e95bf-a50d-4c96-81e4-d551a41c8ec4", "path": "<Gamepad>/leftStick", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "69e81960-85ce-405f-aab7-5956e3edc8c6", "path": "<Pointer>/position", "interactions": "", "processors": "", "groups": "", "action": "Point", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "08d021f5-2cc1-4a02-ab70-c50a7dfe0c90", "path": "<Pointer>/press", "interactions": "", "processors": "", "groups": "", "action": "Press", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "eda05640-7538-459b-abd3-a513bcbf5caf", "path": "<Keyboard>/space", "interactions": "", "processors": "", "groups": "", "action": "Attack", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "262aa472-4929-4b08-a5f8-cedcb11c6c74", "path": "<Gamepad>/buttonSouth", "interactions": "", "processors": "", "groups": "", "action": "Attack", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "12d3271c-ecbc-45d4-8d65-cef8c30ff266", "path": "<Keyboard>/f", "interactions": "", "processors": "", "groups": "", "action": "ToggleAutoCombat", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "55c0a360-8084-4186-887c-686cc02c6e6a", "path": "<Gamepad>/buttonNorth", "interactions": "", "processors": "", "groups": "", "action": "ToggleAutoCombat", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "7813e511-0c58-47e1-a03b-bce67b4e5877", "path": "<Keyboard>/c", "interactions": "", "processors": "", "groups": "", "action": "ToggleStatWindow", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "5b73f25a-6422-4c01-bd00-d839ceae17e3", "path": "<Gamepad>/select", "interactions": "", "processors": "", "groups": "", "action": "ToggleStatWindow", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "e94be4de-3490-4dbe-b6f5-3d5e2fa30bc8", "path": "<Keyboard>/1", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot1", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "5815910c-784a-458f-a41d-70d1fc41d410", "path": "<Keyboard>/2", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot2", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "88069e26-489b-4754-9ad1-6d2ceed32a38", "path": "<Keyboard>/3", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot3", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "f3067429-5867-473b-945c-f7f51ea5f8e5", "path": "<Keyboard>/4", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot4", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "d4892acd-5320-43a2-998e-ac83688ef020", "path": "<Keyboard>/5", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot5", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "839a7d77-4cc3-4d0e-ab1f-fb6d75ac8f03", "path": "<Keyboard>/6", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot6", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "6c62a2a7-7f19-40ff-b04f-5a06d764ea5f", "path": "<Keyboard>/7", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot7", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "b81d64d1-ec38-4f90-a86e-e15b9b4a02e7", "path": "<Keyboard>/8", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot8", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "7ed58f00-8853-47f8-93ac-057afe787127", "path": "<Keyboard>/9", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot9", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "490012d7-4f17-4f67-aa9f-5fcb34a12170", "path": "<Keyboard>/0", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot10", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "ccd950fb-8f50-42eb-9e5c-9c259c3ab673", "path": "<Gamepad>/buttonWest", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot1", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "ceeb3ee0-34b7-4cea-b178-a536cf84fa1b", "path": "<Gamepad>/buttonEast", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot2", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "399c4ed5-9a86-4a7c-89c3-8c49e7bea488", "path": "<Gamepad>/rightShoulder", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot3", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "edfe98d2-f975-43da-a2ab-b9efdfb996fa", "path": "<Gamepad>/rightTrigger", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot4", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "1855b534-7c42-4597-8a27-b57a306d4d6d", "path": "<Gamepad>/leftShoulder", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot7", "isComposite": false, "isPartOfComposite": false},
+                {"name": "", "id": "196c2917-b252-45b1-a38e-669587cbfaad", "path": "<Gamepad>/leftTrigger", "interactions": "", "processors": "", "groups": "", "action": "QuickSlot8", "isComposite": false, "isPartOfComposite": false}
+            ]
+        }
+    ],
+    "controlSchemes": []
+}

@@ -93,6 +93,7 @@ MonoBehaviour:
   handle: {fileID: 533391628751196969}
   deadZone: 0.1
   handleRange: 1
+  controlPath: <Gamepad>/leftStick
 --- !u!1 &9161276190548061156
 GameObject:
   m_ObjectHideFlags: 0
