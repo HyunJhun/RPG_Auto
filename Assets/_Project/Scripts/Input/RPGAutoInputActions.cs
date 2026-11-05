@@ -176,6 +176,15 @@ namespace RPGAuto.InputHandling
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""ToggleGacha"",
+                    ""type"": ""Button"",
+                    ""id"": ""d5511820-8450-4be9-928d-828a9afdbf1b"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""QuickSlot1"",
                     ""type"": ""Button"",
                     ""id"": ""2ce4c985-5d6a-447e-a0d8-1ce682fcf4b3"",
@@ -489,6 +498,28 @@ namespace RPGAuto.InputHandling
                 },
                 {
                     ""name"": """",
+                    ""id"": ""38a331db-c13d-4725-901e-d4455c1c9fa4"",
+                    ""path"": ""<Keyboard>/g"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleGacha"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""558997f1-4e27-49b8-a868-3b7b54d8f2de"",
+                    ""path"": ""<Gamepad>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleGacha"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""e94be4de-3490-4dbe-b6f5-3d5e2fa30bc8"",
                     ""path"": ""<Keyboard>/1"",
                     ""interactions"": """",
@@ -679,6 +710,7 @@ namespace RPGAuto.InputHandling
             m_Player_ToggleInventory = m_Player.FindAction("ToggleInventory", throwIfNotFound: true);
             m_Player_ToggleSkillWindow = m_Player.FindAction("ToggleSkillWindow", throwIfNotFound: true);
             m_Player_ToggleShop = m_Player.FindAction("ToggleShop", throwIfNotFound: true);
+            m_Player_ToggleGacha = m_Player.FindAction("ToggleGacha", throwIfNotFound: true);
             m_Player_QuickSlot1 = m_Player.FindAction("QuickSlot1", throwIfNotFound: true);
             m_Player_QuickSlot2 = m_Player.FindAction("QuickSlot2", throwIfNotFound: true);
             m_Player_QuickSlot3 = m_Player.FindAction("QuickSlot3", throwIfNotFound: true);
@@ -778,6 +810,7 @@ namespace RPGAuto.InputHandling
         private readonly InputAction m_Player_ToggleInventory;
         private readonly InputAction m_Player_ToggleSkillWindow;
         private readonly InputAction m_Player_ToggleShop;
+        private readonly InputAction m_Player_ToggleGacha;
         private readonly InputAction m_Player_QuickSlot1;
         private readonly InputAction m_Player_QuickSlot2;
         private readonly InputAction m_Player_QuickSlot3;
@@ -835,6 +868,10 @@ namespace RPGAuto.InputHandling
             /// Provides access to the underlying input action "Player/ToggleShop".
             /// </summary>
             public InputAction @ToggleShop => m_Wrapper.m_Player_ToggleShop;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/ToggleGacha".
+            /// </summary>
+            public InputAction @ToggleGacha => m_Wrapper.m_Player_ToggleGacha;
             /// <summary>
             /// Provides access to the underlying input action "Player/QuickSlot1".
             /// </summary>
@@ -928,6 +965,9 @@ namespace RPGAuto.InputHandling
                 @ToggleShop.started += instance.OnToggleShop;
                 @ToggleShop.performed += instance.OnToggleShop;
                 @ToggleShop.canceled += instance.OnToggleShop;
+                @ToggleGacha.started += instance.OnToggleGacha;
+                @ToggleGacha.performed += instance.OnToggleGacha;
+                @ToggleGacha.canceled += instance.OnToggleGacha;
                 @QuickSlot1.started += instance.OnQuickSlot1;
                 @QuickSlot1.performed += instance.OnQuickSlot1;
                 @QuickSlot1.canceled += instance.OnQuickSlot1;
@@ -996,6 +1036,9 @@ namespace RPGAuto.InputHandling
                 @ToggleShop.started -= instance.OnToggleShop;
                 @ToggleShop.performed -= instance.OnToggleShop;
                 @ToggleShop.canceled -= instance.OnToggleShop;
+                @ToggleGacha.started -= instance.OnToggleGacha;
+                @ToggleGacha.performed -= instance.OnToggleGacha;
+                @ToggleGacha.canceled -= instance.OnToggleGacha;
                 @QuickSlot1.started -= instance.OnQuickSlot1;
                 @QuickSlot1.performed -= instance.OnQuickSlot1;
                 @QuickSlot1.canceled -= instance.OnQuickSlot1;
@@ -1129,6 +1172,13 @@ namespace RPGAuto.InputHandling
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnToggleShop(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "ToggleGacha" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnToggleGacha(InputAction.CallbackContext context);
             /// <summary>
             /// Method invoked when associated input action "QuickSlot1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>

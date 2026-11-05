@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f31ef19b9aadb44582d37a412aeb102, type: 3}
+  m_Name: GACHA_Supply
+  m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Gacha.GachaData
+  displayName: Supply Summon
+  description: Summon supplies and rare materials. A 10x summon guarantees at least
+    one Rare or better.
+  singleCost: 300
+  tenCost: 2700
+  tenPullGuarantee: 1
+  grades:
+  - grade: 0
+    weight: 70
+    rewards:
+    - item: {fileID: 11400000, guid: 3bb7c669eebff3541b7f3de89303b0b0, type: 2}
+      count: 5
+    - item: {fileID: 11400000, guid: f402ca0f154b0b546976d521b0bca804, type: 2}
+      count: 5
+    - item: {fileID: 11400000, guid: 7e37a513ef06c014481003ca7e78228e, type: 2}
+      count: 10
+  - grade: 1
+    weight: 22
+    rewards:
+    - item: {fileID: 11400000, guid: 19c764ed1b4326e4c819dbbd2088c59d, type: 2}
+      count: 3
+    - item: {fileID: 11400000, guid: 3bb7c669eebff3541b7f3de89303b0b0, type: 2}
+      count: 20
+    - item: {fileID: 11400000, guid: f402ca0f154b0b546976d521b0bca804, type: 2}
+      count: 15
+  - grade: 2
+    weight: 7
+    rewards:
+    - item: {fileID: 11400000, guid: a9d541b2fe4ca80429a1f5f9cbbb3b00, type: 2}
+      count: 1
+    - item: {fileID: 11400000, guid: 19c764ed1b4326e4c819dbbd2088c59d, type: 2}
+      count: 10
+  - grade: 3
+    weight: 1
+    rewards:
+    - item: {fileID: 11400000, guid: 8dffa0353c9d6804289ed3c47db66028, type: 2}
+      count: 1

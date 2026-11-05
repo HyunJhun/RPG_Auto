@@ -266,6 +266,7 @@ namespace RPGAuto.EditorTools
             LootInventoryBuilder.ApplyToOpenScene();
             SkillWindowBuilder.ApplyToOpenScene();
             ShopBuilder.ApplyToOpenScene();
+            GachaBuilder.ApplyToOpenScene();
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             AddSceneToBuild(ScenePath);
