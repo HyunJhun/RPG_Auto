@@ -185,6 +185,15 @@ namespace RPGAuto.InputHandling
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""Cancel"",
+                    ""type"": ""Button"",
+                    ""id"": ""54c3393c-ec59-4e8c-af79-ad7307c03c46"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""QuickSlot1"",
                     ""type"": ""Button"",
                     ""id"": ""2ce4c985-5d6a-447e-a0d8-1ce682fcf4b3"",
@@ -520,6 +529,28 @@ namespace RPGAuto.InputHandling
                 },
                 {
                     ""name"": """",
+                    ""id"": ""3fa7db27-6dc7-42c6-828b-027d991e971b"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Cancel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bc4ede2e-87a9-485d-a931-32719d045f62"",
+                    ""path"": ""<Gamepad>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Cancel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""e94be4de-3490-4dbe-b6f5-3d5e2fa30bc8"",
                     ""path"": ""<Keyboard>/1"",
                     ""interactions"": """",
@@ -711,6 +742,7 @@ namespace RPGAuto.InputHandling
             m_Player_ToggleSkillWindow = m_Player.FindAction("ToggleSkillWindow", throwIfNotFound: true);
             m_Player_ToggleShop = m_Player.FindAction("ToggleShop", throwIfNotFound: true);
             m_Player_ToggleGacha = m_Player.FindAction("ToggleGacha", throwIfNotFound: true);
+            m_Player_Cancel = m_Player.FindAction("Cancel", throwIfNotFound: true);
             m_Player_QuickSlot1 = m_Player.FindAction("QuickSlot1", throwIfNotFound: true);
             m_Player_QuickSlot2 = m_Player.FindAction("QuickSlot2", throwIfNotFound: true);
             m_Player_QuickSlot3 = m_Player.FindAction("QuickSlot3", throwIfNotFound: true);
@@ -811,6 +843,7 @@ namespace RPGAuto.InputHandling
         private readonly InputAction m_Player_ToggleSkillWindow;
         private readonly InputAction m_Player_ToggleShop;
         private readonly InputAction m_Player_ToggleGacha;
+        private readonly InputAction m_Player_Cancel;
         private readonly InputAction m_Player_QuickSlot1;
         private readonly InputAction m_Player_QuickSlot2;
         private readonly InputAction m_Player_QuickSlot3;
@@ -872,6 +905,10 @@ namespace RPGAuto.InputHandling
             /// Provides access to the underlying input action "Player/ToggleGacha".
             /// </summary>
             public InputAction @ToggleGacha => m_Wrapper.m_Player_ToggleGacha;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/Cancel".
+            /// </summary>
+            public InputAction @Cancel => m_Wrapper.m_Player_Cancel;
             /// <summary>
             /// Provides access to the underlying input action "Player/QuickSlot1".
             /// </summary>
@@ -968,6 +1005,9 @@ namespace RPGAuto.InputHandling
                 @ToggleGacha.started += instance.OnToggleGacha;
                 @ToggleGacha.performed += instance.OnToggleGacha;
                 @ToggleGacha.canceled += instance.OnToggleGacha;
+                @Cancel.started += instance.OnCancel;
+                @Cancel.performed += instance.OnCancel;
+                @Cancel.canceled += instance.OnCancel;
                 @QuickSlot1.started += instance.OnQuickSlot1;
                 @QuickSlot1.performed += instance.OnQuickSlot1;
                 @QuickSlot1.canceled += instance.OnQuickSlot1;
@@ -1039,6 +1079,9 @@ namespace RPGAuto.InputHandling
                 @ToggleGacha.started -= instance.OnToggleGacha;
                 @ToggleGacha.performed -= instance.OnToggleGacha;
                 @ToggleGacha.canceled -= instance.OnToggleGacha;
+                @Cancel.started -= instance.OnCancel;
+                @Cancel.performed -= instance.OnCancel;
+                @Cancel.canceled -= instance.OnCancel;
                 @QuickSlot1.started -= instance.OnQuickSlot1;
                 @QuickSlot1.performed -= instance.OnQuickSlot1;
                 @QuickSlot1.canceled -= instance.OnQuickSlot1;
@@ -1179,6 +1222,13 @@ namespace RPGAuto.InputHandling
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnToggleGacha(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Cancel" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnCancel(InputAction.CallbackContext context);
             /// <summary>
             /// Method invoked when associated input action "QuickSlot1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>

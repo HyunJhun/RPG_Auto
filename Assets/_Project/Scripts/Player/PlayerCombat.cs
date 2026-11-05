@@ -64,7 +64,7 @@ namespace RPGAuto.Player
         public MonsterController FindTarget(Vector3 origin, bool useLeash)
         {
             var query = new TargetQuery(origin, settings.detectRadius, settings.targetNormal, settings.targetElite,
-                                        useLeash, Anchor, settings.returnDistance);
+                                        useLeash, Anchor, settings.returnDistance, settings.targetBoss);
             return _selectors[settings.priorityMode].Select(query, MonsterController.Active);
         }
     }

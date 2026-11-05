@@ -9,7 +9,7 @@ using UnityEngine.UI;
 namespace RPGAuto.UI
 {
     /// <summary>스탯창 (단축키 C / 메뉴 버튼). 행은 UI_StatRow 프리팹으로 생성.</summary>
-    public class StatWindowView : MonoBehaviour
+    public class StatWindowView : MonoBehaviour, IGameWindow
     {
         [SerializeField] private CombatStats stats;
         [SerializeField] private PlayerProgression progression;
@@ -70,12 +70,14 @@ namespace RPGAuto.UI
             Refresh();
         }
 
-        public void Toggle() => SetOpen(window != null && !window.activeSelf);
+        public bool IsOpen => window != null && window.activeSelf;
+        public void Toggle() => SetOpen(!IsOpen);
 
         public void SetOpen(bool open)
         {
             if (window == null) return;
             window.SetActive(open);
+            WindowManager.NotifyChanged(this, open);
             if (open) Refresh();
         }
 

@@ -13,7 +13,7 @@ namespace RPGAuto.UI
     /// 스킬 퀵슬롯(1~6) 등록, 스킬별 자동 사용 조건(MP 제한/사거리 기준/HP 최소·최대/사용 주기),
     /// 전역 "스킬 자동 사용 MP 제한".
     /// </summary>
-    public class SkillWindowView : MonoBehaviour
+    public class SkillWindowView : MonoBehaviour, IGameWindow
     {
         private const float PercentStep = 5f;
         private const float CycleStep = 1f;
@@ -130,6 +130,7 @@ namespace RPGAuto.UI
         {
             if (window == null) return;
             window.SetActive(open);
+            WindowManager.NotifyChanged(this, open);
             if (open) Refresh();
         }
 

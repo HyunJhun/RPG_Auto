@@ -45,10 +45,11 @@ namespace RPGAuto.Combat.Targeting
 
     public class ElitePriorityTargetSelector : ScoredTargetSelector
     {
-        private const float NormalPenalty = 1_000_000f;
+        private const float GradePenalty = 1_000_000f;
 
+        /// <summary>보스(0) → 정예(1) → 일반(2) 순, 같은 등급이면 거리</summary>
         protected override float Score(MonsterController m, in TargetQuery q) =>
-            (m.Grade == MonsterGrade.Elite ? 0f : NormalPenalty) + SqrDistance(m, q);
+            (MonsterGrade.Boss - m.Grade) * GradePenalty + SqrDistance(m, q);
     }
 
     public class LowestHpTargetSelector : ScoredTargetSelector

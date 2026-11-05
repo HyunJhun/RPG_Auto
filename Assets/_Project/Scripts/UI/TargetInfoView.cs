@@ -55,7 +55,7 @@ namespace RPGAuto.UI
 
         private void RefreshName()
         {
-            string elite = _target.Grade == MonsterGrade.Elite ? " <size=18>[Elite]</size>" : string.Empty;
+            string elite = _target.Grade != MonsterGrade.Normal ? $" <size=18>[{_target.Grade}]</size>" : string.Empty;
             nameText.text = $"Lv.{_target.Level} {_target.DisplayName}{elite}";
             int playerLevel = progression != null ? progression.Level : 1;
             nameText.color = LevelColorRule.Get(_target.Level, playerLevel);

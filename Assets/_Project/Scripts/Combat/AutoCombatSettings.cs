@@ -6,7 +6,7 @@ namespace RPGAuto.Combat
     public enum TargetPriorityMode
     {
         Nearest,        // 가장 가까운 대상
-        ElitePriority,  // 정예 우선 → 거리
+        ElitePriority,  // 보스 → 정예 → 일반 순, 같은 등급은 거리
         LowestHp        // HP 비율 낮은 대상 우선 → 거리
     }
 
@@ -26,6 +26,12 @@ namespace RPGAuto.Combat
         [Header("탐지 대상")]
         public bool targetNormal = true;
         public bool targetElite = true;
+        public bool targetBoss = true;
+
+        [Header("전리품")]
+        [Tooltip("자동 전투 중 주변 바닥 전리품을 먼저 줍는다")]
+        public bool autoLoot = true;
+        public float autoLootRadius = 10f;
 
         [Tooltip("MP가 이 비율(%) 이하이면 'MP 제한 적용' 스킬은 자동 사용하지 않음")]
         [Range(0f, 100f)] public float skillMpLimitPercent = 20f;

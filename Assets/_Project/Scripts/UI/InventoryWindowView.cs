@@ -12,7 +12,7 @@ namespace RPGAuto.UI
     /// 칸은 UI_InventorySlot 프리팹으로 생성하고, 인벤토리·지갑 변경 이벤트를 구독(Observer)해 갱신한다.
     /// 선택한 아이템은 사용하거나 물약 퀵슬롯(7~0)에 등록할 수 있다.
     /// </summary>
-    public class InventoryWindowView : MonoBehaviour
+    public class InventoryWindowView : MonoBehaviour, IGameWindow
     {
         private static readonly string[] QuickKeys = { "7", "8", "9", "0" };
 
@@ -106,6 +106,7 @@ namespace RPGAuto.UI
         {
             if (window == null) return;
             window.SetActive(open);
+            WindowManager.NotifyChanged(this, open);
             if (!open) return;
             _dirty = false;
             Refresh();

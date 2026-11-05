@@ -2,6 +2,7 @@ using System;
 using RPGAuto.Combat;
 using RPGAuto.Combat.Targeting;
 using RPGAuto.Items;
+using RPGAuto.Player;
 using UnityEngine;
 
 namespace RPGAuto.Loot
@@ -16,23 +17,21 @@ namespace RPGAuto.Loot
         [SerializeField] private float pickupRadius = 1.2f;
         [SerializeField] private float pickupCheckInterval = 0.1f;
 
-        [Header("Auto Combat")]
-        [Tooltip("자동 전투 중 주변 바닥 전리품을 먼저 주우러 간다")]
-        [SerializeField] private bool autoLootInAutoCombat = true;
-        [SerializeField] private float autoLootRadius = 10f;
-
         [Header("Notice")]
         [SerializeField] private float fullNoticeCooldown = 3f;
 
         private PlayerInventory _inventory;
         private PlayerWallet _wallet;
         private CombatStats _stats;
+        private PlayerCombat _combat;
         private float _checkTimer;
         private float _nextFullNotice;
 
         public PlayerInventory Inventory => _inventory;
         public PlayerWallet Wallet => _wallet;
-        public bool AutoLootEnabled => autoLootInAutoCombat;
+        /// <summary>자동 줍기 설정은 전투 설정(AutoCombatSettings)에 있다</summary>
+        public bool AutoLootEnabled => _combat == null || _combat.Settings.autoLoot;
+        private float AutoLootRadius => _combat != null ? _combat.Settings.autoLootRadius : 10f;
         public float PickupRadius => pickupRadius;
 
         /// <summary>전리품 획득 알림 (Observer) — 획득 로그 UI가 구독</summary>
@@ -45,6 +44,7 @@ namespace RPGAuto.Loot
             _inventory = GetComponent<PlayerInventory>();
             _wallet = GetComponent<PlayerWallet>();
             _stats = GetComponent<CombatStats>();
+            _combat = GetComponent<PlayerCombat>();
         }
 
         public bool CanReceive(in LootEntry entry) => entry.IsGold || _inventory.CanAccept(entry.Item);
@@ -95,9 +95,9 @@ namespace RPGAuto.Loot
         public bool TryFindAutoLoot(Vector3 from, Vector3 anchor, float anchorRadius, out GroundLoot result)
         {
             result = null;
-            if (!autoLootInAutoCombat) return false;
+            if (!AutoLootEnabled) return false;
 
-            float best = autoLootRadius;
+            float best = AutoLootRadius;
             foreach (var loot in GroundLoot.Active)
             {
                 if (!loot.IsAvailable || !CanReceive(loot.Entry)) continue;

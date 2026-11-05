@@ -98,7 +98,7 @@ namespace RPGAuto.UI
 
         private void ApplyText(MonsterController m, Text plate)
         {
-            string elite = m.Grade == MonsterGrade.Elite ? "[Elite] " : string.Empty;
+            string elite = m.Grade != MonsterGrade.Normal ? $"[{m.Grade}] " : string.Empty;
             plate.text = $"{elite}Lv.{m.Level} {m.DisplayName}";
             plate.color = LevelColorRule.Get(m.Level, _colorLevel < 1 ? 1 : _colorLevel);
         }

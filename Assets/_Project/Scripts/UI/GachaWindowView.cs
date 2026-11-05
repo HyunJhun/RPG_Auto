@@ -11,7 +11,7 @@ namespace RPGAuto.UI
     /// <summary>
     /// 뽑기 창 (단축키 G / 메뉴 버튼). 1회/10회 뽑기, 확률 표시, 결과 순차 공개, 테스트용 골드 지급.
     /// </summary>
-    public class GachaWindowView : MonoBehaviour
+    public class GachaWindowView : MonoBehaviour, IGameWindow
     {
         [Header("Data")]
         [SerializeField] private GachaData gacha;
@@ -96,6 +96,7 @@ namespace RPGAuto.UI
         {
             if (window == null) return;
             window.SetActive(open);
+            WindowManager.NotifyChanged(this, open);
             if (!open) return;
             if (messageText != null) messageText.text = string.Empty;
             RefreshGold();

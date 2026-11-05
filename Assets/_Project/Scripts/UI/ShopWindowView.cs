@@ -11,7 +11,7 @@ namespace RPGAuto.UI
     /// 상점 창 (단축키 O / 메뉴 버튼). 구매/판매 탭, 수량 선택, 테스트용 골드 지급.
     /// 거래 규칙은 ShopService, 화면 갱신은 지갑·인벤토리 이벤트 구독(Observer).
     /// </summary>
-    public class ShopWindowView : MonoBehaviour
+    public class ShopWindowView : MonoBehaviour, IGameWindow
     {
         private enum Tab { Buy, Sell }
 
@@ -127,6 +127,7 @@ namespace RPGAuto.UI
         {
             if (window == null) return;
             window.SetActive(open);
+            WindowManager.NotifyChanged(this, open);
             if (!open) return;
             if (messageText != null) messageText.text = string.Empty;
             SelectTab(_tab);

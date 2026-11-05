@@ -64,6 +64,8 @@ namespace RPGAuto.InputHandling
         public event Action OnSkillWindowTogglePressed;
         public event Action OnShopTogglePressed;
         public event Action OnGachaTogglePressed;
+        /// <summary>Esc / Android 뒤로 가기</summary>
+        public event Action OnCancelPressed;
         public event Action OnAutoCombatTogglePressed;
 
         private RPGAutoInputActions _actions;
@@ -112,6 +114,7 @@ namespace RPGAuto.InputHandling
             p.ToggleSkillWindow.performed += HandleToggleSkillWindow;
             p.ToggleShop.performed += HandleToggleShop;
             p.ToggleGacha.performed += HandleToggleGacha;
+            p.Cancel.performed += HandleCancel;
             for (int i = 0; i < QuickSlotCount; i++) _quickSlotActions[i].performed += _quickSlotHandlers[i];
             p.Get().actionTriggered += HandleAnyAction;
             p.Enable();
@@ -128,6 +131,7 @@ namespace RPGAuto.InputHandling
             p.ToggleSkillWindow.performed -= HandleToggleSkillWindow;
             p.ToggleShop.performed -= HandleToggleShop;
             p.ToggleGacha.performed -= HandleToggleGacha;
+            p.Cancel.performed -= HandleCancel;
             for (int i = 0; i < QuickSlotCount; i++) _quickSlotActions[i].performed -= _quickSlotHandlers[i];
             p.Get().actionTriggered -= HandleAnyAction;
 
@@ -196,6 +200,7 @@ namespace RPGAuto.InputHandling
         private void HandleToggleSkillWindow(InputAction.CallbackContext _) => PressSkillWindowToggle();
         private void HandleToggleShop(InputAction.CallbackContext _) => PressShopToggle();
         private void HandleToggleGacha(InputAction.CallbackContext _) => PressGachaToggle();
+        private void HandleCancel(InputAction.CallbackContext _) => PressCancel();
 
         // UI 버튼/액션 공용 진입점
         public void PressAttack() => OnAttackPressed?.Invoke();
@@ -205,6 +210,7 @@ namespace RPGAuto.InputHandling
         public void PressSkillWindowToggle() => OnSkillWindowTogglePressed?.Invoke();
         public void PressShopToggle() => OnShopTogglePressed?.Invoke();
         public void PressGachaToggle() => OnGachaTogglePressed?.Invoke();
+        public void PressCancel() => OnCancelPressed?.Invoke();
         public void PressAutoCombatToggle() => OnAutoCombatTogglePressed?.Invoke();
 
         private void ReadPointer()
