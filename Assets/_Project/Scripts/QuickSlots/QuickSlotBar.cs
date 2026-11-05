@@ -23,6 +23,8 @@ namespace RPGAuto.QuickSlots
 
         public void SetAction(IQuickSlotAction action, bool autoUse)
         {
+            // 빠지는 행동은 자동 사용 해제 (스킬이 퀵슬롯 밖에서 자동 사용되지 않도록)
+            if (Action != null && Action != action) Action.OnAutoUseChanged(false);
             Action = action;
             OnActionChanged?.Invoke(this);
             SetAutoUse(autoUse, force: true);
@@ -118,6 +120,37 @@ namespace RPGAuto.QuickSlots
                 var slot = _slots[i];
                 if (slot.IsAutoUse) slot.Action?.TickAuto(_player);
             }
+        }
+
+        /// <summary>스킬 퀵슬롯(0~5)에 스킬 등록. 다른 칸에 있으면 자동 사용 상태째 옮긴다. null이면 비운다.</summary>
+        public void AssignSkill(int skillSlotIndex, SkillSlot skill)
+        {
+            EnsureBuilt();
+            if (skillSlotIndex < 0 || skillSlotIndex >= SkillSlotCount) return;
+
+            var target = _slots[skillSlotIndex];
+            bool autoUse = skill != null && skill.Data.DefaultAutoUse.autoUse; // 새로 등록하면 기본값
+            if (skill != null)
+            {
+                if (target.Action is SkillQuickAction same && same.Skill == skill) return;
+                int existing = FindSkillSlot(skill);
+                if (existing >= 0)
+                {
+                    autoUse = _slots[existing].IsAutoUse;
+                    _slots[existing].SetAction(null, false);
+                }
+            }
+            target.SetAction(skill != null ? new SkillQuickAction(skill) : null, autoUse);
+        }
+
+        /// <summary>스킬이 등록된 스킬 퀵슬롯 번호(0~5), 없으면 -1</summary>
+        public int FindSkillSlot(SkillSlot skill)
+        {
+            EnsureBuilt();
+            if (skill == null) return -1;
+            for (int i = 0; i < SkillSlotCount; i++)
+                if (_slots[i].Action is SkillQuickAction a && a.Skill == skill) return i;
+            return -1;
         }
 
         /// <summary>물약 퀵슬롯(0~3)에 아이템 등록. 다른 칸에 같은 아이템이 있으면 옮긴다. null이면 비운다.</summary>

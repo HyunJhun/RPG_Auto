@@ -15,6 +15,7 @@ namespace RPGAuto.Skills
         [SerializeField] private string displayName = "Skill";
         [SerializeField] private string shortLabel = "SKILL";
         [SerializeField] private Color slotColor = Color.gray;
+        [SerializeField, TextArea(2, 4)] private string description;
 
         [Header("Rule")]
         [SerializeField] private SkillTargetType targetType = SkillTargetType.Enemy;
@@ -33,6 +34,7 @@ namespace RPGAuto.Skills
         public string DisplayName => displayName;
         public string ShortLabel => shortLabel;
         public Color SlotColor => slotColor;
+        public string Description => description;
         public SkillTargetType TargetType => targetType;
         public bool RequiresTarget => targetType == SkillTargetType.Enemy;
         public float Cooldown => cooldown;

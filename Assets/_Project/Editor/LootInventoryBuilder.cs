@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
+using static RPGAuto.EditorTools.UIBuildKit;
 
 namespace RPGAuto.EditorTools
 {
@@ -18,13 +19,9 @@ namespace RPGAuto.EditorTools
     /// </summary>
     public static class LootInventoryBuilder
     {
-        private const string Root = "Assets/_Project";
         private const string ItemFolder = Root + "/Data/Items";
         private const string DropFolder = Root + "/Data/DropTables";
         private const string MonsterPrefabFolder = Root + "/Prefabs/Monster";
-
-        private static Font _font;
-        private static Sprite _uiSprite;
 
         [MenuItem("RPGAuto/Build Loot & Inventory")]
         public static void BuildMenu()
@@ -40,8 +37,6 @@ namespace RPGAuto.EditorTools
             EnsureFolder(DropFolder);
             EnsureFolder(Root + "/Prefabs/World");
             EnsureFolder(Root + "/Prefabs/UI");
-            _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            _uiSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
 
             // ---------- Items ----------
             var hp = AssetDatabase.LoadAssetAtPath<ItemData>(ItemFolder + "/IT_HpPotion.asset");
@@ -94,7 +89,6 @@ namespace RPGAuto.EditorTools
             DestroyChild(canvas, "UI_LootLog");
             DestroyChild(canvas, "UI_InventoryWindow");
             var menuBar = canvas.Find("UI_MenuBar");
-            if (menuBar != null) DestroyChild(menuBar, "UI_MenuBar_Button_Inventory");
 
             BuildLootLog(canvas, looter);
             var invButton = BuildMenuButton(menuBar);
@@ -201,29 +195,8 @@ namespace RPGAuto.EditorTools
             if (stat != null) root.SetSiblingIndex(stat.GetSiblingIndex());
         }
 
-        private static Button BuildMenuButton(Transform menuBar)
-        {
-            var statButton = menuBar != null ? menuBar.Find("UI_MenuBar_Button_Stat") : null;
-            if (statButton == null) { Debug.LogWarning("[LootInventoryBuilder] 메뉴바 STAT 버튼이 없어 인벤토리 버튼을 만들지 않음"); return null; }
-
-            // STAT 버튼을 복제해 같은 스타일 유지 (KeyHint는 액션 이름만 교체)
-            var go = Object.Instantiate(statButton.gameObject, menuBar);
-            go.name = "UI_MenuBar_Button_Inventory";
-            var rt = (RectTransform)go.transform;
-            rt.anchoredPosition = ((RectTransform)statButton).anchoredPosition + new Vector2(-120f, 0f);
-
-            var label = go.transform.Find("UI_MenuBar_Button_Stat_Label");
-            label.name = "UI_MenuBar_Button_Inventory_Label";
-            label.GetComponent<Text>().text = "BAG";
-            var hint = go.transform.Find("UI_MenuBar_Button_Stat_KeyHint");
-            hint.name = "UI_MenuBar_Button_Inventory_KeyHint";
-            Set(hint.GetComponent<KeyHintText>(), ("actionName", "ToggleInventory"));
-
-            var button = go.GetComponent<Button>();
-            // 복제된 영구 리스너 제거 (StatWindowView는 런타임에 AddListener 하므로 보통 비어 있음)
-            while (button.onClick.GetPersistentEventCount() > 0) UnityEditor.Events.UnityEventTools.RemovePersistentListener(button.onClick, 0);
-            return button;
-        }
+        private static Button BuildMenuButton(Transform menuBar) =>
+            CloneMenuButton(menuBar, "Inventory", "BAG", "ToggleInventory", 1);
 
         private static void BuildInventoryWindow(Transform canvas, PlayerInventory inventory, PlayerWallet wallet,
             QuickSlotBar quickSlots, PlayerInputHandler input, Button openButton)
@@ -379,150 +352,6 @@ namespace RPGAuto.EditorTools
             var prefab = PrefabUtility.SaveAsPrefabAsset(root.gameObject, Root + "/Prefabs/UI/UI_InventorySlot.prefab");
             Object.DestroyImmediate(root.gameObject);
             return prefab.GetComponent<InventorySlotView>();
-        }
-
-        // ================= Helpers =================
-
-        private static RectTransform CreateRect(string name, Transform parent, Vector2 anchor, Vector2 pivot, Vector2 pos, Vector2 size)
-        {
-            var go = new GameObject(name, typeof(RectTransform)) { layer = 5 };
-            var rt = (RectTransform)go.transform;
-            if (parent != null) rt.SetParent(parent, false);
-            Place(rt, anchor, pivot, pos, size);
-            return rt;
-        }
-
-        private static RectTransform CreateStretch(string name, Transform parent)
-        {
-            var rt = CreateRect(name, parent, Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
-            Stretch(rt, 0f);
-            return rt;
-        }
-
-        private static void Place(RectTransform rt, Vector2 anchor, Vector2 pivot, Vector2 pos, Vector2 size)
-        {
-            rt.anchorMin = rt.anchorMax = anchor;
-            rt.pivot = pivot;
-            rt.anchoredPosition = pos;
-            rt.sizeDelta = size;
-        }
-
-        private static void Stretch(RectTransform rt, float padding)
-        {
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.offsetMin = new Vector2(padding, padding);
-            rt.offsetMax = new Vector2(-padding, -padding);
-        }
-
-        private static Image AddImage(RectTransform rt, Color color)
-        {
-            var img = rt.gameObject.AddComponent<Image>();
-            img.sprite = _uiSprite;
-            img.type = Image.Type.Sliced;
-            img.color = color;
-            return img;
-        }
-
-        private static Text CreateText(string name, Transform parent, string text, int size, TextAnchor align, Color color)
-        {
-            var rt = CreateRect(name, parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(200f, 30f));
-            var t = rt.gameObject.AddComponent<Text>();
-            t.font = _font;
-            t.text = text;
-            t.fontSize = size;
-            t.alignment = align;
-            t.color = color;
-            t.horizontalOverflow = HorizontalWrapMode.Overflow;
-            t.verticalOverflow = VerticalWrapMode.Overflow;
-            return t;
-        }
-
-        private static Button CreateButton(string name, Transform parent, string label, int fontSize, Color color)
-        {
-            var rt = CreateRect(name, parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(100f, 50f));
-            var img = AddImage(rt, color);
-            var button = rt.gameObject.AddComponent<Button>();
-            button.targetGraphic = img;
-            var text = CreateText(name + "_Label", rt, label, fontSize, TextAnchor.MiddleCenter, Color.white);
-            Stretch(text.rectTransform, 0f);
-            text.raycastTarget = false;
-            return button;
-        }
-
-        private static Material CreateLitMaterial(string name, Color color, float metallic, float smoothness)
-        {
-            string path = $"{Root}/Materials/{name}.mat";
-            var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
-            if (mat == null)
-            {
-                var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
-                mat = new Material(shader);
-                AssetDatabase.CreateAsset(mat, path);
-            }
-            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
-            if (mat.HasProperty("_Color")) mat.SetColor("_Color", color);
-            if (mat.HasProperty("_Metallic")) mat.SetFloat("_Metallic", metallic);
-            if (mat.HasProperty("_Smoothness")) mat.SetFloat("_Smoothness", smoothness);
-            EditorUtility.SetDirty(mat);
-            return mat;
-        }
-
-        private static void DestroyByName(string name)
-        {
-            GameObject go;
-            while ((go = GameObject.Find(name)) != null) Object.DestroyImmediate(go);
-        }
-
-        private static void DestroyChild(Transform parent, string name)
-        {
-            Transform t;
-            while ((t = parent.Find(name)) != null) Object.DestroyImmediate(t.gameObject);
-        }
-
-        private static T LoadOrCreate<T>(string path) where T : ScriptableObject
-        {
-            var asset = AssetDatabase.LoadAssetAtPath<T>(path);
-            if (asset != null) return asset;
-            asset = ScriptableObject.CreateInstance<T>();
-            AssetDatabase.CreateAsset(asset, path);
-            return asset;
-        }
-
-        private static void EnsureFolder(string path)
-        {
-            if (AssetDatabase.IsValidFolder(path)) return;
-            int slash = path.LastIndexOf('/');
-            EnsureFolder(path.Substring(0, slash));
-            AssetDatabase.CreateFolder(path.Substring(0, slash), path.Substring(slash + 1));
-        }
-
-        private static void Set(Object target, params (string path, object value)[] values)
-        {
-            var so = new SerializedObject(target);
-            foreach (var (path, value) in values)
-            {
-                var p = so.FindProperty(path);
-                if (p == null)
-                {
-                    Debug.LogError($"[LootInventoryBuilder] {target.GetType().Name}.{path} 를 찾을 수 없음");
-                    continue;
-                }
-                switch (value)
-                {
-                    case float f: p.floatValue = f; break;
-                    case int i when p.propertyType == SerializedPropertyType.Enum: p.enumValueIndex = i; break;
-                    case int i: p.intValue = i; break;
-                    case bool b: p.boolValue = b; break;
-                    case string s: p.stringValue = s; break;
-                    case Color c: p.colorValue = c; break;
-                    case Object o: p.objectReferenceValue = o; break;
-                    case null: p.objectReferenceValue = null; break;
-                }
-            }
-            so.ApplyModifiedPropertiesWithoutUndo();
-            EditorUtility.SetDirty(target);
         }
     }
 }

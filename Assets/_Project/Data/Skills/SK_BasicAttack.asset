@@ -15,6 +15,7 @@ MonoBehaviour:
   displayName: Basic Attack
   shortLabel: ATK
   slotColor: {r: 0.6, g: 0.2, b: 0.2, a: 1}
+  description: A quick strike against a single enemy.
   targetType: 0
   cooldown: 0.9
   mpCost: 0

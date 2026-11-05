@@ -15,6 +15,7 @@ MonoBehaviour:
   displayName: Whirlwind
   shortLabel: WHIRL
   slotColor: {r: 0.25, g: 0.5, b: 0.75, a: 1}
+  description: Spin around, dealing 160% physical damage to all enemies within 4m.
   targetType: 0
   cooldown: 8
   mpCost: 20

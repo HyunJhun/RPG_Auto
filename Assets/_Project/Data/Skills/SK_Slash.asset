@@ -15,6 +15,7 @@ MonoBehaviour:
   displayName: Slash
   shortLabel: SLASH
   slotColor: {r: 0.75, g: 0.35, b: 0.2, a: 1}
+  description: A heavy slash dealing 250% physical damage to the target.
   targetType: 0
   cooldown: 4
   mpCost: 10

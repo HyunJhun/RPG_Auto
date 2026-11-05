@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95174f6f7ab421e409b4962d632d1f5a, type: 3}
+  m_Name: SK_Shockwave
+  m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Skills.SkillData
+  displayName: Shockwave
+  shortLabel: SHOCK
+  slotColor: {r: 0.55, g: 0.45, b: 0.15, a: 1}
+  description: Strike the ground from afar, dealing 140% physical damage to enemies
+    within 3m of the target.
+  targetType: 0
+  cooldown: 12
+  mpCost: 30
+  range: 6
+  actionLock: 0.8
+  effect: {fileID: 11400000, guid: 4e88649f916c1614ba0c7d793c2e4622, type: 2}
+  defaultAutoUse:
+    autoUse: 1
+    applyMpLimit: 1
+    rangeFirst: 0
+    useHpMin: 0
+    hpMinPercent: 50
+    useHpMax: 0
+    hpMaxPercent: 40
+    useCustomCycle: 0
+    cycleSeconds: 0

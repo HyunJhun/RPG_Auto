@@ -264,6 +264,7 @@ namespace RPGAuto.EditorTools
 
             // ---------- Loot & Inventory ----------
             LootInventoryBuilder.ApplyToOpenScene();
+            SkillWindowBuilder.ApplyToOpenScene();
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             AddSceneToBuild(ScenePath);
