@@ -1,4 +1,4 @@
-﻿using RPGAuto.CameraSystem;
+using RPGAuto.CameraSystem;
 using RPGAuto.Combat;
 using RPGAuto.Data;
 using RPGAuto.EditorTools.Data;
@@ -261,6 +261,9 @@ namespace RPGAuto.EditorTools
             Set(inputHandler, ("viewCamera", cam),
                 ("groundMask", (1 << groundLayer) | (1 << obstacleLayer)), ("targetMask", 1 << monsterLayer));
             Set(controller, ("input", inputHandler), ("viewCamera", cam), ("bodyRenderer", player.GetComponent<Renderer>()));
+
+            // ---------- Loot & Inventory ----------
+            LootInventoryBuilder.ApplyToOpenScene();
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             AddSceneToBuild(ScenePath);

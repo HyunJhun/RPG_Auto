@@ -30,6 +30,16 @@ namespace RPGAuto.Player.States
             if (_scanTimer > 0f) return;
             _scanTimer = ScanInterval;
 
+            // 주변 바닥 전리품(엘리트/보스 드랍)을 먼저 줍는다
+            var looter = _p.Looter;
+            if (looter != null && looter.TryFindAutoLoot(_p.transform.position, _p.Combat.Anchor,
+                    _p.Combat.Settings.returnDistance, out var loot))
+            {
+                _p.LootState.SetTarget(loot);
+                _p.StateMachine.ChangeState(_p.LootState);
+                return;
+            }
+
             var target = _p.Combat.FindTarget(_p.transform.position, useLeash: true);
             if (target != null)
             {

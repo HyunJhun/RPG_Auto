@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using RPGAuto.Monster;
 using UnityEngine;
@@ -60,6 +60,7 @@ namespace RPGAuto.InputHandling
         /// <summary>퀵슬롯 사용 (0~5 스킬, 6~9 물약)</summary>
         public event Action<int> OnQuickSlotPressed;
         public event Action OnStatWindowTogglePressed;
+        public event Action OnInventoryTogglePressed;
         public event Action OnAutoCombatTogglePressed;
 
         private RPGAutoInputActions _actions;
@@ -104,6 +105,7 @@ namespace RPGAuto.InputHandling
             p.Attack.performed += HandleAttack;
             p.ToggleAutoCombat.performed += HandleToggleAuto;
             p.ToggleStatWindow.performed += HandleToggleStat;
+            p.ToggleInventory.performed += HandleToggleInventory;
             for (int i = 0; i < QuickSlotCount; i++) _quickSlotActions[i].performed += _quickSlotHandlers[i];
             p.Get().actionTriggered += HandleAnyAction;
             p.Enable();
@@ -116,6 +118,7 @@ namespace RPGAuto.InputHandling
             p.Attack.performed -= HandleAttack;
             p.ToggleAutoCombat.performed -= HandleToggleAuto;
             p.ToggleStatWindow.performed -= HandleToggleStat;
+            p.ToggleInventory.performed -= HandleToggleInventory;
             for (int i = 0; i < QuickSlotCount; i++) _quickSlotActions[i].performed -= _quickSlotHandlers[i];
             p.Get().actionTriggered -= HandleAnyAction;
 
@@ -180,11 +183,13 @@ namespace RPGAuto.InputHandling
         private void HandleAttack(InputAction.CallbackContext _) => PressAttack();
         private void HandleToggleAuto(InputAction.CallbackContext _) => PressAutoCombatToggle();
         private void HandleToggleStat(InputAction.CallbackContext _) => PressStatWindowToggle();
+        private void HandleToggleInventory(InputAction.CallbackContext _) => PressInventoryToggle();
 
         // UI 버튼/액션 공용 진입점
         public void PressAttack() => OnAttackPressed?.Invoke();
         public void PressQuickSlot(int index) => OnQuickSlotPressed?.Invoke(index);
         public void PressStatWindowToggle() => OnStatWindowTogglePressed?.Invoke();
+        public void PressInventoryToggle() => OnInventoryTogglePressed?.Invoke();
         public void PressAutoCombatToggle() => OnAutoCombatTogglePressed?.Invoke();
 
         private void ReadPointer()

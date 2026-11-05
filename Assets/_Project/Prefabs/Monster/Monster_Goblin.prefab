@@ -186,6 +186,7 @@ MonoBehaviour:
   attackRange: 1.8
   attackInterval: 1.6
   expReward: 10
+  dropTable: {fileID: 11400000, guid: bfe7e619441657f46a556ba9bcb7e491, type: 2}
   attackMultiplier: 1
   leashDistance: 14
   despawnDelay: 1.2

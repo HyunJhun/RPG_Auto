@@ -120,6 +120,36 @@ namespace RPGAuto.QuickSlots
             }
         }
 
+        /// <summary>물약 퀵슬롯(0~3)에 아이템 등록. 다른 칸에 같은 아이템이 있으면 옮긴다. null이면 비운다.</summary>
+        public void AssignItem(int itemSlotIndex, ItemData item)
+        {
+            EnsureBuilt();
+            if (itemSlotIndex < 0 || itemSlotIndex >= ItemSlotCount) return;
+            if (item != null && !item.IsUsable) return;
+
+            var target = _slots[SkillSlotCount + itemSlotIndex];
+            bool keepAuto = target.IsAutoUse && target.Action is ItemQuickAction old && old.Item == item;
+
+            if (item != null)
+            {
+                int existing = FindItemSlot(item);
+                if (existing >= 0 && existing != itemSlotIndex) _slots[SkillSlotCount + existing].SetAction(null, false);
+            }
+
+            var inventory = GetComponent<PlayerInventory>();
+            target.SetAction(item != null ? new ItemQuickAction(item, inventory) : null, keepAuto);
+        }
+
+        /// <summary>아이템이 등록된 물약 퀵슬롯 번호(0~3), 없으면 -1</summary>
+        public int FindItemSlot(ItemData item)
+        {
+            EnsureBuilt();
+            if (item == null) return -1;
+            for (int i = 0; i < ItemSlotCount; i++)
+                if (_slots[SkillSlotCount + i].Action is ItemQuickAction a && a.Item == item) return i;
+            return -1;
+        }
+
         public void Activate(int index)
         {
             var slot = GetSlot(index);

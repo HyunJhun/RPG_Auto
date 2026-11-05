@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using RPGAuto.Combat;
 using RPGAuto.Combat.Targeting;
 using RPGAuto.Core;
 using RPGAuto.InputHandling;
+using RPGAuto.Loot;
 using RPGAuto.Monster;
 using RPGAuto.Player.States;
 using RPGAuto.QuickSlots;
@@ -42,6 +43,7 @@ namespace RPGAuto.Player
         public PlayerSkillController Skills { get; private set; }
         public PlayerInputHandler Input => input;
         public QuickSlotBar QuickSlots { get; private set; }
+        public PlayerLooter Looter { get; private set; }
 
         public float MoveSpeed => moveSpeed;
         public float ArriveThreshold => arriveThreshold;
@@ -60,6 +62,7 @@ namespace RPGAuto.Player
         public PlayerAutoSearchState AutoSearchState { get; private set; }
         public PlayerChaseState ChaseState { get; private set; }
         public PlayerAttackState AttackState { get; private set; }
+        public PlayerLootState LootState { get; private set; }
         public PlayerDeadState DeadState { get; private set; }
 
         // Observer
@@ -73,6 +76,7 @@ namespace RPGAuto.Player
             Combat = GetComponent<PlayerCombat>();
             Skills = GetComponent<PlayerSkillController>();
             QuickSlots = GetComponent<QuickSlotBar>();
+            Looter = GetComponent<PlayerLooter>();
             if (bodyRenderer == null) bodyRenderer = GetComponent<Renderer>();
             _mpb = new MaterialPropertyBlock();
 
@@ -91,6 +95,7 @@ namespace RPGAuto.Player
             AutoSearchState = new PlayerAutoSearchState(this);
             ChaseState = new PlayerChaseState(this);
             AttackState = new PlayerAttackState(this);
+            LootState = new PlayerLootState(this);
             DeadState = new PlayerDeadState(this);
         }
 
@@ -222,7 +227,7 @@ namespace RPGAuto.Player
             if (enabled || IsDead) return;
 
             var current = StateMachine.Current;
-            bool autoDriven = current == AutoSearchState ||
+            bool autoDriven = current == AutoSearchState || current == LootState ||
                               ((current == ChaseState || current == AttackState) && !IsManualEngage);
             if (!autoDriven) return;
 

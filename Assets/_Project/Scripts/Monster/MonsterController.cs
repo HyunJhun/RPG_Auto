@@ -13,7 +13,8 @@ namespace RPGAuto.Monster
     public enum MonsterGrade
     {
         Normal,
-        Elite
+        Elite,
+        Boss
     }
 
     [RequireComponent(typeof(NavMeshAgent), typeof(CombatStats))]
@@ -38,6 +39,10 @@ namespace RPGAuto.Monster
         [SerializeField] private float attackInterval = 1.6f;
         [SerializeField] private long expReward = 10;
 
+        [Header("Loot")]
+        [Tooltip("일반 = 처치 즉시 자동 획득, 엘리트/보스 = 바닥 드랍")]
+        [SerializeField] private Loot.DropTable dropTable;
+
         [Header("AI")]
         [SerializeField] private float attackMultiplier = 1f;
         [Tooltip("스폰 위치에서 이 거리 이상 끌려가면 추적 포기 후 복귀")]
@@ -61,6 +66,9 @@ namespace RPGAuto.Monster
         public MonsterGrade Grade => grade;
         public int Level => Stats.Level;
         public long ExpReward => expReward;
+        public Loot.DropTable DropTable => dropTable;
+        /// <summary>엘리트/보스는 전리품을 바닥에 떨어뜨린다 (일반은 즉시 획득)</summary>
+        public bool DropsOnGround => grade != MonsterGrade.Normal;
         public float AttackRange => attackRange;
         public float AttackInterval => attackInterval;
         public float AttackMultiplier => attackMultiplier;

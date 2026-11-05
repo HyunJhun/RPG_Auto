@@ -149,6 +149,15 @@ namespace RPGAuto.InputHandling
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""ToggleInventory"",
+                    ""type"": ""Button"",
+                    ""id"": ""5deb384f-b12b-4bf3-81ec-2a389ab1a70c"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""QuickSlot1"",
                     ""type"": ""Button"",
                     ""id"": ""2ce4c985-5d6a-447e-a0d8-1ce682fcf4b3"",
@@ -396,6 +405,28 @@ namespace RPGAuto.InputHandling
                 },
                 {
                     ""name"": """",
+                    ""id"": ""b7a9a0de-5027-43bd-9e10-5bc60f762f76"",
+                    ""path"": ""<Keyboard>/i"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleInventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""38966084-1aa3-4a57-9ffa-995d85275e98"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleInventory"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""e94be4de-3490-4dbe-b6f5-3d5e2fa30bc8"",
                     ""path"": ""<Keyboard>/1"",
                     ""interactions"": """",
@@ -583,6 +614,7 @@ namespace RPGAuto.InputHandling
             m_Player_Attack = m_Player.FindAction("Attack", throwIfNotFound: true);
             m_Player_ToggleAutoCombat = m_Player.FindAction("ToggleAutoCombat", throwIfNotFound: true);
             m_Player_ToggleStatWindow = m_Player.FindAction("ToggleStatWindow", throwIfNotFound: true);
+            m_Player_ToggleInventory = m_Player.FindAction("ToggleInventory", throwIfNotFound: true);
             m_Player_QuickSlot1 = m_Player.FindAction("QuickSlot1", throwIfNotFound: true);
             m_Player_QuickSlot2 = m_Player.FindAction("QuickSlot2", throwIfNotFound: true);
             m_Player_QuickSlot3 = m_Player.FindAction("QuickSlot3", throwIfNotFound: true);
@@ -679,6 +711,7 @@ namespace RPGAuto.InputHandling
         private readonly InputAction m_Player_Attack;
         private readonly InputAction m_Player_ToggleAutoCombat;
         private readonly InputAction m_Player_ToggleStatWindow;
+        private readonly InputAction m_Player_ToggleInventory;
         private readonly InputAction m_Player_QuickSlot1;
         private readonly InputAction m_Player_QuickSlot2;
         private readonly InputAction m_Player_QuickSlot3;
@@ -724,6 +757,10 @@ namespace RPGAuto.InputHandling
             /// Provides access to the underlying input action "Player/ToggleStatWindow".
             /// </summary>
             public InputAction @ToggleStatWindow => m_Wrapper.m_Player_ToggleStatWindow;
+            /// <summary>
+            /// Provides access to the underlying input action "Player/ToggleInventory".
+            /// </summary>
+            public InputAction @ToggleInventory => m_Wrapper.m_Player_ToggleInventory;
             /// <summary>
             /// Provides access to the underlying input action "Player/QuickSlot1".
             /// </summary>
@@ -808,6 +845,9 @@ namespace RPGAuto.InputHandling
                 @ToggleStatWindow.started += instance.OnToggleStatWindow;
                 @ToggleStatWindow.performed += instance.OnToggleStatWindow;
                 @ToggleStatWindow.canceled += instance.OnToggleStatWindow;
+                @ToggleInventory.started += instance.OnToggleInventory;
+                @ToggleInventory.performed += instance.OnToggleInventory;
+                @ToggleInventory.canceled += instance.OnToggleInventory;
                 @QuickSlot1.started += instance.OnQuickSlot1;
                 @QuickSlot1.performed += instance.OnQuickSlot1;
                 @QuickSlot1.canceled += instance.OnQuickSlot1;
@@ -867,6 +907,9 @@ namespace RPGAuto.InputHandling
                 @ToggleStatWindow.started -= instance.OnToggleStatWindow;
                 @ToggleStatWindow.performed -= instance.OnToggleStatWindow;
                 @ToggleStatWindow.canceled -= instance.OnToggleStatWindow;
+                @ToggleInventory.started -= instance.OnToggleInventory;
+                @ToggleInventory.performed -= instance.OnToggleInventory;
+                @ToggleInventory.canceled -= instance.OnToggleInventory;
                 @QuickSlot1.started -= instance.OnQuickSlot1;
                 @QuickSlot1.performed -= instance.OnQuickSlot1;
                 @QuickSlot1.canceled -= instance.OnQuickSlot1;
@@ -979,6 +1022,13 @@ namespace RPGAuto.InputHandling
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnToggleStatWindow(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "ToggleInventory" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnToggleInventory(InputAction.CallbackContext context);
             /// <summary>
             /// Method invoked when associated input action "QuickSlot1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
             /// </summary>
