@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a09e5eed5aae8464c84cc8e456d41ba3, type: 3}
+  m_Name: SHOP_GeneralStore
+  m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Shop.ShopData
+  shopName: General Store
+  products:
+  - item: {fileID: 11400000, guid: 3bb7c669eebff3541b7f3de89303b0b0, type: 2}
+    price: 50
+  - item: {fileID: 11400000, guid: f402ca0f154b0b546976d521b0bca804, type: 2}
+    price: 60
+  - item: {fileID: 11400000, guid: 19c764ed1b4326e4c819dbbd2088c59d, type: 2}
+    price: 200

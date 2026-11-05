@@ -62,6 +62,7 @@ namespace RPGAuto.InputHandling
         public event Action OnStatWindowTogglePressed;
         public event Action OnInventoryTogglePressed;
         public event Action OnSkillWindowTogglePressed;
+        public event Action OnShopTogglePressed;
         public event Action OnAutoCombatTogglePressed;
 
         private RPGAutoInputActions _actions;
@@ -108,6 +109,7 @@ namespace RPGAuto.InputHandling
             p.ToggleStatWindow.performed += HandleToggleStat;
             p.ToggleInventory.performed += HandleToggleInventory;
             p.ToggleSkillWindow.performed += HandleToggleSkillWindow;
+            p.ToggleShop.performed += HandleToggleShop;
             for (int i = 0; i < QuickSlotCount; i++) _quickSlotActions[i].performed += _quickSlotHandlers[i];
             p.Get().actionTriggered += HandleAnyAction;
             p.Enable();
@@ -122,6 +124,7 @@ namespace RPGAuto.InputHandling
             p.ToggleStatWindow.performed -= HandleToggleStat;
             p.ToggleInventory.performed -= HandleToggleInventory;
             p.ToggleSkillWindow.performed -= HandleToggleSkillWindow;
+            p.ToggleShop.performed -= HandleToggleShop;
             for (int i = 0; i < QuickSlotCount; i++) _quickSlotActions[i].performed -= _quickSlotHandlers[i];
             p.Get().actionTriggered -= HandleAnyAction;
 
@@ -188,6 +191,7 @@ namespace RPGAuto.InputHandling
         private void HandleToggleStat(InputAction.CallbackContext _) => PressStatWindowToggle();
         private void HandleToggleInventory(InputAction.CallbackContext _) => PressInventoryToggle();
         private void HandleToggleSkillWindow(InputAction.CallbackContext _) => PressSkillWindowToggle();
+        private void HandleToggleShop(InputAction.CallbackContext _) => PressShopToggle();
 
         // UI 버튼/액션 공용 진입점
         public void PressAttack() => OnAttackPressed?.Invoke();
@@ -195,6 +199,7 @@ namespace RPGAuto.InputHandling
         public void PressStatWindowToggle() => OnStatWindowTogglePressed?.Invoke();
         public void PressInventoryToggle() => OnInventoryTogglePressed?.Invoke();
         public void PressSkillWindowToggle() => OnSkillWindowTogglePressed?.Invoke();
+        public void PressShopToggle() => OnShopTogglePressed?.Invoke();
         public void PressAutoCombatToggle() => OnAutoCombatTogglePressed?.Invoke();
 
         private void ReadPointer()

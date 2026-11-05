@@ -18,6 +18,7 @@ MonoBehaviour:
   slotColor: {r: 0.75, g: 0.15, b: 0.2, a: 1}
   category: 0
   description: Restores 25% of max HP.
+  sellPrice: 10
   effect: 0
   restorePercent: 0.25
   restoreFlat: 0

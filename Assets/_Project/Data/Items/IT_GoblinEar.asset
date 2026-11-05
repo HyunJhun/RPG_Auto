@@ -18,6 +18,7 @@ MonoBehaviour:
   slotColor: {r: 0.55, g: 0.65, b: 0.3, a: 1}
   category: 1
   description: A trophy cut from a goblin. Can be sold to merchants.
+  sellPrice: 5
   effect: 0
   restorePercent: 0.2
   restoreFlat: 0

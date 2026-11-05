@@ -26,6 +26,8 @@ namespace RPGAuto.Items
         [SerializeField] private Color slotColor = new(0.8f, 0.2f, 0.2f);
         [SerializeField] private ItemCategory category = ItemCategory.Consumable;
         [SerializeField, TextArea(2, 4)] private string description;
+        [Tooltip("상점 판매 가격 (0 = 판매 불가)")]
+        [SerializeField] private long sellPrice;
 
         [Header("Effect (Consumable)")]
         [SerializeField] private ConsumableEffect effect = ConsumableEffect.RestoreHp;
@@ -41,6 +43,8 @@ namespace RPGAuto.Items
         public ItemCategory Category => category;
         public string Description => description;
         public bool IsUsable => category == ItemCategory.Consumable;
+        public long SellPrice => sellPrice;
+        public bool IsSellable => sellPrice > 0;
         public ConsumableEffect Effect => effect;
         public float RestorePercent => restorePercent;
         public float RestoreFlat => restoreFlat;

@@ -18,6 +18,7 @@ MonoBehaviour:
   slotColor: {r: 0.2, g: 0.35, b: 0.85, a: 1}
   category: 0
   description: Restores 30% of max MP.
+  sellPrice: 12
   effect: 1
   restorePercent: 0.3
   restoreFlat: 0
