@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using RPGAuto.Combat;
 using RPGAuto.Core.Pooling;
 using RPGAuto.Monster;
+using RPGAuto.Npc;
 using RPGAuto.Player;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,6 +24,9 @@ namespace RPGAuto.UI
         private PrefabPool<Text> _pool;
         private readonly Dictionary<MonsterController, Text> _plates = new();
         private readonly List<MonsterController> _toRemove = new();
+        private readonly Dictionary<NpcInteractable, Text> _npcPlates = new();
+        private readonly List<NpcInteractable> _npcToRemove = new();
+        [SerializeField] private Color npcColor = new(0.55f, 1f, 0.6f);
         private int _colorLevel = -1;
 
         private void Awake()
@@ -81,6 +85,41 @@ namespace RPGAuto.UI
                 }
 
                 Vector3 world = m.HeadPosition;
+                Vector3 screen = viewCamera.WorldToScreenPoint(world);
+                bool visible = screen.z > 0f && (world - camPos).sqrMagnitude <= sqrMax;
+                if (plate.enabled != visible) plate.enabled = visible;
+                if (!visible) continue;
+
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(_root, screen, null, out var local);
+                plate.rectTransform.anchoredPosition = local;
+            }
+
+            UpdateNpcPlates(camPos, sqrMax);
+        }
+
+        /// <summary>NPC 이름표 "[Merchant] 이름" (몬스터와 같은 풀 사용)</summary>
+        private void UpdateNpcPlates(Vector3 camPos, float sqrMax)
+        {
+            _npcToRemove.Clear();
+            foreach (var pair in _npcPlates)
+                if (pair.Key == null || !pair.Key.isActiveAndEnabled) _npcToRemove.Add(pair.Key);
+            foreach (var n in _npcToRemove)
+            {
+                _pool.Release(_npcPlates[n]);
+                _npcPlates.Remove(n);
+            }
+
+            foreach (var npc in NpcInteractable.Active)
+            {
+                if (!_npcPlates.TryGetValue(npc, out var plate))
+                {
+                    plate = _pool.Get();
+                    plate.text = string.IsNullOrEmpty(npc.Title) ? npc.DisplayName : $"[{npc.Title}] {npc.DisplayName}";
+                    plate.color = npcColor;
+                    _npcPlates[npc] = plate;
+                }
+
+                Vector3 world = npc.HeadPosition;
                 Vector3 screen = viewCamera.WorldToScreenPoint(world);
                 bool visible = screen.z > 0f && (world - camPos).sqrMagnitude <= sqrMax;
                 if (plate.enabled != visible) plate.enabled = visible;

@@ -6,6 +6,7 @@ using RPGAuto.InputHandling;
 using RPGAuto.Items;
 using RPGAuto.Loot;
 using RPGAuto.Monster;
+using RPGAuto.Npc;
 using RPGAuto.Player.States;
 using RPGAuto.QuickSlots;
 using RPGAuto.Skills;
@@ -70,6 +71,7 @@ namespace RPGAuto.Player
         public PlayerChaseState ChaseState { get; private set; }
         public PlayerAttackState AttackState { get; private set; }
         public PlayerLootState LootState { get; private set; }
+        public PlayerInteractState InteractState { get; private set; }
         public PlayerDeadState DeadState { get; private set; }
 
         // Observer
@@ -104,6 +106,7 @@ namespace RPGAuto.Player
             ChaseState = new PlayerChaseState(this);
             AttackState = new PlayerAttackState(this);
             LootState = new PlayerLootState(this);
+            InteractState = new PlayerInteractState(this);
             DeadState = new PlayerDeadState(this);
         }
 
@@ -116,6 +119,8 @@ namespace RPGAuto.Player
                 input.OnAttackPressed += HandleAttackPressed;
                 input.OnQuickSlotPressed += HandleQuickSlotPressed;
                 input.OnAutoCombatTogglePressed += HandleAutoTogglePressed;
+                input.OnNpcTapped += HandleNpcTapped;
+                input.OnInteractPressed += HandleInteractPressed;
             }
             Combat.OnAutoCombatChanged += HandleAutoCombatChanged;
             Stats.OnDied += HandleDied;
@@ -131,6 +136,8 @@ namespace RPGAuto.Player
                 input.OnAttackPressed -= HandleAttackPressed;
                 input.OnQuickSlotPressed -= HandleQuickSlotPressed;
                 input.OnAutoCombatTogglePressed -= HandleAutoTogglePressed;
+                input.OnNpcTapped -= HandleNpcTapped;
+                input.OnInteractPressed -= HandleInteractPressed;
             }
             Combat.OnAutoCombatChanged -= HandleAutoCombatChanged;
             Stats.OnDied -= HandleDied;
@@ -204,6 +211,31 @@ namespace RPGAuto.Player
         }
 
         private void HandleAutoTogglePressed() => Combat.ToggleAutoCombat();
+
+        /// <summary>NPC 탭: 범위 안이면 바로 말 걸고, 아니면 길찾기로 다가간다</summary>
+        public void HandleNpcTapped(NpcInteractable npc)
+        {
+            if (IsDead || npc == null) return;
+            Combat.SetTarget(null);
+            Combat.QueuedSkill = null;
+            IsManualEngage = false;
+            if (npc.IsInRange(transform.position))
+            {
+                StateMachine.ChangeState(IdleState);
+                npc.Interact(this);
+                return;
+            }
+            InteractState.SetTarget(npc);
+            StateMachine.ChangeState(InteractState);
+        }
+
+        /// <summary>E키 / 상호작용 버튼: 범위 안의 가장 가까운 NPC에게 말 걸기</summary>
+        private void HandleInteractPressed()
+        {
+            if (IsDead) return;
+            var npc = NpcInteractable.FindNearestInRange(transform.position);
+            if (npc != null) npc.Interact(this);
+        }
 
         // ---------------- Combat flow ----------------
 

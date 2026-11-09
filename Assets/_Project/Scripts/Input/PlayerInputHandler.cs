@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using RPGAuto.Monster;
+using RPGAuto.Npc;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -66,6 +67,10 @@ namespace RPGAuto.InputHandling
         public event Action OnGachaTogglePressed;
         /// <summary>Esc / Android 뒤로 가기</summary>
         public event Action OnCancelPressed;
+        /// <summary>근처 NPC에게 말 걸기 (E키 / 상호작용 버튼)</summary>
+        public event Action OnInteractPressed;
+        /// <summary>NPC를 탭 (길찾기로 다가가서 말 걸기)</summary>
+        public event Action<NpcInteractable> OnNpcTapped;
         public event Action OnAutoCombatTogglePressed;
 
         private RPGAutoInputActions _actions;
@@ -77,6 +82,7 @@ namespace RPGAuto.InputHandling
         private Vector2 _pressPosition;
         private float _pressTime;
         private MonsterController _pressedMonster;
+        private NpcInteractable _pressedNpc;
         private bool _isGroundHold;
         private Vector3 _lastHoldPoint;
         private float _holdTimer;
@@ -115,6 +121,7 @@ namespace RPGAuto.InputHandling
             p.ToggleShop.performed += HandleToggleShop;
             p.ToggleGacha.performed += HandleToggleGacha;
             p.Cancel.performed += HandleCancel;
+            p.Interact.performed += HandleInteract;
             for (int i = 0; i < QuickSlotCount; i++) _quickSlotActions[i].performed += _quickSlotHandlers[i];
             p.Get().actionTriggered += HandleAnyAction;
             p.Enable();
@@ -132,6 +139,7 @@ namespace RPGAuto.InputHandling
             p.ToggleShop.performed -= HandleToggleShop;
             p.ToggleGacha.performed -= HandleToggleGacha;
             p.Cancel.performed -= HandleCancel;
+            p.Interact.performed -= HandleInteract;
             for (int i = 0; i < QuickSlotCount; i++) _quickSlotActions[i].performed -= _quickSlotHandlers[i];
             p.Get().actionTriggered -= HandleAnyAction;
 
@@ -201,6 +209,7 @@ namespace RPGAuto.InputHandling
         private void HandleToggleShop(InputAction.CallbackContext _) => PressShopToggle();
         private void HandleToggleGacha(InputAction.CallbackContext _) => PressGachaToggle();
         private void HandleCancel(InputAction.CallbackContext _) => PressCancel();
+        private void HandleInteract(InputAction.CallbackContext _) => PressInteract();
 
         // UI 버튼/액션 공용 진입점
         public void PressAttack() => OnAttackPressed?.Invoke();
@@ -211,6 +220,7 @@ namespace RPGAuto.InputHandling
         public void PressShopToggle() => OnShopTogglePressed?.Invoke();
         public void PressGachaToggle() => OnGachaTogglePressed?.Invoke();
         public void PressCancel() => OnCancelPressed?.Invoke();
+        public void PressInteract() => OnInteractPressed?.Invoke();
         public void PressAutoCombatToggle() => OnAutoCombatTogglePressed?.Invoke();
 
         private void ReadPointer()
@@ -232,6 +242,7 @@ namespace RPGAuto.InputHandling
             _pressTime = Time.unscaledTime;
             _pressStartedOverUI = IsOverUI(screenPos);
             _pressedMonster = null;
+            _pressedNpc = null;
             _isGroundHold = false;
 
             if (_pressStartedOverUI) return;
@@ -244,16 +255,24 @@ namespace RPGAuto.InputHandling
                 return;
             }
 
+            var npc = hit.collider.GetComponentInParent<NpcInteractable>();
+            if (npc != null)
+            {
+                _pressedNpc = npc; // 떼는 순간 탭이면 다가가서 말 걸기
+                return;
+            }
+
             StartGroundHold(hit.point);
         }
 
         private void UpdatePress(Vector2 screenPos)
         {
-            // 몬스터를 누른 뒤 손가락을 끌면 지면 이동으로 전환
-            if (_pressedMonster != null)
+            // 몬스터/NPC를 누른 뒤 손가락을 끌면 지면 이동으로 전환
+            if (_pressedMonster != null || _pressedNpc != null)
             {
                 if ((screenPos - _pressPosition).sqrMagnitude <= tapMaxMovePixels * tapMaxMovePixels) return;
                 _pressedMonster = null;
+                _pressedNpc = null;
                 if (RaycastWorld(screenPos, groundMask, out var groundHit)) StartGroundHold(groundHit.point);
                 return;
             }
@@ -287,6 +306,14 @@ namespace RPGAuto.InputHandling
                 if (isTap && _pressedMonster.IsAlive) OnTargetTapped?.Invoke(_pressedMonster);
                 _pressedMonster = null;
             }
+
+            if (_pressedNpc != null)
+            {
+                bool isTap = (screenPos - _pressPosition).sqrMagnitude <= tapMaxMovePixels * tapMaxMovePixels
+                             && Time.unscaledTime - _pressTime <= tapMaxDuration;
+                if (isTap) OnNpcTapped?.Invoke(_pressedNpc);
+                _pressedNpc = null;
+            }
         }
 
         private void StartGroundHold(Vector3 point)
@@ -313,6 +340,12 @@ namespace RPGAuto.InputHandling
             if (monster != null)
             {
                 if (monster.IsAlive) OnTargetTapped?.Invoke(monster);
+                return;
+            }
+            var npc = hit.collider.GetComponentInParent<NpcInteractable>();
+            if (npc != null)
+            {
+                OnNpcTapped?.Invoke(npc);
                 return;
             }
             OnGroundTapped?.Invoke(hit.point);

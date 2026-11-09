@@ -269,6 +269,7 @@ namespace RPGAuto.EditorTools
             CharacterWindowBuilder.ApplyToOpenScene();
             SkillWindowBuilder.ApplyToOpenScene();
             ShopBuilder.ApplyToOpenScene();
+            NpcBuilder.ApplyToOpenScene();
             GachaBuilder.ApplyToOpenScene();
             SettingsBuilder.ApplyToOpenScene();
             UIBuildKit.RaisePopups(canvas);
