@@ -133,6 +133,32 @@ namespace RPGAuto.EditorTools
 
         // ================= World =================
 
+        /// <summary>빛나는 효과용 가산 혼합(Additive) 머티리얼. 색은 MaterialPropertyBlock(_BaseColor)·트레일 정점 색으로 준다.</summary>
+        private static Material CreateAdditiveMaterial(string name)
+        {
+            string path = $"{Root}/Materials/{name}.mat";
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(path);
+            var shader = Shader.Find("Universal Render Pipeline/Particles/Unlit") ?? Shader.Find("Sprites/Default");
+            if (mat == null)
+            {
+                mat = new Material(shader);
+                AssetDatabase.CreateAsset(mat, path);
+            }
+            else mat.shader = shader;
+
+            mat.SetColor("_BaseColor", Color.white);
+            if (mat.HasProperty("_Surface")) mat.SetFloat("_Surface", 1f);   // Transparent
+            if (mat.HasProperty("_Blend")) mat.SetFloat("_Blend", 2f);       // Additive
+            if (mat.HasProperty("_SrcBlend")) mat.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            if (mat.HasProperty("_DstBlend")) mat.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.One);
+            if (mat.HasProperty("_ZWrite")) mat.SetFloat("_ZWrite", 0f);
+            mat.SetOverrideTag("RenderType", "Transparent");
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            mat.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            EditorUtility.SetDirty(mat);
+            return mat;
+        }
+
         private static GroundLoot CreateGroundLootPrefab()
         {
             var matGold = CreateLitMaterial("M_Loot_Gold", new Color(1f, 0.78f, 0.15f), 0.8f, 0.7f);
@@ -159,8 +185,41 @@ namespace RPGAuto.EditorTools
             item.transform.localScale = Vector3.one * 0.38f;
             item.GetComponent<Renderer>().sharedMaterial = matItem;
 
+            // 자동 획득 시 날아가는 빛나는 점: 중심(Sphere) + 광륜(Sphere) + 트레일
+            var matGlow = CreateAdditiveMaterial("M_Loot_Glow");
+            var fly = new GameObject("GroundLoot_FlyVisual").transform;
+            fly.SetParent(root.transform, false);
+            var core = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            core.name = "GroundLoot_FlyVisual_Core";
+            Object.DestroyImmediate(core.GetComponent<Collider>());
+            core.transform.SetParent(fly, false);
+            core.transform.localScale = Vector3.one * 0.18f;
+            var halo = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            halo.name = "GroundLoot_FlyVisual_Halo";
+            Object.DestroyImmediate(halo.GetComponent<Collider>());
+            halo.transform.SetParent(fly, false);
+            halo.transform.localScale = Vector3.one * 0.42f;
+            foreach (var r in new[] { core.GetComponent<MeshRenderer>(), halo.GetComponent<MeshRenderer>() })
+            {
+                r.sharedMaterial = matGlow;
+                r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                r.receiveShadows = false;
+            }
+            var trail = fly.gameObject.AddComponent<TrailRenderer>();
+            trail.sharedMaterial = matGlow;
+            trail.time = 0.28f;
+            trail.minVertexDistance = 0.05f;
+            trail.widthCurve = new AnimationCurve(new Keyframe(0f, 0.22f), new Keyframe(1f, 0f));
+            trail.numCapVertices = 4;
+            trail.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            trail.receiveShadows = false;
+            trail.emitting = false;
+            fly.gameObject.SetActive(false);
+
             var loot = root.AddComponent<GroundLoot>();
-            Set(loot, ("visualRoot", visual), ("goldVisual", gold.GetComponent<Renderer>()), ("itemVisual", item.GetComponent<Renderer>()));
+            Set(loot, ("visualRoot", visual), ("goldVisual", gold.GetComponent<Renderer>()), ("itemVisual", item.GetComponent<Renderer>()),
+                ("flyVisual", fly), ("trail", trail), ("showDuration", 1f));
+            SetArray(loot, "orbRenderers", new Object[] { core.GetComponent<Renderer>(), halo.GetComponent<Renderer>() });
 
             var prefab = PrefabUtility.SaveAsPrefabAsset(root, Root + "/Prefabs/World/GroundLoot.prefab");
             Object.DestroyImmediate(root);

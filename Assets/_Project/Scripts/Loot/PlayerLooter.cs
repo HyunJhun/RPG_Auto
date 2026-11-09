@@ -8,7 +8,8 @@ using UnityEngine;
 namespace RPGAuto.Loot
 {
     /// <summary>
-    /// 전리품 수령/줍기. 지급(Receive)은 LootManager가, 바닥 줍기는 반경 판정으로 직접 처리한다.
+    /// 전리품 수령/줍기. 일반 몬스터 드랍은 LootManager가 바로 지급(Receive)하고,
+    /// 바닥 전리품은 GroundLoot가 날아와 지급한다. 가방이 차서 바닥에 남은 것만 반경 판정으로 직접 줍는다.
     /// 자동 전투 중 주변 전리품 탐색(TryFindAutoLoot)은 PlayerAutoSearchState에서 사용한다.
     /// </summary>
     [RequireComponent(typeof(PlayerInventory), typeof(PlayerWallet), typeof(CombatStats))]
@@ -16,6 +17,8 @@ namespace RPGAuto.Loot
     {
         [SerializeField] private float pickupRadius = 1.2f;
         [SerializeField] private float pickupCheckInterval = 0.1f;
+        [Tooltip("몸 중심 높이 (Transform 위치 기준). Capsule은 피벗이 중심이라 0")]
+        [SerializeField] private float bodyCenterOffset = 0f;
 
         [Header("Notice")]
         [SerializeField] private float fullNoticeCooldown = 3f;
@@ -33,6 +36,9 @@ namespace RPGAuto.Loot
         public bool AutoLootEnabled => _combat == null || _combat.Settings.autoLoot;
         private float AutoLootRadius => _combat != null ? _combat.Settings.autoLootRadius : 10f;
         public float PickupRadius => pickupRadius;
+        public bool IsDead => _stats != null && _stats.IsDead;
+        /// <summary>자동 획득 전리품이 날아와 닿는 지점 (캐릭터 몸 중심)</summary>
+        public Vector3 BodyCenter => transform.position + Vector3.up * bodyCenterOffset;
 
         /// <summary>전리품 획득 알림 (Observer) — 획득 로그 UI가 구독</summary>
         public event Action<LootEntry> OnLootAcquired;

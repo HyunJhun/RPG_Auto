@@ -10,7 +10,7 @@ namespace RPGAuto.Loot
     /// <summary>
     /// 몬스터 처치 이벤트를 구독(Observer)해 드랍을 처리한다.
     /// - 일반 몬스터: 처치한 플레이어에게 즉시 지급
-    /// - 엘리트/보스: 처치 위치 주변 바닥에 GroundLoot 생성 (Object Pool)
+    /// - 엘리트/보스: 처치 위치 주변 바닥에 GroundLoot 생성 (Object Pool) → 잠시 후 처치한 플레이어에게 날아가 자동 획득
     /// </summary>
     public class LootManager : MonoBehaviour
     {
@@ -58,7 +58,7 @@ namespace RPGAuto.Loot
                 if (NavMesh.SamplePosition(to, out var hit, 1.5f, NavMesh.AllAreas)) to = hit.position;
                 else to = origin;
 
-                _pool.Get(from, Quaternion.identity).Init(this, _buffer[i], from, to, groundLifetime);
+                _pool.Get(from, Quaternion.identity).Init(this, looter, _buffer[i], from, to, groundLifetime);
             }
         }
 

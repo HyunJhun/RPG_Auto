@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using RPGAuto.Combat;
 using RPGAuto.Core.Pooling;
+using RPGAuto.Items;
+using RPGAuto.Loot;
 using RPGAuto.Monster;
 using RPGAuto.Npc;
 using RPGAuto.Player;
@@ -27,6 +29,12 @@ namespace RPGAuto.UI
         private readonly Dictionary<NpcInteractable, Text> _npcPlates = new();
         private readonly List<NpcInteractable> _npcToRemove = new();
         [SerializeField] private Color npcColor = new(0.55f, 1f, 0.6f);
+        private readonly Dictionary<GroundLoot, Text> _lootPlates = new();
+        private readonly List<GroundLoot> _lootToRemove = new();
+        private readonly Dictionary<GroundLoot, int> _lootSpawnIds = new();
+        [Tooltip("바닥 아이템 이름표 높이 (아이템 위치 기준)")]
+        [SerializeField] private float lootLabelHeight = 0.6f;
+        [SerializeField] private Color goldLabelColor = new(1f, 0.85f, 0.25f);
         private int _colorLevel = -1;
 
         private void Awake()
@@ -95,6 +103,57 @@ namespace RPGAuto.UI
             }
 
             UpdateNpcPlates(camPos, sqrMax);
+            UpdateLootPlates(camPos, sqrMax);
+        }
+
+        /// <summary>바닥 전리품 이름표: 아이템 이름(등급 색) 또는 골드 (몬스터와 같은 풀 사용)</summary>
+        private void UpdateLootPlates(Vector3 camPos, float sqrMax)
+        {
+            _lootToRemove.Clear();
+            foreach (var pair in _lootPlates)
+                if (pair.Key == null || !pair.Key.isActiveAndEnabled) _lootToRemove.Add(pair.Key);
+            foreach (var l in _lootToRemove)
+            {
+                _pool.Release(_lootPlates[l]);
+                _lootPlates.Remove(l);
+                _lootSpawnIds.Remove(l);
+            }
+
+            foreach (var loot in GroundLoot.Active)
+            {
+                if (!_lootPlates.TryGetValue(loot, out var plate))
+                {
+                    plate = _pool.Get();
+                    _lootPlates[loot] = plate;
+                    _lootSpawnIds[loot] = -1;
+                }
+                if (_lootSpawnIds[loot] != loot.SpawnId)
+                {
+                    _lootSpawnIds[loot] = loot.SpawnId;
+                    ApplyLootText(loot.Entry, plate);
+                }
+
+                Vector3 world = loot.transform.position + Vector3.up * lootLabelHeight;
+                Vector3 screen = viewCamera.WorldToScreenPoint(world);
+                bool visible = loot.IsVisualVisible && screen.z > 0f && (world - camPos).sqrMagnitude <= sqrMax;
+                if (plate.enabled != visible) plate.enabled = visible;
+                if (!visible) continue;
+
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(_root, screen, null, out var local);
+                plate.rectTransform.anchoredPosition = local;
+            }
+        }
+
+        private void ApplyLootText(in LootEntry entry, Text plate)
+        {
+            if (entry.IsGold)
+            {
+                plate.text = $"{entry.Gold:N0} Gold";
+                plate.color = goldLabelColor;
+                return;
+            }
+            plate.text = entry.Count > 1 ? $"{entry.Item.DisplayName} x{entry.Count}" : entry.Item.DisplayName;
+            plate.color = ItemGradeColors.Text(entry.Item.Grade);
         }
 
         /// <summary>NPC 이름표 "[Merchant] 이름" (몬스터와 같은 풀 사용)</summary>
