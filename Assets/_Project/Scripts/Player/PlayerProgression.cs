@@ -54,6 +54,15 @@ namespace RPGAuto.Player
             OnExpChanged?.Invoke(Exp, RequiredExp);
         }
 
+        /// <summary>저장 데이터 복원용: 레벨/경험치를 지정 값으로 맞춘다</summary>
+        public void Restore(int level, long exp)
+        {
+            Exp = 0;
+            SetLevel(level, refill: true);
+            Exp = IsMaxLevel ? 0 : Math.Clamp(exp, 0, Math.Max(0, RequiredExp - 1));
+            OnExpChanged?.Invoke(Exp, RequiredExp);
+        }
+
         private void SetLevel(int level, bool refill)
         {
             int maxLevel = database != null ? database.MaxPlayerLevel : level;

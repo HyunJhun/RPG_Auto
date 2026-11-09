@@ -22,6 +22,15 @@ namespace RPGAuto.Items
             OnGoldChanged?.Invoke(Gold, amount);
         }
 
+        /// <summary>저장 데이터 복원용: 골드를 지정 값으로 맞춘다</summary>
+        public void SetGold(long amount)
+        {
+            amount = Math.Max(0, amount);
+            long delta = amount - Gold;
+            Gold = amount;
+            OnGoldChanged?.Invoke(Gold, delta);
+        }
+
         public bool CanAfford(long amount) => amount >= 0 && Gold >= amount;
 
         public bool TrySpend(long amount)

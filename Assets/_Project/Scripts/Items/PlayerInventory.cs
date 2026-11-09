@@ -243,6 +243,46 @@ namespace RPGAuto.Items
 
         private void Insert(InventoryEntry entry) => _entries.Add(entry);
 
+        // ---------------- 세이브 복원 ----------------
+
+        /// <summary>저장 데이터 복원 전: 모든 칸을 비우고 칸 수/최대 무게를 저장값으로 맞춘다.</summary>
+        public void ClearForRestore(int newCapacity, float newMaxWeight)
+        {
+            var removedItems = new List<ItemData>();
+            foreach (var e in _entries)
+            {
+                if (e.IsEquipment) OnEquipmentRemoved?.Invoke(e.Equipment);
+                if (!removedItems.Contains(e.Item)) removedItems.Add(e.Item);
+            }
+            _entries.Clear();
+            _stacks.Clear();
+            _cooldownEnd.Clear();
+            if (newCapacity > 0) capacity = newCapacity;
+            if (newMaxWeight > 0f) maxWeight = newMaxWeight;
+
+            _weight = -1f; // 강제로 무게 알림
+            RecalculateWeight();
+            foreach (var item in removedItems) OnItemCountChanged?.Invoke(item, 0);
+            OnCapacityChanged?.Invoke(capacity);
+            OnInventoryChanged?.Invoke();
+        }
+
+        /// <summary>저장 데이터 복원: 묶음 아이템 (한도 검사 없음)</summary>
+        public void RestoreStack(ItemData item, int count)
+        {
+            if (item == null || count <= 0 || item is EquipmentData) return;
+            AddStack(item, count);
+            NotifyChanged(item);
+        }
+
+        /// <summary>저장 데이터 복원: 장비 개체 (한도 검사 없음)</summary>
+        public void RestoreEquipment(EquipmentInstance equipment)
+        {
+            if (equipment == null || Contains(equipment)) return;
+            Insert(new InventoryEntry(equipment));
+            NotifyChanged(equipment.Data);
+        }
+
         // ---------------- 확장 ----------------
 
         public void ExpandSlots(int amount)

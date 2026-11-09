@@ -146,6 +146,14 @@ namespace RPGAuto.Items
             Recalculate();
         }
 
+        /// <summary>모든 장비 해제 (세이브 복원용)</summary>
+        public void UnequipAll()
+        {
+            bool changed = false;
+            foreach (var pos in AllPositions) changed |= RemoveAt(pos);
+            if (changed) Recalculate();
+        }
+
         private bool RemoveAt(EquipPosition position)
         {
             if (!_equipped.TryGetValue(position, out var old)) return false;

@@ -272,6 +272,7 @@ namespace RPGAuto.EditorTools
             NpcBuilder.ApplyToOpenScene();
             GachaBuilder.ApplyToOpenScene();
             SettingsBuilder.ApplyToOpenScene();
+            SaveBuilder.ApplyToOpenScene();
             UIBuildKit.RaisePopups(canvas);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
