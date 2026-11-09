@@ -36,8 +36,8 @@ namespace RPGAuto.Loot
 
         /// <summary>전리품 획득 알림 (Observer) — 획득 로그 UI가 구독</summary>
         public event Action<LootEntry> OnLootAcquired;
-        /// <summary>인벤토리가 가득 차 받지 못했을 때</summary>
-        public event Action OnInventoryFull;
+        /// <summary>칸 부족/무게 초과로 받지 못했을 때 (사유)</summary>
+        public event Action<AcceptResult> OnAcquireBlocked;
 
         private void Awake()
         {
@@ -47,7 +47,7 @@ namespace RPGAuto.Loot
             _combat = GetComponent<PlayerCombat>();
         }
 
-        public bool CanReceive(in LootEntry entry) => entry.IsGold || _inventory.CanAccept(entry.Item);
+        public bool CanReceive(in LootEntry entry) => entry.IsGold || _inventory.CanAccept(entry.Item, entry.Count);
 
         /// <summary>전리품 지급. 인벤토리가 가득 차 받지 못하면 false</summary>
         public bool Receive(LootEntry entry)
@@ -56,21 +56,25 @@ namespace RPGAuto.Loot
             {
                 _wallet.AddGold(entry.Gold);
             }
-            else if (!_inventory.AddItem(entry.Item, entry.Count))
+            else
             {
-                NotifyFull();
-                return false;
+                var accept = _inventory.CheckAccept(entry.Item, entry.Count);
+                if (accept != AcceptResult.Ok || !_inventory.AddItem(entry.Item, entry.Count))
+                {
+                    NotifyBlocked(accept == AcceptResult.Ok ? AcceptResult.NoSlot : accept);
+                    return false;
+                }
             }
 
             OnLootAcquired?.Invoke(entry);
             return true;
         }
 
-        private void NotifyFull()
+        private void NotifyBlocked(AcceptResult reason)
         {
             if (Time.time < _nextFullNotice) return;
             _nextFullNotice = Time.time + fullNoticeCooldown;
-            OnInventoryFull?.Invoke();
+            OnAcquireBlocked?.Invoke(reason);
         }
 
         private void Update()

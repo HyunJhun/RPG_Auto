@@ -15,7 +15,7 @@ namespace RPGAuto.EditorTools
         public static Font DefaultFont => _font != null ? _font : (_font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
         public static Sprite UISprite => _uiSprite != null ? _uiSprite : (_uiSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd"));
 
-        public static readonly Color PanelColor = new(0.06f, 0.06f, 0.08f, 0.95f);
+        public static readonly Color PanelColor = new(0.06f, 0.06f, 0.08f, 1f);
         public static readonly Color FrameColor = new(0.11f, 0.11f, 0.14f, 1f);
         public static readonly Color TitleColor = new(1f, 0.85f, 0.5f);
         public static readonly Color CloseColor = new(0.5f, 0.15f, 0.15f, 1f);
@@ -120,6 +120,109 @@ namespace RPGAuto.EditorTools
             close = CreateButton(name + "_Button_Close", panel, "X", 26, CloseColor);
             Place((RectTransform)close.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-12f, -12f), new Vector2(48f, 48f));
             return root;
+        }
+
+        /// <summary>화면 왼쪽/오른쪽에 붙는 세로 창 (프라시아 인벤토리·장비창 형식)</summary>
+        public static RectTransform CreateSideWindow(Transform canvas, string name, string title, bool right, Vector2 size,
+                                                     out RectTransform panel, out Button close, float yOffset = -40f)
+        {
+            var root = CreateStretch(name, canvas);
+            var anchor = new Vector2(right ? 1f : 0f, 0.5f);
+            panel = CreateRect(name + "_Panel", root, anchor, anchor, new Vector2(right ? -20f : 20f, yOffset), size);
+            AddImage(panel, PanelColor);
+
+            var t = CreateText(name + "_Title", panel, title, 26, TextAnchor.MiddleCenter, TitleColor);
+            Place(t.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -14f), new Vector2(size.x - 140f, 40f));
+
+            close = CreateButton(name + "_Button_Close", panel, "X", 26, CloseColor);
+            Place((RectTransform)close.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-12f, -12f), new Vector2(48f, 48f));
+            return root;
+        }
+
+        /// <summary>세로 스크롤 목록: Frame(ScrollRect) > Viewport(RectMask2D) > Content. 레이아웃 그룹은 호출 측에서 붙인다.</summary>
+        public static RectTransform CreateScrollArea(string name, Transform parent, out RectTransform frame, float padding = 6f)
+        {
+            frame = CreateRect(name, parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(100f, 100f));
+            AddImage(frame, FrameColor);
+
+            var viewport = CreateStretch(name + "_Viewport", frame);
+            Stretch(viewport, padding);
+            viewport.gameObject.AddComponent<RectMask2D>();
+
+            var content = CreateRect(name + "_Content", viewport, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), Vector2.zero, Vector2.zero);
+            content.anchorMin = new Vector2(0f, 1f);
+            content.anchorMax = new Vector2(1f, 1f);
+            content.sizeDelta = Vector2.zero;
+            content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            var scroll = frame.gameObject.AddComponent<ScrollRect>();
+            scroll.viewport = viewport;
+            scroll.content = content;
+            scroll.horizontal = false;
+            scroll.movementType = ScrollRect.MovementType.Clamped;
+            scroll.scrollSensitivity = 30f;
+            return content;
+        }
+
+        /// <summary>가로 슬라이더 (배경 + 채움 + 손잡이)</summary>
+        public static Slider CreateSlider(string name, Transform parent, Color fillColor)
+        {
+            var root = CreateRect(name, parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(200f, 24f));
+            var bg = CreateStretch(name + "_Background", root);
+            bg.offsetMin = new Vector2(0f, 7f);
+            bg.offsetMax = new Vector2(0f, -7f);
+            AddImage(bg, new Color(0.05f, 0.05f, 0.07f, 1f));
+
+            var fillArea = CreateStretch(name + "_FillArea", root);
+            fillArea.offsetMin = new Vector2(2f, 9f);
+            fillArea.offsetMax = new Vector2(-12f, -9f);
+            var fill = CreateStretch(name + "_Fill", fillArea);
+            fill.offsetMax = new Vector2(10f, 0f);
+            AddImage(fill, fillColor);
+
+            var handleArea = CreateStretch(name + "_HandleArea", root);
+            handleArea.offsetMin = new Vector2(10f, 0f);
+            handleArea.offsetMax = new Vector2(-10f, 0f);
+            var handle = CreateRect(name + "_Handle", handleArea, new Vector2(0f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(22f, 0f));
+            handle.anchorMin = new Vector2(0f, 0f);
+            handle.anchorMax = new Vector2(0f, 1f);
+            var handleImg = handle.gameObject.AddComponent<Image>();
+            handleImg.sprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
+            handleImg.color = Color.white;
+
+            var slider = root.gameObject.AddComponent<Slider>();
+            slider.fillRect = fill;
+            slider.handleRect = handle;
+            slider.targetGraphic = handleImg;
+            slider.direction = Slider.Direction.LeftToRight;
+            slider.wholeNumbers = true;
+            return slider;
+        }
+
+        /// <summary>아이템 아이콘 묶음: 등급 배경 + 안쪽 색 사각형 + 짧은 이름</summary>
+        public static (Image bg, Image icon, Text label) CreateItemIcon(string name, Transform parent, float x, float y, float size, int fontSize)
+        {
+            var bgRt = CreateTopLeft(name, parent, x, y, size, size);
+            var bg = AddImage(bgRt, new Color(0.22f, 0.22f, 0.24f, 1f));
+            bg.raycastTarget = false;
+            var iconRt = CreateStretch(name + "_Icon", bgRt);
+            Stretch(iconRt, size * 0.12f);
+            var icon = AddImage(iconRt, Color.white);
+            icon.raycastTarget = false;
+            var label = CreateText(name + "_Label", bgRt, "", fontSize, TextAnchor.MiddleCenter, Color.white);
+            Stretch(label.rectTransform, 0f);
+            label.fontStyle = FontStyle.Bold;
+            label.raycastTarget = false;
+            AddOutline(label);
+            return (bg, icon, label);
+        }
+
+        /// <summary>팝업들이 다른 창 위에 그려지도록 맨 뒤로 보낸다</summary>
+        public static void RaisePopups(Transform canvas)
+        {
+            if (canvas == null) return;
+            foreach (var n in new[] { "UI_ItemDetailPopup", "UI_EnhancePopup", "UI_ExpansionPopup" })
+                canvas.Find(n)?.SetAsLastSibling();
         }
 
         /// <summary>메뉴바 STAT 버튼을 복제해 같은 스타일의 버튼을 만든다 (index: STAT 왼쪽으로 몇 번째인지)</summary>

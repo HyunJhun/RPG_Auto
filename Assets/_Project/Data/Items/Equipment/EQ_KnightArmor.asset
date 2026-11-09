@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41022b667ea04744cafcf27c58270035, type: 3}
+  m_Name: EQ_KnightArmor
+  m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EquipmentData
+  itemId: EKnightArmor
+  displayName: Knight Armor
+  shortLabel: ARMOR
+  slotColor: {r: 0.55, g: 0.45, b: 0.35, a: 1}
+  category: 2
+  grade: 2
+  description: Rare armor. Each enhancement level adds 10% to its stats.
+  sellPrice: 650
+  autoSell: 0
+  weight: 32
+  effect: 0
+  restorePercent: 0.2
+  restoreFlat: 0
+  cooldown: 1
+  slotType: 2
+  requiredLevel: 10
+  stats:
+    maxHp: 90
+    maxMp: 0
+    hpRegen: 0
+    mpRegen: 0
+    str: 0
+    dex: 0
+    luk: 0
+    intelligence: 0
+    physicalAttack: 0
+    magicAttack: 0
+    accuracy: 0
+    physicalDefense: 18
+    magicDefense: 4
+  enhanceBonusPerLevel: 0.1
+  maxEnhance: 10

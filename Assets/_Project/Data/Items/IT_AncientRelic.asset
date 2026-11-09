@@ -17,8 +17,11 @@ MonoBehaviour:
   shortLabel: RELIC
   slotColor: {r: 0.95, g: 0.6, b: 0.15, a: 1}
   category: 1
+  grade: 4
   description: A relic from a lost age. Obtainable only from summons.
   sellPrice: 5000
+  autoSell: 0
+  weight: 5
   effect: 0
   restorePercent: 0.2
   restoreFlat: 0

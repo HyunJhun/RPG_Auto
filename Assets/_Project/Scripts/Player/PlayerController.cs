@@ -3,6 +3,7 @@ using RPGAuto.Combat;
 using RPGAuto.Combat.Targeting;
 using RPGAuto.Core;
 using RPGAuto.InputHandling;
+using RPGAuto.Items;
 using RPGAuto.Loot;
 using RPGAuto.Monster;
 using RPGAuto.Player.States;
@@ -29,6 +30,8 @@ namespace RPGAuto.Player
         [SerializeField] private float arriveThreshold = 0.05f;
         [SerializeField] private float tapSampleRadius = 3f;
         [SerializeField, Range(0f, 0.5f)] private float moveInputDeadZone = 0.1f;
+        [Tooltip("무게 초과 시 이동 속도 배율")]
+        [SerializeField, Range(0.1f, 1f)] private float overweightSpeedMultiplier = 0.5f;
 
         [Header("Death")]
         [SerializeField] private float respawnDelay = 3f;
@@ -36,6 +39,8 @@ namespace RPGAuto.Player
 
         private static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         private MaterialPropertyBlock _mpb;
+        private PlayerInventory _inventory;
+        private float _speedMultiplier = 1f;
 
         public NavMeshAgent Agent { get; private set; }
         public CombatStats Stats { get; private set; }
@@ -45,7 +50,9 @@ namespace RPGAuto.Player
         public QuickSlotBar QuickSlots { get; private set; }
         public PlayerLooter Looter { get; private set; }
 
-        public float MoveSpeed => moveSpeed;
+        /// <summary>무게 초과 패널티가 반영된 이동 속도</summary>
+        public float MoveSpeed => moveSpeed * _speedMultiplier;
+        public bool IsOverweight => _inventory != null && _inventory.IsOverweight;
         public float ArriveThreshold => arriveThreshold;
         public float RespawnDelay => respawnDelay;
         public bool IsDead => Stats.IsDead;
@@ -77,6 +84,7 @@ namespace RPGAuto.Player
             Skills = GetComponent<PlayerSkillController>();
             QuickSlots = GetComponent<QuickSlotBar>();
             Looter = GetComponent<PlayerLooter>();
+            _inventory = GetComponent<PlayerInventory>();
             if (bodyRenderer == null) bodyRenderer = GetComponent<Renderer>();
             _mpb = new MaterialPropertyBlock();
 
@@ -111,6 +119,7 @@ namespace RPGAuto.Player
             }
             Combat.OnAutoCombatChanged += HandleAutoCombatChanged;
             Stats.OnDied += HandleDied;
+            if (_inventory != null) _inventory.OnWeightChanged += HandleWeightChanged;
         }
 
         private void OnDisable()
@@ -125,11 +134,13 @@ namespace RPGAuto.Player
             }
             Combat.OnAutoCombatChanged -= HandleAutoCombatChanged;
             Stats.OnDied -= HandleDied;
+            if (_inventory != null) _inventory.OnWeightChanged -= HandleWeightChanged;
         }
 
         private void Start()
         {
             SpawnPosition = transform.position;
+            ApplyWeightPenalty();
             StateMachine.ChangeState(IdleState);
         }
 
@@ -236,6 +247,15 @@ namespace RPGAuto.Player
         }
 
         private void HandleDied() => StateMachine.ChangeState(DeadState);
+
+        private void HandleWeightChanged(float current, float max) => ApplyWeightPenalty();
+
+        /// <summary>무게 초과면 이동 속도 감소 (NavMesh 이동·직접 이동 모두 MoveSpeed 사용)</summary>
+        private void ApplyWeightPenalty()
+        {
+            _speedMultiplier = IsOverweight ? overweightSpeedMultiplier : 1f;
+            Agent.speed = MoveSpeed;
+        }
 
         public void Respawn()
         {

@@ -17,8 +17,11 @@ MonoBehaviour:
   shortLabel: HP+
   slotColor: {r: 0.55, g: 0.05, b: 0.15, a: 1}
   category: 0
+  grade: 1
   description: Restores 50% of max HP.
   sellPrice: 40
+  autoSell: 0
+  weight: 1.5
   effect: 0
   restorePercent: 0.5
   restoreFlat: 0

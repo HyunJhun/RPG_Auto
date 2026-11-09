@@ -32,3 +32,31 @@ MonoBehaviour:
     chance: 0.5
     minCount: 1
     maxCount: 1
+  - item: {fileID: 11400000, guid: 75bde66bf408afe40a9914ce7a117b95, type: 2}
+    chance: 0.15
+    minCount: 1
+    maxCount: 1
+  - item: {fileID: 11400000, guid: e664db04c75d2fa429078e32f0a3e04e, type: 2}
+    chance: 0.1
+    minCount: 1
+    maxCount: 1
+  - item: {fileID: 11400000, guid: f2240b23d2664ff459520170fcf29e94, type: 2}
+    chance: 0.1
+    minCount: 1
+    maxCount: 1
+  - item: {fileID: 11400000, guid: e27d11862fa928c468b3c3585ea14307, type: 2}
+    chance: 0.1
+    minCount: 1
+    maxCount: 1
+  - item: {fileID: 11400000, guid: ffd82e6fea9e6c749bfaec56388eedef, type: 2}
+    chance: 0.03
+    minCount: 1
+    maxCount: 1
+  - item: {fileID: 11400000, guid: dab245dd8dc1a014f852890cb2bbefb3, type: 2}
+    chance: 0.02
+    minCount: 1
+    maxCount: 1
+  - item: {fileID: 11400000, guid: 4a0f2893908e9764a86261cd16eb5056, type: 2}
+    chance: 0.6
+    minCount: 1
+    maxCount: 3

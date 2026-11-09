@@ -17,8 +17,11 @@ MonoBehaviour:
   shortLabel: SEAL
   slotColor: {r: 0.6, g: 0.3, b: 0.85, a: 1}
   category: 1
+  grade: 2
   description: Proof of defeating a Goblin Chief. Rare crafting material.
   sellPrice: 250
+  autoSell: 1
+  weight: 2
   effect: 0
   restorePercent: 0.2
   restoreFlat: 0

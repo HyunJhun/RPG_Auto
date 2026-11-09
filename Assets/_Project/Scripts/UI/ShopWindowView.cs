@@ -8,18 +8,21 @@ using UnityEngine.UI;
 namespace RPGAuto.UI
 {
     /// <summary>
-    /// 상점 창 (단축키 O / 메뉴 버튼). 구매/판매 탭, 수량 선택, 테스트용 골드 지급.
-    /// 거래 규칙은 ShopService, 화면 갱신은 지갑·인벤토리 이벤트 구독(Observer).
+    /// 상점 창 (단축키 O / 메뉴 버튼) — 프라시아 전기 상인 형식.
+    /// 좌측: 구매/판매 탭, 세율, 일괄 구매, 수량 슬라이더 목록, 예상 무게·지불 금액, 완료.
+    /// 우측: 인벤토리를 함께 열고, 인벤토리 칸을 누르거나 [자동 담기]로 판매 바구니에 담는다.
     /// </summary>
-    public class ShopWindowView : MonoBehaviour, IGameWindow
+    public class ShopWindowView : MonoBehaviour, IGameWindow, IInventoryShopHook
     {
         private enum Tab { Buy, Sell }
 
         [Header("Data")]
         [SerializeField] private ShopData shop;
         [SerializeField] private PlayerInventory inventory;
+        [SerializeField] private PlayerEquipment equipment;
         [SerializeField] private PlayerWallet wallet;
         [SerializeField] private PlayerInputHandler input;
+        [SerializeField] private InventoryWindowView inventoryWindow;
 
         [Header("Window")]
         [SerializeField] private GameObject window;
@@ -28,30 +31,26 @@ namespace RPGAuto.UI
         [SerializeField] private Text titleText;
         [SerializeField] private Button buyTabButton;
         [SerializeField] private Button sellTabButton;
+        [SerializeField] private Text taxText;
+        [SerializeField] private Button bulkBuyButton;
+        [SerializeField] private Button clearButton;
+
+        [Header("List")]
         [SerializeField] private RectTransform listContent;
-        [SerializeField] private ShopRowView rowPrefab;
-        [SerializeField] private GameObject listEmptyHint;
+        [SerializeField] private ShopTradeRowView rowPrefab;
+        [SerializeField] private Text listEmptyHint;
+
+        [Header("Summary")]
+        [SerializeField] private Text weightText;
+        [SerializeField] private Text paymentText;
         [SerializeField] private Text goldText;
         [SerializeField] private Text messageText;
-
-        [Header("Detail")]
-        [SerializeField] private GameObject detailRoot;
-        [SerializeField] private GameObject detailEmptyHint;
-        [SerializeField] private Image detailIcon;
-        [SerializeField] private Text detailIconLabel;
-        [SerializeField] private Text detailName;
-        [SerializeField] private Text detailDescription;
-        [SerializeField] private Text detailInfo;
-        [SerializeField] private OptionRowView quantityRow;
-        [SerializeField] private Button maxButton;
-        [SerializeField] private Text totalText;
-        [SerializeField] private Button actionButton;
-        [SerializeField] private Text actionText;
+        [SerializeField] private Button doneButton;
+        [SerializeField] private Text doneText;
 
         [Header("Test")]
         [SerializeField] private Button testGoldButton;
         [SerializeField] private long testGoldAmount = 10000;
-        [SerializeField] private Button sellAllMaterialsButton;
 
         [Header("Style")]
         [SerializeField] private Color tabOn = new(0.85f, 0.65f, 0.2f, 1f);
@@ -59,53 +58,53 @@ namespace RPGAuto.UI
         [SerializeField] private Color okColor = new(0.55f, 0.95f, 0.55f);
         [SerializeField] private Color errorColor = new(1f, 0.45f, 0.4f);
 
-        private readonly List<ShopRowView> _rows = new();
-        private readonly List<ItemData> _sellItems = new();
+        private readonly List<ShopTradeRowView> _rows = new();
+        private readonly List<BuyLine> _buy = new();
+        private readonly List<SellLine> _sell = new();
         private Tab _tab = Tab.Buy;
-        private int _selected = -1;
-        private int _quantity = 1;
-        private bool _dirty;
         private float _messageTimer;
+        private bool _dirty;
+
+        public bool IsOpen => window != null && window.activeSelf;
 
         private void Awake()
         {
+            if (shop != null)
+                foreach (var p in shop.Products) _buy.Add(new BuyLine { Product = p, Quantity = 0 });
+
             openButton?.onClick.AddListener(Toggle);
             closeButton?.onClick.AddListener(() => SetOpen(false));
             buyTabButton?.onClick.AddListener(() => SelectTab(Tab.Buy));
             sellTabButton?.onClick.AddListener(() => SelectTab(Tab.Sell));
-            maxButton?.onClick.AddListener(() => SetQuantity(MaxQuantity()));
-            actionButton?.onClick.AddListener(DoTransaction);
+            bulkBuyButton?.onClick.AddListener(BulkBuy);
+            clearButton?.onClick.AddListener(ClearBasket);
+            doneButton?.onClick.AddListener(Done);
             testGoldButton?.onClick.AddListener(() =>
             {
                 wallet.AddGold(testGoldAmount);
                 ShowMessage($"[TEST] Gold +{testGoldAmount:N0}", true);
             });
-            sellAllMaterialsButton?.onClick.AddListener(SellAllMaterials);
-            if (quantityRow != null)
-            {
-                quantityRow.OnMinus += () => SetQuantity(_quantity - 1);
-                quantityRow.OnPlus += () => SetQuantity(_quantity + 1);
-            }
-            if (titleText != null && shop != null) titleText.text = shop.ShopName.ToUpperInvariant();
+            if (titleText != null && shop != null) titleText.text = shop.ShopName;
+            if (taxText != null && shop != null) taxText.text = $"Current Tax Rate  {shop.TaxRate * 100f:0}%";
             SetOpen(false);
         }
 
         private void OnEnable()
         {
             if (input != null) input.OnShopTogglePressed += Toggle;
-            if (inventory != null) inventory.OnItemCountChanged += HandleItemChanged;
-            if (wallet != null) wallet.OnGoldChanged += HandleGoldChanged;
+            if (inventory != null) inventory.OnInventoryChanged += MarkDirty;
+            if (wallet != null) wallet.OnGoldChanged += HandleGold;
         }
 
         private void OnDisable()
         {
             if (input != null) input.OnShopTogglePressed -= Toggle;
-            if (inventory != null) inventory.OnItemCountChanged -= HandleItemChanged;
-            if (wallet != null) wallet.OnGoldChanged -= HandleGoldChanged;
+            if (inventory != null) inventory.OnInventoryChanged -= MarkDirty;
+            if (wallet != null) wallet.OnGoldChanged -= HandleGold;
         }
 
-        private void HandleItemChanged(ItemData item, int count) => _dirty = true;
-        private void HandleGoldChanged(long gold, long delta) => _dirty = true;
+        private void MarkDirty() => _dirty = true;
+        private void HandleGold(long gold, long delta) => _dirty = true;
 
         private void LateUpdate()
         {
@@ -117,10 +116,9 @@ namespace RPGAuto.UI
             }
             if (!_dirty) return;
             _dirty = false;
-            Refresh();
+            Rebuild();
         }
 
-        public bool IsOpen => window != null && window.activeSelf;
         public void Toggle() => SetOpen(!IsOpen);
 
         public void SetOpen(bool open)
@@ -128,87 +126,117 @@ namespace RPGAuto.UI
             if (window == null) return;
             window.SetActive(open);
             WindowManager.NotifyChanged(this, open);
-            if (!open) return;
-            if (messageText != null) messageText.text = string.Empty;
-            SelectTab(_tab);
+
+            if (open)
+            {
+                if (messageText != null) messageText.text = string.Empty;
+                // 상인 창을 열면 인벤토리를 옆에 함께 연다 (판매 바구니 연결)
+                if (inventoryWindow != null)
+                {
+                    inventoryWindow.SetShopHook(this);
+                    if (!inventoryWindow.IsOpen) inventoryWindow.SetOpen(true);
+                }
+                SelectTab(_tab);
+                return;
+            }
+
+            ResetQuantities();
+            _sell.Clear();
+            if (inventoryWindow != null)
+            {
+                inventoryWindow.SetShopHook(null); // 먼저 끊어서 OnInventoryClosed가 다시 불리지 않게
+                if (inventoryWindow.IsOpen) inventoryWindow.SetOpen(false);
+            }
         }
+
+        // ---------------- IInventoryShopHook ----------------
+
+        public void OnInventoryEntryClicked(InventoryEntry entry)
+        {
+            if (entry == null) return;
+            if (!entry.Item.IsSellable) { ShowMessage(ShopService.ToMessage(ShopResult.NotSellable), false); return; }
+            if (entry.IsEquipment && equipment != null && equipment.IsEquipped(entry.Equipment))
+            {
+                ShowMessage(ShopService.ToMessage(ShopResult.Equipped), false);
+                return;
+            }
+
+            int index = _sell.FindIndex(l => l.Entry == entry);
+            if (index < 0) _sell.Add(new SellLine { Entry = entry, Quantity = entry.Count });
+            if (_tab != Tab.Sell) SelectTab(Tab.Sell);
+            else Rebuild();
+        }
+
+        /// <summary>자동 담기: [자동 담기] 대상으로 지정된 전리품(ItemData.AutoSell)을 바구니에 담는다</summary>
+        public void AutoFill()
+        {
+            int added = 0;
+            foreach (var e in inventory.Entries)
+            {
+                if (!e.Item.AutoSell) continue;
+                if (_sell.Exists(l => l.Entry == e)) continue;
+                _sell.Add(new SellLine { Entry = e, Quantity = e.Count });
+                added++;
+            }
+            ShowMessage(added > 0 ? $"Added {added} kinds of loot" : "No loot to add", added > 0);
+            SelectTab(Tab.Sell);
+        }
+
+        public void ClearBasket()
+        {
+            if (_tab == Tab.Buy) ResetQuantities();
+            else _sell.Clear();
+            Rebuild();
+        }
+
+        public void OnInventoryClosed() => SetOpen(false);
 
         // ---------------- Actions ----------------
 
         private void SelectTab(Tab tab)
         {
             _tab = tab;
-            _selected = -1;
-            _quantity = 1;
-            Refresh();
-            if (RowCount > 0) Select(0);
+            Rebuild();
         }
 
-        private void Select(int index)
+        private void ResetQuantities()
         {
-            _selected = index;
-            _quantity = 1;
-            Refresh();
+            for (int i = 0; i < _buy.Count; i++) _buy[i] = new BuyLine { Product = _buy[i].Product, Quantity = 0 };
         }
 
-        private void SetQuantity(int value)
+        /// <summary>일괄 구매: 상품마다 정해 둔 수량(restockTarget)까지 채우도록 수량을 설정</summary>
+        private void BulkBuy()
         {
-            _quantity = Mathf.Clamp(value, 1, MaxQuantity());
-            Refresh();
+            for (int i = 0; i < _buy.Count; i++)
+            {
+                var p = _buy[i].Product;
+                int need = p.restockTarget > 0 ? Mathf.Max(0, p.restockTarget - inventory.GetCount(p.item)) : 0;
+                _buy[i] = new BuyLine { Product = p, Quantity = Mathf.Min(need, ShopService.MaxQuantity) };
+            }
+            Rebuild();
         }
 
-        private int MaxQuantity()
+        private void Done()
         {
-            if (_selected < 0) return 1;
-            return _tab == Tab.Buy
-                ? ShopService.MaxAffordable(shop.Products[_selected].price, wallet)
-                : Mathf.Max(1, inventory.GetCount(_sellItems[_selected]));
-        }
-
-        private void DoTransaction()
-        {
-            if (_selected < 0) return;
             ShopResult result;
             string done;
             if (_tab == Tab.Buy)
             {
-                var p = shop.Products[_selected];
-                result = ShopService.Buy(p, _quantity, wallet, inventory);
-                done = $"Bought {p.item.DisplayName} x{_quantity}  (-{p.price * _quantity:N0} G)";
+                long cost = ShopService.TotalCost(_buy, shop.TaxRate);
+                result = ShopService.Buy(_buy, shop.TaxRate, wallet, inventory);
+                done = $"Purchase complete  (-{cost:N0} G)";
+                if (result == ShopResult.Ok) ResetQuantities();
             }
             else
             {
-                var item = _sellItems[_selected];
-                result = ShopService.Sell(item, _quantity, wallet, inventory);
-                done = $"Sold {item.DisplayName} x{_quantity}  (+{item.SellPrice * _quantity:N0} G)";
+                long total = ShopService.TotalSell(_sell);
+                result = ShopService.Sell(_sell, wallet, inventory, equipment);
+                done = $"Sale complete  (+{total:N0} G)";
+                if (result == ShopResult.Ok) _sell.Clear();
             }
-
             bool ok = result == ShopResult.Ok;
             ShowMessage(ok ? done : ShopService.ToMessage(result), ok);
-            if (!ok) return;
-
-            _quantity = 1;
-            // 판매로 칸이 사라졌으면 선택을 앞쪽으로 옮긴다
-            RebuildSellList();
-            if (_selected >= RowCount) _selected = RowCount - 1;
-            Refresh();
-        }
-
-        private void SellAllMaterials()
-        {
-            long total = 0;
-            int kinds = 0;
-            var items = new List<ItemData>(inventory.Items);
-            foreach (var item in items)
-            {
-                if (item.Category != ItemCategory.Material || !item.IsSellable) continue;
-                int count = inventory.GetCount(item);
-                if (ShopService.Sell(item, count, wallet, inventory) != ShopResult.Ok) continue;
-                total += item.SellPrice * count;
-                kinds++;
-            }
-            ShowMessage(kinds > 0 ? $"Sold {kinds} kinds of materials  (+{total:N0} G)" : "No materials to sell", kinds > 0);
-            if (_tab == Tab.Sell) SelectTab(Tab.Sell);
+            Rebuild();
         }
 
         private void ShowMessage(string text, bool ok)
@@ -216,101 +244,117 @@ namespace RPGAuto.UI
             if (messageText == null) return;
             messageText.text = text;
             messageText.color = ok ? okColor : errorColor;
-            _messageTimer = 2.5f;
+            _messageTimer = 3f;
         }
 
         // ---------------- View ----------------
 
-        private int RowCount => _tab == Tab.Buy ? (shop != null ? shop.Products.Count : 0) : _sellItems.Count;
-
-        private void RebuildSellList()
+        private void Rebuild()
         {
-            _sellItems.Clear();
-            foreach (var item in inventory.Items)
-                if (item.IsSellable) _sellItems.Add(item);
-        }
+            // 인벤토리에서 사라진 칸은 판매 바구니에서도 뺀다
+            _sell.RemoveAll(l => !inventory.HasEntry(l.Entry));
+            for (int i = 0; i < _sell.Count; i++)
+            {
+                var l = _sell[i];
+                if (l.Quantity > l.Entry.Count) _sell[i] = new SellLine { Entry = l.Entry, Quantity = l.Entry.Count };
+            }
 
-        private void Refresh()
-        {
-            if (_tab == Tab.Sell) RebuildSellList();
-            int count = RowCount;
-            if (_selected >= count) _selected = count - 1;
+            bool buy = _tab == Tab.Buy;
+            if (buyTabButton != null) buyTabButton.targetGraphic.color = buy ? tabOn : tabOff;
+            if (sellTabButton != null) sellTabButton.targetGraphic.color = buy ? tabOff : tabOn;
+            if (bulkBuyButton != null) bulkBuyButton.gameObject.SetActive(buy);
+            if (doneText != null) doneText.text = buy ? "BUY" : "SELL";
 
-            // 탭 버튼
-            if (buyTabButton != null) buyTabButton.targetGraphic.color = _tab == Tab.Buy ? tabOn : tabOff;
-            if (sellTabButton != null) sellTabButton.targetGraphic.color = _tab == Tab.Sell ? tabOn : tabOff;
-            if (sellAllMaterialsButton != null) sellAllMaterialsButton.gameObject.SetActive(_tab == Tab.Sell);
-
-            // 목록 (필요한 만큼만 생성하고 재사용)
+            int count = buy ? _buy.Count : _sell.Count;
             while (_rows.Count < count)
             {
                 var row = Instantiate(rowPrefab, listContent);
-                row.name = $"UI_ShopRow_{_rows.Count + 1:00}";
+                row.name = $"UI_ShopTradeRow_{_rows.Count + 1:00}";
                 row.Index = _rows.Count;
-                row.OnClicked += r => Select(r.Index);
+                row.OnQuantityChanged += HandleQuantity;
+                row.OnRemove += HandleRemove;
                 _rows.Add(row);
             }
+
             for (int i = 0; i < _rows.Count; i++)
             {
                 bool active = i < count;
                 _rows[i].gameObject.SetActive(active);
                 if (!active) continue;
-                if (_tab == Tab.Buy)
+
+                if (buy)
                 {
-                    var p = shop.Products[i];
-                    _rows[i].Bind(p.item, $"Owned {inventory.GetCount(p.item):N0}", p.price, i == _selected);
+                    var l = _buy[i];
+                    long unit = ShopService.UnitBuyPrice(l.Product, shop.TaxRate);
+                    _rows[i].Bind(l.Product.item, l.Product.item.DisplayName, $"Owned {inventory.GetCount(l.Product.item):N0}",
+                        unit, Mathf.Max(l.Quantity, MaxBuyable(l.Product, unit)), l.Quantity, false);
                 }
                 else
                 {
-                    var item = _sellItems[i];
-                    _rows[i].Bind(item, $"Owned {inventory.GetCount(item):N0}", item.SellPrice, i == _selected);
+                    var l = _sell[i];
+                    var e = l.Entry;
+                    string name = e.IsEquipment ? e.Equipment.DisplayName : e.Item.DisplayName;
+                    _rows[i].Bind(e.Item, name, $"Owned {e.Count:N0}", e.Item.SellPrice, e.Count, l.Quantity, true);
                 }
             }
-            if (listEmptyHint != null) listEmptyHint.SetActive(count == 0);
-            if (goldText != null) goldText.text = $"Gold  {wallet.Gold:N0}";
 
-            RefreshDetail();
+            if (listEmptyHint != null)
+            {
+                listEmptyHint.gameObject.SetActive(count == 0);
+                listEmptyHint.text = buy ? "No products" : "Tap items in your inventory\nor use AUTO FILL";
+            }
+            RefreshSummary();
         }
 
-        private void RefreshDetail()
+        /// <summary>슬라이더 최대치: 999개, 지금 골드로 살 수 있는 수, 남은 무게로 들 수 있는 수 중 최소</summary>
+        private int MaxBuyable(in ShopData.Product product, long unitPrice)
         {
-            bool has = _selected >= 0;
-            if (detailRoot != null) detailRoot.SetActive(has);
-            if (detailEmptyHint != null) detailEmptyHint.SetActive(!has);
-            if (!has) return;
+            int max = ShopService.MaxAffordable(unitPrice, wallet);
+            float w = product.item.Weight;
+            if (w > 0f) max = Mathf.Min(max, Mathf.Max(0, Mathf.FloorToInt((inventory.MaxWeight - inventory.CurrentWeight) / w)));
+            return Mathf.Clamp(max, 0, ShopService.MaxQuantity);
+        }
 
-            ItemData item;
-            long unit;
-            if (_tab == Tab.Buy)
+        private void HandleQuantity(ShopTradeRowView row, int quantity)
+        {
+            int i = row.Index;
+            if (_tab == Tab.Buy && i < _buy.Count) _buy[i] = new BuyLine { Product = _buy[i].Product, Quantity = quantity };
+            else if (_tab == Tab.Sell && i < _sell.Count) _sell[i] = new SellLine { Entry = _sell[i].Entry, Quantity = quantity };
+            RefreshSummary(); // 슬라이더를 다시 만들지 않도록 요약만 갱신
+        }
+
+        private void HandleRemove(ShopTradeRowView row)
+        {
+            if (_tab == Tab.Sell && row.Index < _sell.Count) _sell.RemoveAt(row.Index);
+            Rebuild();
+        }
+
+        private void RefreshSummary()
+        {
+            bool buy = _tab == Tab.Buy;
+            float delta = buy ? ShopService.TotalWeight(_buy) : -ShopService.TotalWeight(_sell);
+            float expected = inventory.CurrentWeight + delta;
+            if (weightText != null)
             {
-                var p = shop.Products[_selected];
-                item = p.item;
-                unit = p.price;
+                weightText.text = $"Expected Weight  {expected:#,0.#} / {inventory.MaxWeight:#,0}";
+                weightText.color = expected > inventory.MaxWeight ? errorColor : Color.white;
             }
-            else
+
+            if (buy)
             {
-                item = _sellItems[_selected];
-                unit = item.SellPrice;
+                long cost = ShopService.TotalCost(_buy, shop.TaxRate);
+                if (paymentText != null)
+                {
+                    paymentText.text = $"Payment  {cost:N0} G";
+                    paymentText.color = wallet.CanAfford(cost) ? new Color(1f, 0.85f, 0.35f) : errorColor;
+                }
             }
-
-            _quantity = Mathf.Clamp(_quantity, 1, MaxQuantity());
-            long total = unit * _quantity;
-
-            if (detailIcon != null) detailIcon.color = item.SlotColor;
-            if (detailIconLabel != null) detailIconLabel.text = item.ShortLabel;
-            if (detailName != null) detailName.text = item.DisplayName;
-            if (detailDescription != null) detailDescription.text = item.Description;
-            if (detailInfo != null)
-                detailInfo.text = $"{(_tab == Tab.Buy ? "Price" : "Sell Price")}  {unit:N0} G\nOwned  {inventory.GetCount(item):N0}";
-            quantityRow?.Show("Quantity", null, _quantity.ToString());
-
-            bool affordable = _tab == Tab.Sell || wallet.CanAfford(total);
-            if (totalText != null)
+            else if (paymentText != null)
             {
-                totalText.text = $"Total  {total:N0} G";
-                totalText.color = affordable ? Color.white : errorColor;
+                paymentText.text = $"Receive  {ShopService.TotalSell(_sell):N0} G";
+                paymentText.color = new Color(1f, 0.85f, 0.35f);
             }
-            if (actionText != null) actionText.text = _tab == Tab.Buy ? "BUY" : "SELL";
+            if (goldText != null) goldText.text = $"Gold  {wallet.Gold:N0}";
         }
     }
 }

@@ -63,6 +63,8 @@ namespace RPGAuto.EditorTools
             var greater = Item("IT_HpPotionGreater");
             var ear = Item("IT_GoblinEar");
             var seal = Item("IT_ChiefSeal");
+            var scroll = Item("IT_EnhanceScroll");
+            static ItemData Eq(string id) => EquipmentBuilder.Load(id) ?? throw new System.Exception($"EQ_{id} 없음 — Build Equipment Data 먼저 실행");
 
             var relic = LoadOrCreate<ItemData>(ItemFolder + "/IT_AncientRelic.asset");
             Set(relic, ("itemId", "I104"), ("displayName", "Ancient Relic"), ("shortLabel", "RELIC"),
@@ -79,10 +81,10 @@ namespace RPGAuto.EditorTools
 
             (GachaGrade grade, float weight, (ItemData item, int count)[] rewards)[] tables =
             {
-                (GachaGrade.Common, 70f, new[] { (hp, 5), (mp, 5), (ear, 10) }),
-                (GachaGrade.Rare, 22f, new[] { (greater, 3), (hp, 20), (mp, 15) }),
-                (GachaGrade.Epic, 7f, new[] { (seal, 1), (greater, 10) }),
-                (GachaGrade.Legendary, 1f, new[] { (relic, 1) }),
+                (GachaGrade.Common, 70f, new[] { (hp, 5), (mp, 5), (ear, 10), (scroll, 1) }),
+                (GachaGrade.Rare, 22f, new[] { (greater, 3), (hp, 20), (scroll, 3), (Eq("IronSword"), 1), (Eq("IronArmor"), 1), (Eq("CopperRing"), 1) }),
+                (GachaGrade.Epic, 7f, new[] { (seal, 1), (scroll, 8), (Eq("KnightSword"), 1), (Eq("KnightArmor"), 1), (Eq("SilverRing"), 1), (Eq("SilverNecklace"), 1) }),
+                (GachaGrade.Legendary, 1f, new[] { (relic, 1), (Eq("AncientBlade"), 1), (Eq("ChiefAxe"), 1) }),
             };
             var grades = so.FindProperty("grades");
             grades.arraySize = tables.Length;

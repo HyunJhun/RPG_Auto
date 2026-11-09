@@ -28,6 +28,8 @@ MonoBehaviour:
       count: 5
     - item: {fileID: 11400000, guid: 7e37a513ef06c014481003ca7e78228e, type: 2}
       count: 10
+    - item: {fileID: 11400000, guid: 4a0f2893908e9764a86261cd16eb5056, type: 2}
+      count: 1
   - grade: 1
     weight: 22
     rewards:
@@ -35,17 +37,35 @@ MonoBehaviour:
       count: 3
     - item: {fileID: 11400000, guid: 3bb7c669eebff3541b7f3de89303b0b0, type: 2}
       count: 20
-    - item: {fileID: 11400000, guid: f402ca0f154b0b546976d521b0bca804, type: 2}
-      count: 15
+    - item: {fileID: 11400000, guid: 4a0f2893908e9764a86261cd16eb5056, type: 2}
+      count: 3
+    - item: {fileID: 11400000, guid: 75bde66bf408afe40a9914ce7a117b95, type: 2}
+      count: 1
+    - item: {fileID: 11400000, guid: e664db04c75d2fa429078e32f0a3e04e, type: 2}
+      count: 1
+    - item: {fileID: 11400000, guid: e27d11862fa928c468b3c3585ea14307, type: 2}
+      count: 1
   - grade: 2
     weight: 7
     rewards:
     - item: {fileID: 11400000, guid: a9d541b2fe4ca80429a1f5f9cbbb3b00, type: 2}
       count: 1
-    - item: {fileID: 11400000, guid: 19c764ed1b4326e4c819dbbd2088c59d, type: 2}
-      count: 10
+    - item: {fileID: 11400000, guid: 4a0f2893908e9764a86261cd16eb5056, type: 2}
+      count: 8
+    - item: {fileID: 11400000, guid: ffd82e6fea9e6c749bfaec56388eedef, type: 2}
+      count: 1
+    - item: {fileID: 11400000, guid: da5169dc9eaeb4140b5101bbb37aa569, type: 2}
+      count: 1
+    - item: {fileID: 11400000, guid: f604a4cd1aa64984181c2e3187e8aec5, type: 2}
+      count: 1
+    - item: {fileID: 11400000, guid: 92fd44f1cdbfea146a36b43d4a32b498, type: 2}
+      count: 1
   - grade: 3
     weight: 1
     rewards:
     - item: {fileID: 11400000, guid: 8dffa0353c9d6804289ed3c47db66028, type: 2}
+      count: 1
+    - item: {fileID: 11400000, guid: 680527f8fffcc7a409069acc46427e70, type: 2}
+      count: 1
+    - item: {fileID: 11400000, guid: dab245dd8dc1a014f852890cb2bbefb3, type: 2}
       count: 1

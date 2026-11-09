@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RPGAuto.Items;
 
 namespace RPGAuto.Shop
@@ -7,52 +8,143 @@ namespace RPGAuto.Shop
     {
         Ok,
         Invalid,
+        Nothing,
         NotEnoughGold,
         InventoryFull,
+        Overweight,
         NotEnoughItems,
-        NotSellable
+        NotSellable,
+        Equipped
     }
 
-    /// <summary>구매/판매 규칙 (UI와 분리된 순수 로직)</summary>
+    /// <summary>구매 주문 한 줄</summary>
+    public struct BuyLine
+    {
+        public ShopData.Product Product;
+        public int Quantity;
+    }
+
+    /// <summary>판매 바구니 한 줄 (인벤토리 칸 기준)</summary>
+    public struct SellLine
+    {
+        public InventoryEntry Entry;
+        public int Quantity;
+    }
+
+    /// <summary>구매/판매 규칙 (UI와 분리된 순수 로직). 여러 줄을 한 번에 검사한 뒤 한꺼번에 처리한다.</summary>
     public static class ShopService
     {
         public const int MaxQuantity = 999;
 
-        /// <summary>현재 골드로 살 수 있는 최대 수량 (최소 1)</summary>
-        public static int MaxAffordable(long price, PlayerWallet wallet) =>
-            price <= 0 ? MaxQuantity : (int)Math.Clamp(wallet.Gold / price, 1, MaxQuantity);
+        /// <summary>세금이 붙은 1개 구매 가격</summary>
+        /// <remarks>float 세율(0.2f = 0.2000000476…)을 그대로 곱하면 올림 시 1G가 더 붙으므로 decimal로 계산</remarks>
+        public static long UnitBuyPrice(in ShopData.Product product, float taxRate) =>
+            (long)Math.Ceiling(product.price * (1m + (decimal)taxRate));
 
-        public static ShopResult Buy(in ShopData.Product product, int quantity, PlayerWallet wallet, PlayerInventory inventory)
+        public static int MaxAffordable(long unitPrice, PlayerWallet wallet) =>
+            unitPrice <= 0 ? MaxQuantity : (int)Math.Clamp(wallet.Gold / unitPrice, 0, MaxQuantity);
+
+        public static long TotalCost(IReadOnlyList<BuyLine> lines, float taxRate)
         {
-            if (product.item == null || quantity <= 0 || product.price < 0) return ShopResult.Invalid;
+            long total = 0;
+            foreach (var l in lines) total += UnitBuyPrice(l.Product, taxRate) * l.Quantity;
+            return total;
+        }
 
-            long cost = product.price * quantity;
-            if (!wallet.CanAfford(cost)) return ShopResult.NotEnoughGold;
-            if (!inventory.CanAccept(product.item)) return ShopResult.InventoryFull;
+        public static float TotalWeight(IReadOnlyList<BuyLine> lines)
+        {
+            float w = 0f;
+            foreach (var l in lines) if (l.Product.item != null) w += l.Product.item.Weight * l.Quantity;
+            return w;
+        }
 
-            wallet.TrySpend(cost);
-            inventory.AddItem(product.item, quantity);
+        public static ShopResult CheckBuy(IReadOnlyList<BuyLine> lines, float taxRate, PlayerWallet wallet, PlayerInventory inventory)
+        {
+            int slots = 0, count = 0;
+            var newKinds = new HashSet<ItemData>();
+            foreach (var l in lines)
+            {
+                if (l.Quantity <= 0) continue;
+                if (l.Product.item == null || l.Product.price < 0) return ShopResult.Invalid;
+                count += l.Quantity;
+                if (!l.Product.item.IsStackable) slots += l.Quantity;
+                else if (inventory.GetCount(l.Product.item) == 0 && newKinds.Add(l.Product.item)) slots++;
+            }
+            if (count == 0) return ShopResult.Nothing;
+            if (inventory.IsOverweight) return ShopResult.Overweight;
+            if (slots > inventory.FreeSlots) return ShopResult.InventoryFull;
+            if (!wallet.CanAfford(TotalCost(lines, taxRate))) return ShopResult.NotEnoughGold;
             return ShopResult.Ok;
         }
 
-        public static ShopResult Sell(ItemData item, int quantity, PlayerWallet wallet, PlayerInventory inventory)
+        public static ShopResult Buy(IReadOnlyList<BuyLine> lines, float taxRate, PlayerWallet wallet, PlayerInventory inventory)
         {
-            if (item == null || quantity <= 0) return ShopResult.Invalid;
-            if (!item.IsSellable) return ShopResult.NotSellable;
-            if (inventory.GetCount(item) < quantity) return ShopResult.NotEnoughItems;
+            var check = CheckBuy(lines, taxRate, wallet, inventory);
+            if (check != ShopResult.Ok) return check;
 
-            inventory.AddItem(item, -quantity);
-            wallet.AddGold(item.SellPrice * quantity);
+            wallet.TrySpend(TotalCost(lines, taxRate));
+            foreach (var l in lines)
+                if (l.Quantity > 0) inventory.ForceAdd(l.Product.item, l.Quantity);
+            return ShopResult.Ok;
+        }
+
+        public static long TotalSell(IReadOnlyList<SellLine> lines)
+        {
+            long total = 0;
+            foreach (var l in lines) if (l.Entry != null) total += l.Entry.Item.SellPrice * l.Quantity;
+            return total;
+        }
+
+        public static float TotalWeight(IReadOnlyList<SellLine> lines)
+        {
+            float w = 0f;
+            foreach (var l in lines) if (l.Entry != null) w += l.Entry.Item.Weight * l.Quantity;
+            return w;
+        }
+
+        public static ShopResult CheckSell(in SellLine line, PlayerInventory inventory, PlayerEquipment equipment)
+        {
+            var e = line.Entry;
+            if (e == null || line.Quantity <= 0) return ShopResult.Invalid;
+            if (!e.Item.IsSellable) return ShopResult.NotSellable;
+            if (e.IsEquipment)
+            {
+                if (!inventory.Contains(e.Equipment)) return ShopResult.NotEnoughItems;
+                if (equipment != null && equipment.IsEquipped(e.Equipment)) return ShopResult.Equipped;
+            }
+            else if (inventory.GetCount(e.Item) < line.Quantity) return ShopResult.NotEnoughItems;
+            return ShopResult.Ok;
+        }
+
+        public static ShopResult Sell(IReadOnlyList<SellLine> lines, PlayerWallet wallet, PlayerInventory inventory, PlayerEquipment equipment)
+        {
+            int count = 0;
+            foreach (var l in lines)
+            {
+                if (l.Quantity <= 0) continue;
+                count++;
+                var check = CheckSell(l, inventory, equipment);
+                if (check != ShopResult.Ok) return check;
+            }
+            if (count == 0) return ShopResult.Nothing;
+
+            long total = TotalSell(lines);
+            foreach (var l in lines)
+                if (l.Quantity > 0) inventory.RemoveFromEntry(l.Entry, l.Quantity);
+            wallet.AddGold(total);
             return ShopResult.Ok;
         }
 
         public static string ToMessage(ShopResult result) => result switch
         {
             ShopResult.Ok => string.Empty,
+            ShopResult.Nothing => "Nothing selected",
             ShopResult.NotEnoughGold => "Not enough gold",
-            ShopResult.InventoryFull => "Inventory is full",
+            ShopResult.InventoryFull => "Not enough inventory slots",
+            ShopResult.Overweight => "Too heavy - reduce your weight first",
             ShopResult.NotEnoughItems => "Not enough items",
             ShopResult.NotSellable => "This item cannot be sold",
+            ShopResult.Equipped => "Unequip the item before selling",
             _ => "Cannot complete the transaction"
         };
     }

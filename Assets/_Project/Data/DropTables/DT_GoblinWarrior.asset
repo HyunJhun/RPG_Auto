@@ -28,3 +28,27 @@ MonoBehaviour:
     chance: 0.5
     minCount: 1
     maxCount: 3
+  - item: {fileID: 11400000, guid: e4ffafdd33ea4774f999158bf90b07ea, type: 2}
+    chance: 0.03
+    minCount: 1
+    maxCount: 1
+  - item: {fileID: 11400000, guid: 90a5ff088522b03468e51193b8b72a52, type: 2}
+    chance: 0.03
+    minCount: 1
+    maxCount: 1
+  - item: {fileID: 11400000, guid: ccd1ccd67e8cf1c479689a5f16f1a81b, type: 2}
+    chance: 0.03
+    minCount: 1
+    maxCount: 1
+  - item: {fileID: 11400000, guid: 4ea34aa0654a3a94a9e5eef5791c6e62, type: 2}
+    chance: 0.03
+    minCount: 1
+    maxCount: 1
+  - item: {fileID: 11400000, guid: 69421c30c3b34514c84552fa94cf7c8b, type: 2}
+    chance: 0.02
+    minCount: 1
+    maxCount: 1
+  - item: {fileID: 11400000, guid: 4a0f2893908e9764a86261cd16eb5056, type: 2}
+    chance: 0.1
+    minCount: 1
+    maxCount: 1

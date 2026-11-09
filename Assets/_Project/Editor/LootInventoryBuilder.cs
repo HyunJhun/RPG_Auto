@@ -87,12 +87,11 @@ namespace RPGAuto.EditorTools
             var canvas = GameObject.Find("UI_Canvas")?.transform;
             if (canvas == null) throw new System.Exception("UI_Canvas가 없습니다.");
             DestroyChild(canvas, "UI_LootLog");
-            DestroyChild(canvas, "UI_InventoryWindow");
             var menuBar = canvas.Find("UI_MenuBar");
 
             BuildLootLog(canvas, looter);
-            var invButton = BuildMenuButton(menuBar);
-            BuildInventoryWindow(canvas, inventory, wallet, quickSlots, input, invButton);
+            BuildMenuButton(menuBar);
+            // 인벤토리 창은 InventoryUIBuilder가 만든다 (BAG 버튼 연결 포함)
 
             EditorSceneManager.MarkSceneDirty(go.scene);
         }
@@ -198,160 +197,5 @@ namespace RPGAuto.EditorTools
         private static Button BuildMenuButton(Transform menuBar) =>
             CloneMenuButton(menuBar, "Inventory", "BAG", "ToggleInventory", 1);
 
-        private static void BuildInventoryWindow(Transform canvas, PlayerInventory inventory, PlayerWallet wallet,
-            QuickSlotBar quickSlots, PlayerInputHandler input, Button openButton)
-        {
-            const float panelW = 900f, panelH = 640f;
-            const float cell = 80f, gap = 8f;
-            const int columns = 6;
-
-            var root = CreateStretch("UI_InventoryWindow", canvas);
-            var panel = CreateRect("UI_InventoryWindow_Panel", root, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(panelW, panelH));
-            AddImage(panel, new Color(0.06f, 0.06f, 0.08f, 0.95f));
-
-            var title = CreateText("UI_InventoryWindow_Title", panel, "INVENTORY", 28, TextAnchor.MiddleCenter, new Color(1f, 0.85f, 0.5f));
-            Place(title.rectTransform, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -14f), new Vector2(480f, 40f));
-
-            var close = CreateButton("UI_InventoryWindow_Button_Close", panel, "X", 26, new Color(0.5f, 0.15f, 0.15f, 1f));
-            Place((RectTransform)close.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-12f, -12f), new Vector2(48f, 48f));
-
-            // ---- 칸 그리드 (좌측) ----
-            float gridW = columns * cell + (columns - 1) * gap;
-            int rows = Mathf.CeilToInt(inventory.Capacity / (float)columns);
-            float gridH = rows * cell + (rows - 1) * gap;
-            var grid = CreateRect("UI_InventoryWindow_Grid", panel, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(24f, -72f), new Vector2(gridW, gridH));
-            var layout = grid.gameObject.AddComponent<GridLayoutGroup>();
-            layout.cellSize = new Vector2(cell, cell);
-            layout.spacing = new Vector2(gap, gap);
-            layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            layout.constraintCount = columns;
-
-            var gold = CreateText("UI_InventoryWindow_GoldText", panel, "Gold  0", 24, TextAnchor.MiddleLeft, new Color(1f, 0.85f, 0.35f));
-            Place(gold.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(24f, 22f), new Vector2(320f, 40f));
-            gold.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.8f);
-            var capacity = CreateText("UI_InventoryWindow_CapacityText", panel, "0 / 0", 20, TextAnchor.MiddleRight, new Color(0.8f, 0.8f, 0.85f));
-            Place(capacity.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(24f + gridW - 160f, 22f), new Vector2(160f, 40f));
-
-            // ---- 상세 정보 (우측) ----
-            float detailX = 24f + gridW + 24f;
-            float detailW = panelW - detailX - 24f;
-            var detailFrame = CreateRect("UI_InventoryWindow_Detail", panel, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(detailX, -72f), new Vector2(detailW, gridH));
-            AddImage(detailFrame, new Color(0.11f, 0.11f, 0.14f, 1f));
-
-            var emptyHint = CreateText("UI_InventoryWindow_Detail_EmptyHint", detailFrame, "Select an item", 20, TextAnchor.MiddleCenter, new Color(0.6f, 0.6f, 0.65f));
-            Stretch(emptyHint.rectTransform, 12f);
-
-            var content = CreateStretch("UI_InventoryWindow_Detail_Content", detailFrame);
-
-            var iconBg = CreateRect("UI_InventoryWindow_Detail_Icon", content, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(16f, -16f), new Vector2(72f, 72f));
-            var iconImg = AddImage(iconBg, Color.white);
-            var iconLabel = CreateText("UI_InventoryWindow_Detail_IconLabel", iconBg, "", 18, TextAnchor.MiddleCenter, Color.white);
-            Stretch(iconLabel.rectTransform, 0f);
-            iconLabel.fontStyle = FontStyle.Bold;
-            iconLabel.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.8f);
-
-            float textX = 100f, textW = detailW - textX - 12f;
-            var name = CreateText("UI_InventoryWindow_Detail_Name", content, "", 24, TextAnchor.UpperLeft, Color.white);
-            Place(name.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(textX, -16f), new Vector2(textW, 32f));
-            name.fontStyle = FontStyle.Bold;
-            var category = CreateText("UI_InventoryWindow_Detail_Category", content, "", 17, TextAnchor.UpperLeft, new Color(0.65f, 0.75f, 0.9f));
-            Place(category.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(textX, -50f), new Vector2(textW, 22f));
-            var count = CreateText("UI_InventoryWindow_Detail_Count", content, "", 17, TextAnchor.UpperLeft, new Color(0.85f, 0.85f, 0.85f));
-            Place(count.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(textX, -72f), new Vector2(textW, 22f));
-
-            var desc = CreateText("UI_InventoryWindow_Detail_Description", content, "", 18, TextAnchor.UpperLeft, new Color(0.88f, 0.88f, 0.9f));
-            Place(desc.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(16f, -108f), new Vector2(detailW - 32f, 150f));
-            desc.horizontalOverflow = HorizontalWrapMode.Wrap;
-            desc.verticalOverflow = VerticalWrapMode.Truncate;
-
-            // 퀵슬롯 등록 (물약 퀵슬롯 7~0)
-            var qsGroup = CreateRect("UI_InventoryWindow_Detail_QuickSlotGroup", content, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(16f, 84f), new Vector2(detailW - 32f, 80f));
-            var qsTitle = CreateText("UI_InventoryWindow_Detail_QuickSlotTitle", qsGroup, "Register to Quick Slot", 16, TextAnchor.UpperLeft, new Color(0.7f, 0.7f, 0.75f));
-            Place(qsTitle.rectTransform, new Vector2(0f, 1f), new Vector2(0f, 1f), Vector2.zero, new Vector2(detailW - 32f, 22f));
-            string[] keys = { "7", "8", "9", "0" };
-            var qsButtons = new Button[QuickSlotBar.ItemSlotCount];
-            float qsW = (detailW - 32f - 3 * 8f) / 4f;
-            for (int i = 0; i < qsButtons.Length; i++)
-            {
-                qsButtons[i] = CreateButton($"UI_InventoryWindow_Detail_Button_QuickSlot_{keys[i]}", qsGroup, keys[i], 22, new Color(0.2f, 0.22f, 0.28f, 1f));
-                Place((RectTransform)qsButtons[i].transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(i * (qsW + 8f), 0f), new Vector2(qsW, 50f));
-            }
-
-            var use = CreateButton("UI_InventoryWindow_Detail_Button_Use", content, "USE", 24, new Color(0.2f, 0.5f, 0.3f, 1f));
-            Place((RectTransform)use.transform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(16f, 16f), new Vector2(detailW - 32f, 56f));
-
-            // ---- 바인딩 ----
-            var view = root.gameObject.AddComponent<InventoryWindowView>();
-            var so = new SerializedObject(view);
-            so.FindProperty("inventory").objectReferenceValue = inventory;
-            so.FindProperty("wallet").objectReferenceValue = wallet;
-            so.FindProperty("quickSlots").objectReferenceValue = quickSlots;
-            so.FindProperty("input").objectReferenceValue = input;
-            so.FindProperty("window").objectReferenceValue = panel.gameObject;
-            so.FindProperty("openButton").objectReferenceValue = openButton;
-            so.FindProperty("closeButton").objectReferenceValue = close;
-            so.FindProperty("slotContainer").objectReferenceValue = grid;
-            so.FindProperty("slotPrefab").objectReferenceValue = CreateInventorySlotPrefab(cell);
-            so.FindProperty("goldText").objectReferenceValue = gold;
-            so.FindProperty("capacityText").objectReferenceValue = capacity;
-            so.FindProperty("detailRoot").objectReferenceValue = content.gameObject;
-            so.FindProperty("detailEmptyHint").objectReferenceValue = emptyHint.gameObject;
-            so.FindProperty("detailIcon").objectReferenceValue = iconImg;
-            so.FindProperty("detailIconLabel").objectReferenceValue = iconLabel;
-            so.FindProperty("detailName").objectReferenceValue = name;
-            so.FindProperty("detailCategory").objectReferenceValue = category;
-            so.FindProperty("detailCount").objectReferenceValue = count;
-            so.FindProperty("detailDescription").objectReferenceValue = desc;
-            so.FindProperty("useButton").objectReferenceValue = use;
-            so.FindProperty("quickSlotGroup").objectReferenceValue = qsGroup.gameObject;
-            var arr = so.FindProperty("quickSlotButtons");
-            arr.arraySize = qsButtons.Length;
-            for (int i = 0; i < qsButtons.Length; i++) arr.GetArrayElementAtIndex(i).objectReferenceValue = qsButtons[i];
-            so.ApplyModifiedPropertiesWithoutUndo();
-
-            // 다른 창들 위에 그린다
-            root.SetAsLastSibling();
-        }
-
-        private static InventorySlotView CreateInventorySlotPrefab(float size)
-        {
-            var root = CreateRect("UI_InventorySlot", null, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(size, size));
-            var bg = AddImage(root, new Color(0.16f, 0.16f, 0.2f, 1f));
-            var button = root.gameObject.AddComponent<Button>();
-            button.targetGraphic = bg;
-
-            var icon = CreateRect("UI_InventorySlot_Icon", root, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(size - 14f, size - 14f));
-            var iconImg = AddImage(icon, Color.white);
-            iconImg.raycastTarget = false;
-
-            var label = CreateText("UI_InventorySlot_Label", root, "", 18, TextAnchor.MiddleCenter, Color.white);
-            Stretch(label.rectTransform, 0f);
-            label.fontStyle = FontStyle.Bold;
-            label.raycastTarget = false;
-            label.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.8f);
-
-            var count = CreateText("UI_InventorySlot_Count", root, "", 17, TextAnchor.LowerRight, Color.white);
-            Stretch(count.rectTransform, 5f);
-            count.raycastTarget = false;
-            count.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.9f);
-
-            var mark = CreateText("UI_InventorySlot_QuickSlotMark", root, "", 14, TextAnchor.UpperLeft, new Color(0.45f, 0.9f, 1f));
-            Stretch(mark.rectTransform, 5f);
-            mark.raycastTarget = false;
-            mark.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.9f);
-
-            var selected = CreateRect("UI_InventorySlot_Selected", root, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
-            Stretch(selected, -2f);
-            var selImg = AddImage(selected, new Color(1f, 0.82f, 0.3f, 1f));
-            selImg.fillCenter = false;
-            selImg.raycastTarget = false;
-
-            var view = root.gameObject.AddComponent<InventorySlotView>();
-            Set(view, ("icon", iconImg), ("label", label), ("countText", count), ("quickSlotMark", mark), ("selectedFrame", selected.gameObject));
-
-            var prefab = PrefabUtility.SaveAsPrefabAsset(root.gameObject, Root + "/Prefabs/UI/UI_InventorySlot.prefab");
-            Object.DestroyImmediate(root.gameObject);
-            return prefab.GetComponent<InventorySlotView>();
-        }
     }
 }

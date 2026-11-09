@@ -5,8 +5,46 @@ using UnityEngine;
 
 namespace RPGAuto.Items
 {
+    /// <summary>획득 가능 여부</summary>
+    public enum AcceptResult
+    {
+        Ok,
+        Invalid,
+        /// <summary>칸 부족</summary>
+        NoSlot,
+        /// <summary>무게 초과 상태라 획득 불가</summary>
+        Overweight
+    }
+
+    /// <summary>인벤토리 한 칸 (소모품/재료 묶음 또는 장비 1개)</summary>
+    public class InventoryEntry
+    {
+        public ItemData Item { get; }
+        public int Count { get; internal set; }
+        /// <summary>장비 칸이면 개체, 아니면 null</summary>
+        public EquipmentInstance Equipment { get; }
+
+        public bool IsEquipment => Equipment != null;
+        public float Weight => Item.Weight * Count;
+
+        internal InventoryEntry(ItemData item, int count)
+        {
+            Item = item;
+            Count = count;
+        }
+
+        internal InventoryEntry(EquipmentInstance equipment)
+        {
+            Item = equipment.Data;
+            Count = 1;
+            Equipment = equipment;
+        }
+    }
+
     /// <summary>
-    /// 아이템 보유 수량/사용. 획득 순서대로 칸을 차지하며, 수량이 0이 되면 칸이 비워진다.
+    /// 아이템 보관. 칸 수(capacity)와 무게(maxWeight) 두 가지 한도를 가진다.
+    /// - 무게가 최대치를 넘은 상태면 새 아이템을 얻을 수 없다 (넘는 순간의 1회 획득은 허용)
+    /// - 칸/무게는 골드로 확장 (InventoryExpansionService)
     /// </summary>
     [RequireComponent(typeof(CombatStats))]
     public class PlayerInventory : MonoBehaviour
@@ -16,65 +54,213 @@ namespace RPGAuto.Items
         {
             public ItemData item;
             public int count;
+            [Tooltip("장비일 때 시작 강화 수치")]
+            public int enhanceLevel;
         }
 
         [SerializeField] private List<ItemStack> startItems = new();
-        [Tooltip("인벤토리 칸 수 (아이템 종류 수)")]
-        [SerializeField] private int capacity = 30;
+        [Tooltip("인벤토리 칸 수")]
+        [SerializeField, Min(1)] private int capacity = 60;
+        [Tooltip("최대 무게")]
+        [SerializeField, Min(1f)] private float maxWeight = 1200f;
 
-        private readonly Dictionary<ItemData, int> _counts = new();
-        private readonly List<ItemData> _order = new();
+        private readonly List<InventoryEntry> _entries = new();
+        private readonly Dictionary<ItemData, InventoryEntry> _stacks = new();
         private readonly Dictionary<ItemData, float> _cooldownEnd = new();
         private CombatStats _stats;
+        private float _weight;
 
+        public IReadOnlyList<InventoryEntry> Entries => _entries;
         public int Capacity => capacity;
-        /// <summary>보유 중인 아이템 (칸 순서)</summary>
-        public IReadOnlyList<ItemData> Items => _order;
-        public bool IsFull => _order.Count >= capacity;
+        public int UsedSlots => _entries.Count;
+        public int FreeSlots => Mathf.Max(0, capacity - _entries.Count);
+        public bool IsFull => _entries.Count >= capacity;
+        public float MaxWeight => maxWeight;
+        public float CurrentWeight => _weight;
+        public bool IsOverweight => _weight > maxWeight + 0.0001f;
 
-        /// <summary>수량 변경 알림 (Observer)</summary>
+        // Observer
+        /// <summary>아이템별 수량 변경 (아이템, 현재 수량)</summary>
         public event Action<ItemData, int> OnItemCountChanged;
+        /// <summary>칸 구성 변경 (추가/삭제/수량)</summary>
+        public event Action OnInventoryChanged;
+        /// <summary>무게 변경 (현재, 최대)</summary>
+        public event Action<float, float> OnWeightChanged;
+        /// <summary>칸 수 변경 (확장)</summary>
+        public event Action<int> OnCapacityChanged;
+        public event Action<EquipmentInstance> OnEquipmentRemoved;
         public event Action<ItemData> OnItemUsed;
 
         private void Awake()
         {
             _stats = GetComponent<CombatStats>();
             foreach (var s in startItems)
-                if (s.item != null && s.count > 0) Store(s.item, GetCount(s.item) + s.count);
+            {
+                if (s.item == null || s.count <= 0) continue;
+                if (s.item is EquipmentData eq)
+                    for (int i = 0; i < s.count; i++) Insert(new InventoryEntry(new EquipmentInstance(eq, s.enhanceLevel)));
+                else
+                    AddStack(s.item, s.count);
+            }
+            RecalculateWeight();
         }
 
-        public int GetCount(ItemData item) => item != null && _counts.TryGetValue(item, out int c) ? c : 0;
+        // ---------------- 조회 ----------------
 
-        /// <summary>칸이 꽉 차도 이미 가진 아이템은 더 받을 수 있다</summary>
-        public bool CanAccept(ItemData item) => item != null && (GetCount(item) > 0 || !IsFull);
+        /// <summary>소모품/재료: 보유 수량, 장비: 같은 종류 개수</summary>
+        public int GetCount(ItemData item)
+        {
+            if (item == null) return 0;
+            if (item.IsStackable) return _stacks.TryGetValue(item, out var e) ? e.Count : 0;
+            int n = 0;
+            foreach (var e in _entries) if (e.Item == item) n++;
+            return n;
+        }
+
+        public bool Contains(EquipmentInstance equipment) => FindEntry(equipment) != null;
+
+        /// <summary>이 칸이 아직 인벤토리에 있는지 (UI가 들고 있는 참조 확인용)</summary>
+        public bool HasEntry(InventoryEntry entry) => entry != null && _entries.Contains(entry);
+
+        public InventoryEntry FindEntry(EquipmentInstance equipment)
+        {
+            if (equipment == null) return null;
+            foreach (var e in _entries) if (e.Equipment == equipment) return e;
+            return null;
+        }
+
+        /// <summary>count개를 얻을 때 필요한 새 칸 수</summary>
+        public int SlotsNeeded(ItemData item, int count)
+        {
+            if (item == null || count <= 0) return 0;
+            return item.IsStackable ? (_stacks.ContainsKey(item) ? 0 : 1) : count;
+        }
+
+        public AcceptResult CheckAccept(ItemData item, int count = 1)
+        {
+            if (item == null || count <= 0) return AcceptResult.Invalid;
+            if (IsOverweight) return AcceptResult.Overweight;
+            if (UsedSlots + SlotsNeeded(item, count) > capacity) return AcceptResult.NoSlot;
+            return AcceptResult.Ok;
+        }
+
+        public bool CanAccept(ItemData item, int count = 1) => CheckAccept(item, count) == AcceptResult.Ok;
 
         public float GetCooldownRemaining(ItemData item) =>
             item != null && _cooldownEnd.TryGetValue(item, out float end) ? Mathf.Max(0f, end - Time.time) : 0f;
 
-        /// <summary>수량 증감. 칸이 부족해 받을 수 없으면 false</summary>
+        // ---------------- 추가/삭제 ----------------
+
+        /// <summary>
+        /// 아이템 획득(양수) 또는 소모(음수). 장비는 개수만큼 새 개체(+0)를 만든다.
+        /// 획득 시 CheckAccept를 통과하지 못하면 false.
+        /// </summary>
         public bool AddItem(ItemData item, int amount)
         {
             if (item == null || amount == 0) return false;
-            if (amount > 0 && !CanAccept(item)) return false;
+            if (amount < 0) return RemoveItem(item, -amount);
+            if (!CanAccept(item, amount)) return false;
 
-            int next = Mathf.Max(0, GetCount(item) + amount);
-            Store(item, next);
-            OnItemCountChanged?.Invoke(item, next);
+            if (item is EquipmentData eq)
+                for (int i = 0; i < amount; i++) Insert(new InventoryEntry(new EquipmentInstance(eq)));
+            else
+                AddStack(item, amount);
+
+            NotifyChanged(item);
             return true;
         }
 
-        private void Store(ItemData item, int count)
+        /// <summary>
+        /// 무게 검사 없이 지급 (칸 수만 확인). 여러 개를 한 번에 지급할 때 중간에 무게를 넘어도 끊기지 않게 하기 위함.
+        /// 호출 측에서 미리 CheckAccept/칸 수 검사를 해야 한다.
+        /// </summary>
+        public bool ForceAdd(ItemData item, int amount)
         {
-            if (count > 0)
+            if (item == null || amount <= 0) return false;
+            if (UsedSlots + SlotsNeeded(item, amount) > capacity) return false;
+            if (item is EquipmentData eq)
+                for (int i = 0; i < amount; i++) Insert(new InventoryEntry(new EquipmentInstance(eq)));
+            else
+                AddStack(item, amount);
+            NotifyChanged(item);
+            return true;
+        }
+
+        /// <summary>장비 개체 획득 (강화된 장비 등)</summary>
+        public bool AddEquipment(EquipmentInstance equipment)
+        {
+            if (equipment == null || Contains(equipment)) return false;
+            if (!CanAccept(equipment.Data)) return false;
+            Insert(new InventoryEntry(equipment));
+            NotifyChanged(equipment.Data);
+            return true;
+        }
+
+        /// <summary>소모품/재료 수량 차감. 부족하면 false</summary>
+        public bool RemoveItem(ItemData item, int amount)
+        {
+            if (item == null || amount <= 0 || !item.IsStackable) return false;
+            if (!_stacks.TryGetValue(item, out var entry) || entry.Count < amount) return false;
+
+            entry.Count -= amount;
+            if (entry.Count == 0)
             {
-                if (!_counts.ContainsKey(item)) _order.Add(item);
-                _counts[item] = count;
+                _stacks.Remove(item);
+                _entries.Remove(entry);
             }
-            else if (_counts.Remove(item))
+            NotifyChanged(item);
+            return true;
+        }
+
+        /// <summary>장비 개체 제거 (판매/버리기). 장착 중이면 PlayerEquipment가 해제한다.</summary>
+        public bool RemoveEquipment(EquipmentInstance equipment)
+        {
+            var entry = FindEntry(equipment);
+            if (entry == null) return false;
+            _entries.Remove(entry);
+            OnEquipmentRemoved?.Invoke(equipment);
+            NotifyChanged(equipment.Data);
+            return true;
+        }
+
+        /// <summary>칸 단위 제거 (버리기 등). 묶음이면 count만큼, 장비면 1개</summary>
+        public bool RemoveFromEntry(InventoryEntry entry, int count)
+        {
+            if (entry == null) return false;
+            return entry.IsEquipment ? RemoveEquipment(entry.Equipment) : RemoveItem(entry.Item, count);
+        }
+
+        private void AddStack(ItemData item, int amount)
+        {
+            if (_stacks.TryGetValue(item, out var entry)) entry.Count += amount;
+            else
             {
-                _order.Remove(item);
+                entry = new InventoryEntry(item, amount);
+                _stacks[item] = entry;
+                _entries.Add(entry);
             }
         }
+
+        private void Insert(InventoryEntry entry) => _entries.Add(entry);
+
+        // ---------------- 확장 ----------------
+
+        public void ExpandSlots(int amount)
+        {
+            if (amount <= 0) return;
+            capacity += amount;
+            OnCapacityChanged?.Invoke(capacity);
+            OnInventoryChanged?.Invoke();
+        }
+
+        public void ExpandWeight(float amount)
+        {
+            if (amount <= 0f) return;
+            maxWeight += amount;
+            OnWeightChanged?.Invoke(_weight, maxWeight);
+        }
+
+        // ---------------- 사용 ----------------
 
         public bool CanUse(ItemData item) =>
             item != null && item.IsUsable && GetCount(item) > 0 && GetCooldownRemaining(item) <= 0f && !_stats.IsDead;
@@ -94,9 +280,27 @@ namespace RPGAuto.Items
             }
 
             _cooldownEnd[item] = Time.time + item.Cooldown;
-            AddItem(item, -1);
+            RemoveItem(item, 1);
             OnItemUsed?.Invoke(item);
             return true;
+        }
+
+        // ---------------- 내부 ----------------
+
+        private void NotifyChanged(ItemData item)
+        {
+            RecalculateWeight();
+            OnItemCountChanged?.Invoke(item, GetCount(item));
+            OnInventoryChanged?.Invoke();
+        }
+
+        private void RecalculateWeight()
+        {
+            float w = 0f;
+            foreach (var e in _entries) w += e.Weight;
+            if (Mathf.Approximately(w, _weight) && _weight != 0f) return;
+            _weight = w;
+            OnWeightChanged?.Invoke(_weight, maxWeight);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using RPGAuto.Data;
 using UnityEngine;
 
@@ -15,6 +15,7 @@ namespace RPGAuto.Combat
         [SerializeField] private StatBlock baseStats = new() { maxHp = 100f, physicalAttack = 10f, accuracy = 10f };
 
         private StatBlock _final;
+        private StatBlock _bonus; // 장비 등 추가 능력치
         private StatFormula _statFormula;
         private bool _initialized;
 
@@ -77,7 +78,7 @@ namespace RPGAuto.Combat
             baseStats = newBase;
             _statFormula = statFormula;
             CombatFormula = combatFormula ?? CombatFormula.Default;
-            _final = baseStats.WithPrimaryBonus(_statFormula);
+            _final = (baseStats + _bonus).WithPrimaryBonus(_statFormula);
 
             if (refill)
             {
@@ -92,6 +93,18 @@ namespace RPGAuto.Combat
             }
             OnStatsChanged?.Invoke();
         }
+
+        /// <summary>장비 등 추가 능력치 적용 (HP/MP는 비율 유지 없이 최대치로만 제한)</summary>
+        public void SetBonus(in StatBlock bonus)
+        {
+            _bonus = bonus;
+            _final = (baseStats + _bonus).WithPrimaryBonus(_statFormula);
+            SetHp(Mathf.Min(Hp, MaxHp), force: true);
+            SetMp(Mathf.Min(Mp, MaxMp), force: true);
+            OnStatsChanged?.Invoke();
+        }
+
+        public StatBlock Bonus => _bonus;
 
         public void ResetFull()
         {

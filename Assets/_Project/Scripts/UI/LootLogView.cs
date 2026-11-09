@@ -43,21 +43,22 @@ namespace RPGAuto.UI
         {
             if (looter == null) return;
             looter.OnLootAcquired += HandleLoot;
-            looter.OnInventoryFull += HandleFull;
+            looter.OnAcquireBlocked += HandleBlocked;
         }
 
         private void OnDisable()
         {
             if (looter == null) return;
             looter.OnLootAcquired -= HandleLoot;
-            looter.OnInventoryFull -= HandleFull;
+            looter.OnAcquireBlocked -= HandleBlocked;
         }
 
         private void HandleLoot(LootEntry entry) =>
             Push(entry.IsGold ? $"Gold +{entry.Gold:N0}" : $"{entry.Item.DisplayName}  x{entry.Count}",
                  entry.IsGold ? goldColor : itemColor);
 
-        private void HandleFull() => Push("Inventory is full", warningColor);
+        private void HandleBlocked(RPGAuto.Items.AcceptResult reason) =>
+            Push(reason == RPGAuto.Items.AcceptResult.Overweight ? "Too heavy to carry more" : "Inventory is full", warningColor);
 
         private void Push(string message, Color color)
         {

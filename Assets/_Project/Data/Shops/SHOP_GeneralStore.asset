@@ -12,11 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09e5eed5aae8464c84cc8e456d41ba3, type: 3}
   m_Name: SHOP_GeneralStore
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Shop.ShopData
-  shopName: General Store
+  shopName: General Goods Merchant
+  taxRate: 0.2
   products:
   - item: {fileID: 11400000, guid: 3bb7c669eebff3541b7f3de89303b0b0, type: 2}
     price: 50
+    restockTarget: 100
   - item: {fileID: 11400000, guid: f402ca0f154b0b546976d521b0bca804, type: 2}
     price: 60
+    restockTarget: 50
   - item: {fileID: 11400000, guid: 19c764ed1b4326e4c819dbbd2088c59d, type: 2}
     price: 200
+    restockTarget: 20
+  - item: {fileID: 11400000, guid: 4a0f2893908e9764a86261cd16eb5056, type: 2}
+    price: 300
+    restockTarget: 0

@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41022b667ea04744cafcf27c58270035, type: 3}
+  m_Name: EQ_ShadowCloak
+  m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EquipmentData
+  itemId: EShadowCloak
+  displayName: Shadow Cloak
+  shortLabel: CLOAK
+  slotColor: {r: 0.35, g: 0.3, b: 0.5, a: 1}
+  category: 2
+  grade: 3
+  description: Epic cloak. Each enhancement level adds 10% to its stats.
+  sellPrice: 1800
+  autoSell: 0
+  weight: 8
+  effect: 0
+  restorePercent: 0.2
+  restoreFlat: 0
+  cooldown: 1
+  slotType: 3
+  requiredLevel: 12
+  stats:
+    maxHp: 0
+    maxMp: 0
+    hpRegen: 0
+    mpRegen: 0
+    str: 0
+    dex: 0
+    luk: 0
+    intelligence: 0
+    physicalAttack: 0
+    magicAttack: 0
+    accuracy: 0
+    physicalDefense: 10
+    magicDefense: 10
+  enhanceBonusPerLevel: 0.1
+  maxEnhance: 10

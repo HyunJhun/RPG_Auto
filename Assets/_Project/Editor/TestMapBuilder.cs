@@ -255,7 +255,7 @@ namespace RPGAuto.EditorTools
             BuildExpBarUI(canvas, progression);
             BuildQuickSlotPanelUI(canvas, inputHandler, playerCombat, quickSlotBar);
             var statButton = BuildMenuBarUI(canvas, inputHandler);
-            BuildStatWindowUI(canvas, playerStats, progression, inputHandler, statButton);
+            // 스탯창은 CharacterWindowBuilder(장비/능력치 창)가 STAT 버튼에 연결한다
 
             // ---------- Wiring ----------
             Set(inputHandler, ("viewCamera", cam),
@@ -264,10 +264,14 @@ namespace RPGAuto.EditorTools
 
             // ---------- Loot & Inventory ----------
             LootInventoryBuilder.ApplyToOpenScene();
+            EquipmentBuilder.ApplyToOpenScene();
+            InventoryUIBuilder.ApplyToOpenScene();
+            CharacterWindowBuilder.ApplyToOpenScene();
             SkillWindowBuilder.ApplyToOpenScene();
             ShopBuilder.ApplyToOpenScene();
             GachaBuilder.ApplyToOpenScene();
             SettingsBuilder.ApplyToOpenScene();
+            UIBuildKit.RaisePopups(canvas);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             AddSceneToBuild(ScenePath);
@@ -495,44 +499,6 @@ namespace RPGAuto.EditorTools
             AddText(CreateRect("UI_MenuBar_Button_Stat_Label", statRt, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 8f), new Vector2(110f, 30f)).gameObject, "STAT", 22, TextAnchor.MiddleCenter, Color.white);
             AddKeyHint(statRt, "UI_MenuBar_Button_Stat_KeyHint", new Vector2(0.5f, 0f), new Vector2(0f, 6f), new Vector2(100f, 20f), 15, TextAnchor.LowerCenter, input, "ToggleStatWindow");
             return button;
-        }
-
-        private static void BuildStatWindowUI(Transform canvas, CombatStats stats, PlayerProgression progression,
-            PlayerInputHandler input, Button openButton)
-        {
-            // 행 프리팹
-            string rowPath = Root + "/Prefabs/UI/UI_StatRow.prefab";
-            var rowRt = CreateRect("UI_StatRow", null, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(460f, 30f));
-            rowRt.gameObject.AddComponent<LayoutElement>().preferredHeight = 30f;
-            var lab = CreateStretch("UI_StatRow_Label", rowRt, 0f);
-            AddText(lab.gameObject, "Label", 20, TextAnchor.MiddleLeft, new Color(0.85f, 0.85f, 0.9f));
-            var val = CreateStretch("UI_StatRow_Value", rowRt, 0f);
-            AddText(val.gameObject, "0", 20, TextAnchor.MiddleRight, Color.white);
-            var rowPrefab = PrefabUtility.SaveAsPrefabAsset(rowRt.gameObject, rowPath);
-            Object.DestroyImmediate(rowRt.gameObject);
-
-            var root = CreateStretch("UI_StatWindow", canvas, 0f);
-            var window = CreateRect("UI_StatWindow_Panel", root, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(520f, 760f));
-            AddImage(window.gameObject, new Color(0.06f, 0.06f, 0.08f, 0.94f), _uiSprite).type = Image.Type.Sliced;
-
-            var title = CreateRect("UI_StatWindow_Title", window, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -14f), new Vector2(480f, 40f));
-            AddText(title.gameObject, "STAT", 28, TextAnchor.MiddleCenter, new Color(1f, 0.85f, 0.5f)).fontStyle = FontStyle.Bold;
-
-            var closeRt = CreateRect("UI_StatWindow_Button_Close", window, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-12f, -12f), new Vector2(48f, 48f));
-            AddImage(closeRt.gameObject, new Color(0.5f, 0.15f, 0.15f), _uiSprite).type = Image.Type.Sliced;
-            var closeButton = closeRt.gameObject.AddComponent<Button>();
-            AddText(CreateStretch("UI_StatWindow_Button_Close_Label", closeRt, 0f).gameObject, "X", 26, TextAnchor.MiddleCenter, Color.white);
-
-            var container = CreateRect("UI_StatWindow_Rows", window, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -70f), new Vector2(460f, 670f));
-            var layout = container.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.childControlHeight = true;
-            layout.childControlWidth = true;
-            layout.childForceExpandHeight = false;
-            layout.spacing = 2f;
-
-            Set(root.gameObject.AddComponent<StatWindowView>(), ("stats", stats), ("progression", progression), ("input", input),
-                ("window", window.gameObject), ("rowContainer", container), ("rowPrefab", rowPrefab),
-                ("openButton", openButton), ("closeButton", closeButton));
         }
 
         // ================= UI: Quick Slots =================

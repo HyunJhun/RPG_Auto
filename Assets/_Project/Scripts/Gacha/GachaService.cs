@@ -23,7 +23,8 @@ namespace RPGAuto.Gacha
         Ok,
         Invalid,
         NotEnoughGold,
-        InventoryFull
+        InventoryFull,
+        Overweight
     }
 
     /// <summary>뽑기 규칙 (UI와 분리된 순수 로직)</summary>
@@ -55,18 +56,28 @@ namespace RPGAuto.Gacha
                 if (!hit) results[^1] = Roll(data, data.TenPullGuarantee);
             }
 
-            // 새로 칸을 차지할 아이템 종류 수 검사
+            // 무게 초과 상태면 획득 불가, 새로 차지할 칸 수 검사 (장비는 1개 = 1칸)
+            if (inventory.IsOverweight)
+            {
+                results.Clear();
+                return GachaPullStatus.Overweight;
+            }
             s_newKinds.Clear();
+            int slots = 0;
             foreach (var r in results)
-                if (inventory.GetCount(r.Item) == 0) s_newKinds.Add(r.Item);
-            if (inventory.Items.Count + s_newKinds.Count > inventory.Capacity)
+            {
+                if (!r.Item.IsStackable) slots += r.Count;
+                else if (inventory.GetCount(r.Item) == 0 && s_newKinds.Add(r.Item)) slots++;
+            }
+            if (slots > inventory.FreeSlots)
             {
                 results.Clear();
                 return GachaPullStatus.InventoryFull;
             }
 
             wallet.TrySpend(cost);
-            foreach (var r in results) inventory.AddItem(r.Item, r.Count);
+            // 검사를 통과했으므로 칸 확인 없이 지급 (지급 도중 무게를 넘어도 이번 결과는 모두 받는다)
+            foreach (var r in results) inventory.ForceAdd(r.Item, r.Count);
             return GachaPullStatus.Ok;
         }
 
@@ -98,6 +109,7 @@ namespace RPGAuto.Gacha
         {
             GachaPullStatus.NotEnoughGold => "Not enough gold",
             GachaPullStatus.InventoryFull => "Not enough inventory space",
+            GachaPullStatus.Overweight => "Too heavy - reduce your weight first",
             GachaPullStatus.Invalid => "Summon is not available",
             _ => string.Empty
         };

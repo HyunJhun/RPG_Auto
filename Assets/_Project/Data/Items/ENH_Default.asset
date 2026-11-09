@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d4d9ef404ebe274887510fb1c32658f, type: 3}
+  m_Name: ENH_Default
+  m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EnhanceTable
+  scrollItem: {fileID: 11400000, guid: 4a0f2893908e9764a86261cd16eb5056, type: 2}
+  steps:
+  - successRate: 1
+    goldCost: 200
+    scrollCost: 1
+    downgradeOnFail: 0
+  - successRate: 1
+    goldCost: 400
+    scrollCost: 1
+    downgradeOnFail: 0
+  - successRate: 0.9
+    goldCost: 700
+    scrollCost: 1
+    downgradeOnFail: 0
+  - successRate: 0.8
+    goldCost: 1000
+    scrollCost: 1
+    downgradeOnFail: 0
+  - successRate: 0.7
+    goldCost: 1500
+    scrollCost: 2
+    downgradeOnFail: 0
+  - successRate: 0.6
+    goldCost: 2000
+    scrollCost: 2
+    downgradeOnFail: 0
+  - successRate: 0.5
+    goldCost: 3000
+    scrollCost: 2
+    downgradeOnFail: 1
+  - successRate: 0.4
+    goldCost: 4000
+    scrollCost: 3
+    downgradeOnFail: 1
+  - successRate: 0.3
+    goldCost: 6000
+    scrollCost: 3
+    downgradeOnFail: 1
+  - successRate: 0.2
+    goldCost: 8000
+    scrollCost: 4
+    downgradeOnFail: 1
