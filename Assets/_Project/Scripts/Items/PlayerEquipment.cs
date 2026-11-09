@@ -96,6 +96,27 @@ namespace RPGAuto.Items
 
         public bool MeetsLevel(EquipmentData data) => data != null && PlayerLevel >= data.RequiredLevel;
 
+        /// <summary>
+        /// 이 장비와 비교할 장착 장비. 반지는 빈 칸이 있으면 null(빈 칸과 비교), 둘 다 차 있으면 약한 쪽.
+        /// </summary>
+        public EquipmentInstance GetComparisonTarget(EquipmentData data)
+        {
+            if (data == null) return null;
+            if (data.SlotType != EquipSlotType.Ring) return Get(ChoosePosition(data.SlotType));
+            var r1 = Get(EquipPosition.Ring1);
+            var r2 = Get(EquipPosition.Ring2);
+            if (r1 == null || r2 == null) return null;
+            return EquipmentPower.Score(r1) <= EquipmentPower.Score(r2) ? r1 : r2;
+        }
+
+        /// <summary>장착 가능하고, 비교 대상(또는 빈 칸)보다 전투력 점수가 높은 장비인지</summary>
+        public bool IsUpgrade(EquipmentInstance candidate)
+        {
+            if (candidate == null || IsEquipped(candidate) || !MeetsLevel(candidate.Data)) return false;
+            var target = GetComparisonTarget(candidate.Data);
+            return target == null || EquipmentPower.Score(candidate) > EquipmentPower.Score(target) + 0.01f;
+        }
+
         // ---------------- 장착/해제 ----------------
 
         public EquipResult Equip(EquipmentInstance equipment)

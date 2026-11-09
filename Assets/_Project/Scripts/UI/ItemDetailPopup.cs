@@ -197,6 +197,26 @@ namespace RPGAuto.UI
             Refresh();
         }
 
+        /// <summary>
+        /// 장착 중: 강화로 오른 양(기본 능력치 대비) 표시.
+        /// 미장착: 같은 부위 장착 장비(반지는 약한 쪽/빈 칸)와 비교해 증감 표시.
+        /// </summary>
+        private string BuildStatsText(EquipmentData data, bool equipped)
+        {
+            if (_equipment == null || data == null) return string.Empty;
+            if (equipped || equipment == null)
+                return StatText.Lines(_equipment.Stats, _equipment.EnhanceLevel > 0 ? data.Stats : (RPGAuto.Data.StatBlock?)null);
+
+            var target = equipment.GetComparisonTarget(data);
+            float diff = EquipmentPower.Score(_equipment) - EquipmentPower.Score(target);
+            string verdict = Mathf.Approximately(diff, 0f) ? "<color=#CCCCCC>same power</color>"
+                : diff > 0 ? $"<color=#7CFC7C>power +{diff:0.#}</color>" : $"<color=#FF7366>power {diff:0.#}</color>";
+            string header = target != null
+                ? $"<size=15><color=#A0A8B8>vs equipped {target.DisplayName}</color>  {verdict}</size>\n"
+                : $"<size=15><color=#A0A8B8>vs empty slot</color>  {verdict}</size>\n";
+            return header + StatText.Lines(_equipment.Stats, target != null ? target.Stats : new RPGAuto.Data.StatBlock());
+        }
+
         private void ShowMessage(string text, bool ok)
         {
             if (messageText == null) return;
@@ -236,10 +256,7 @@ namespace RPGAuto.UI
                 }
             }
 
-            if (statsText != null)
-                statsText.text = _equipment != null
-                    ? StatText.Lines(_equipment.Stats, _equipment.EnhanceLevel > 0 ? data.Stats : (RPGAuto.Data.StatBlock?)null)
-                    : string.Empty;
+            if (statsText != null) statsText.text = BuildStatsText(data, equipped);
             if (descriptionText != null) descriptionText.text = _item.Description;
 
             int owned = _equipment != null ? 1 : inventory.GetCount(_item);

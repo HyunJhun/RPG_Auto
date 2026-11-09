@@ -25,19 +25,27 @@ namespace RPGAuto.UI
             ("INT", s => s.intelligence),
         };
 
-        /// <summary>0이 아닌 능력치만 줄로 만든다. compare가 있으면 차이를 괄호로 표시.</summary>
-        public static string Lines(in StatBlock stats, StatBlock? compare = null, string diffColor = "#7CFC7C")
+        private const string UpColor = "#7CFC7C";
+        private const string DownColor = "#FF7366";
+
+        /// <summary>
+        /// 능력치를 줄로 만든다. compare가 있으면 차이를 괄호로 표시(증가 초록, 감소 빨강)하고,
+        /// 비교 대상에만 있는 능력치도 +0 (-N)으로 보여 준다.
+        /// </summary>
+        public static string Lines(in StatBlock stats, StatBlock? compare = null)
         {
             var sb = new StringBuilder();
             foreach (var (label, get) in Fields)
             {
                 float v = get(stats);
-                if (Mathf.Approximately(v, 0f)) continue;
+                float c = compare.HasValue ? get(compare.Value) : 0f;
+                if (Mathf.Approximately(v, 0f) && Mathf.Approximately(c, 0f)) continue;
                 sb.Append(label).Append("  +").Append(Format(v));
                 if (compare.HasValue)
                 {
-                    float d = v - get(compare.Value);
-                    if (!Mathf.Approximately(d, 0f)) sb.Append($"  <color={diffColor}>({(d > 0 ? "+" : "")}{Format(d)})</color>");
+                    float d = v - c;
+                    if (!Mathf.Approximately(d, 0f))
+                        sb.Append($"  <color={(d > 0 ? UpColor : DownColor)}>({(d > 0 ? "+" : "")}{Format(d)})</color>");
                 }
                 sb.Append('\n');
             }

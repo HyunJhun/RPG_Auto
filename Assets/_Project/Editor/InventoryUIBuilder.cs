@@ -157,6 +157,8 @@ namespace RPGAuto.EditorTools
             enhance.fontStyle = FontStyle.Bold;
             var count = Corner("UI_InventorySlot_Count", TextAnchor.LowerRight, 16, Color.white);
             var mark = Corner("UI_InventorySlot_QuickSlotMark", TextAnchor.LowerLeft, 14, new Color(0.45f, 0.9f, 1f));
+            var upgrade = Corner("UI_InventorySlot_UpgradeMark", TextAnchor.LowerRight, 26, new Color(0.45f, 1f, 0.45f));
+            upgrade.fontStyle = FontStyle.Bold;
 
             // 장착 배지 "E" (좌상단)
             var badge = CreateTopLeft("UI_InventorySlot_EquippedBadge", root, 4f, 4f, 22f, 22f);
@@ -175,7 +177,7 @@ namespace RPGAuto.EditorTools
             var view = root.gameObject.AddComponent<InventorySlotView>();
             Set(view, ("background", bg), ("icon", icon), ("label", label), ("levelText", level), ("enhanceText", enhance),
                 ("countText", count), ("quickSlotMark", mark), ("equippedBadge", badge.gameObject),
-                ("selectedFrame", selected.gameObject), ("placeholderText", placeholder));
+                ("selectedFrame", selected.gameObject), ("placeholderText", placeholder), ("upgradeMark", upgrade));
             return SavePrefab<InventorySlotView>(root.gameObject, Root + "/Prefabs/UI/UI_InventorySlot.prefab");
         }
 

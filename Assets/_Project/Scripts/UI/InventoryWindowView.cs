@@ -206,7 +206,8 @@ namespace RPGAuto.UI
 
                 bool equipped = entry.IsEquipment && equipment != null && equipment.IsEquipped(entry.Equipment);
                 bool levelOk = entry.Item is not EquipmentData data || equipment == null || equipment.MeetsLevel(data);
-                slot.Bind(entry, entry == _selected, equipped, QuickKeyOf(entry.Item), levelOk);
+                bool upgrade = entry.IsEquipment && equipment != null && equipment.IsUpgrade(entry.Equipment);
+                slot.Bind(entry, entry == _selected, equipped, QuickKeyOf(entry.Item), levelOk, upgrade);
             }
 
             for (int i = 0; i < filterButtons.Length; i++)
