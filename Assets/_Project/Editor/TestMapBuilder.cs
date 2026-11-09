@@ -270,6 +270,7 @@ namespace RPGAuto.EditorTools
             SkillWindowBuilder.ApplyToOpenScene();
             ShopBuilder.ApplyToOpenScene();
             NpcBuilder.ApplyToOpenScene();
+            AssistBuilder.ApplyToOpenScene();
             GachaBuilder.ApplyToOpenScene();
             SettingsBuilder.ApplyToOpenScene();
             SaveBuilder.ApplyToOpenScene();

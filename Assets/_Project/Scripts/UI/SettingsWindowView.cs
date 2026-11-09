@@ -42,6 +42,11 @@ namespace RPGAuto.UI
         [SerializeField] private OptionRowView autoLootRow;
         [SerializeField] private OptionRowView autoLootRadiusRow;
 
+        [Header("Assist")]
+        [SerializeField] private OptionRowView assistModeRow;
+        [SerializeField] private OptionRowView assistPotionRow;
+        [SerializeField] private OptionRowView assistBagRow;
+
         private AutoCombatSettings S => combat.Settings;
 
         private void Awake()
@@ -54,6 +59,9 @@ namespace RPGAuto.UI
             Bind(targetEliteRow, () => S.targetElite = !S.targetElite);
             Bind(targetBossRow, () => S.targetBoss = !S.targetBoss);
             Bind(autoLootRow, () => S.autoLoot = !S.autoLoot);
+            Bind(assistModeRow, () => S.assistMode = !S.assistMode);
+            Bind(assistBagRow, () => S.assistOnFullBag = !S.assistOnFullBag);
+            Bind(assistPotionRow, null, () => S.assistPotionMin = Mathf.Clamp(S.assistPotionMin - 5, 0, 100), () => S.assistPotionMin = Mathf.Clamp(S.assistPotionMin + 5, 0, 100));
 
             Bind(priorityRow, null, () => CyclePriority(-1), () => CyclePriority(1));
             Bind(detectRadiusRow, null, () => S.detectRadius = Step(S.detectRadius, -1f, 5f, 30f), () => S.detectRadius = Step(S.detectRadius, 1f, 5f, 30f));
@@ -124,6 +132,9 @@ namespace RPGAuto.UI
             mpPotionRow?.Show("MP Potion when MP ≤", null, $"{S.mpPotionPercent:0}%");
             autoLootRow?.Show("Auto Pickup (Auto Combat)", S.autoLoot, null);
             autoLootRadiusRow?.Show("Auto Pickup Radius", null, $"{S.autoLootRadius:0}m", S.autoLoot);
+            assistModeRow?.Show("Assist Mode (shop round trip)", S.assistMode, null);
+            assistPotionRow?.Show("Go shopping when HP Potions ≤", null, $"{S.assistPotionMin}", S.assistMode);
+            assistBagRow?.Show("Go shopping when bag is full", S.assistOnFullBag, null);
         }
     }
 }

@@ -41,5 +41,13 @@ namespace RPGAuto.Combat
         [Range(1f, 100f)] public float hpPotionPercent = 70f;
         [Tooltip("MP가 이 비율(%) 이하이면 MP 물약 자동 사용")]
         [Range(1f, 100f)] public float mpPotionPercent = 40f;
+
+        [Header("보조 모드 (상점 왕복)")]
+        [Tooltip("물약 부족/가방 가득 시 상인에게 다녀온 뒤 사냥 재개")]
+        public bool assistMode;
+        [Tooltip("HP 물약이 이 개수 이하이면 상인에게 간다")]
+        [Range(0, 100)] public int assistPotionMin = 10;
+        [Tooltip("무게 초과 또는 빈 칸 부족 시에도 상인에게 간다")]
+        public bool assistOnFullBag = true;
     }
 }

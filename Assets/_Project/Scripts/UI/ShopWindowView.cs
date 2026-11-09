@@ -65,6 +65,9 @@ namespace RPGAuto.UI
         private float _messageTimer;
         private bool _dirty;
 
+        /// <summary>이 창이 파는 상점 데이터 (보조 모드 자동 거래용)</summary>
+        public ShopData Data => shop;
+
         public bool IsOpen => window != null && window.activeSelf;
 
         private void Awake()

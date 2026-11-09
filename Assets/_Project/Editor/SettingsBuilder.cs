@@ -43,7 +43,7 @@ namespace RPGAuto.EditorTools
 
         private static void BuildWindow(Transform canvas, PlayerCombat combat, CombatSettingsSaver saver, PlayerInputHandler input, Button openButton)
         {
-            const float w = 640f, h = 820f, top = 64f, listH = 670f;
+            const float w = 640f, h = 980f, top = 64f, listH = 830f;
             var root = CreateWindow(canvas, "UI_SettingsWindow", "SETTINGS", new Vector2(w, h), out var panel, out var close);
 
             var list = CreateTopLeft("UI_SettingsWindow_List", panel, 24f, top, w - 48f, listH);
@@ -87,6 +87,10 @@ namespace RPGAuto.EditorTools
             Header("Loot", "LOOT");
             var loot = Row("AutoLoot");
             var lootRadius = Row("AutoLootRadius");
+            Header("Assist", "ASSIST MODE");
+            var assistMode = Row("AssistMode");
+            var assistPotion = Row("AssistPotionMin");
+            var assistBag = Row("AssistFullBag");
 
             var reset = CreateButton("UI_SettingsWindow_Button_Reset", panel, "Reset to Default", 18, new Color(0.45f, 0.2f, 0.2f, 1f));
             PlaceTopLeft((RectTransform)reset.transform, 24f, top + listH + 16f, 220f, 50f);
@@ -98,7 +102,8 @@ namespace RPGAuto.EditorTools
                 ("window", panel.gameObject), ("openButton", openButton), ("closeButton", close), ("resetButton", reset),
                 ("targetNormalRow", normal), ("targetEliteRow", elite), ("targetBossRow", boss), ("priorityRow", priority),
                 ("detectRadiusRow", radius), ("returnDistanceRow", ret), ("skillMpLimitRow", mpLimit),
-                ("hpPotionRow", hpPot), ("mpPotionRow", mpPot), ("autoLootRow", loot), ("autoLootRadiusRow", lootRadius));
+                ("hpPotionRow", hpPot), ("mpPotionRow", mpPot), ("autoLootRow", loot), ("autoLootRadiusRow", lootRadius),
+                ("assistModeRow", assistMode), ("assistPotionRow", assistPotion), ("assistBagRow", assistBag));
 
             root.SetAsLastSibling();
         }
