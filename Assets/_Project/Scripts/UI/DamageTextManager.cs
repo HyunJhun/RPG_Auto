@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using RPGAuto.Combat;
+using RPGAuto.Core.Pooling;
 using UnityEngine;
-using UnityEngine.Pool;
 using UnityEngine.UI;
 
 namespace RPGAuto.UI
@@ -41,19 +41,14 @@ namespace RPGAuto.UI
         }
 
         private RectTransform _root;
-        private ObjectPool<Text> _pool;
+        private PrefabPool<Text> _pool;
         private readonly List<Entry> _active = new();
 
         private void Awake()
         {
             _root = (RectTransform)transform;
             if (viewCamera == null) viewCamera = Camera.main;
-            _pool = new ObjectPool<Text>(
-                createFunc: () => Instantiate(textPrefab, _root),
-                actionOnGet: t => t.gameObject.SetActive(true),
-                actionOnRelease: t => t.gameObject.SetActive(false),
-                actionOnDestroy: t => { if (t != null) Destroy(t.gameObject); },
-                collectionCheck: true, defaultCapacity: 24, maxSize: 96);
+            _pool = new PrefabPool<Text>(textPrefab, _root, defaultCapacity: 24, maxSize: 96);
         }
 
         private void OnEnable()

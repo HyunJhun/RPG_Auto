@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using RPGAuto.Core.Pooling;
 using RPGAuto.Loot;
 using UnityEngine;
-using UnityEngine.Pool;
 using UnityEngine.UI;
 
 namespace RPGAuto.UI
@@ -31,17 +31,12 @@ namespace RPGAuto.UI
             public float Age;
         }
 
-        private ObjectPool<Text> _pool;
+        private PrefabPool<Text> _pool;
         private readonly List<Line> _lines = new(); // 0 = 가장 오래된 줄
 
         private void Awake()
         {
-            _pool = new ObjectPool<Text>(
-                createFunc: () => Instantiate(linePrefab, lineContainer),
-                actionOnGet: t => t.gameObject.SetActive(true),
-                actionOnRelease: t => t.gameObject.SetActive(false),
-                actionOnDestroy: t => { if (t != null) Destroy(t.gameObject); },
-                collectionCheck: true, defaultCapacity: maxLines, maxSize: maxLines * 2);
+            _pool = new PrefabPool<Text>(linePrefab, lineContainer, defaultCapacity: maxLines, maxSize: maxLines * 2);
         }
 
         private void OnEnable()

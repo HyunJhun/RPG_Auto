@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using RPGAuto.Core.Pooling;
 using UnityEngine;
 
 namespace RPGAuto.Loot
@@ -7,7 +8,7 @@ namespace RPGAuto.Loot
     /// 바닥에 떨어진 전리품 (엘리트/보스 드랍). LootManager의 Object Pool에서 재사용된다.
     /// 줍기 판정은 PlayerLooter가 거리로 처리한다.
     /// </summary>
-    public class GroundLoot : MonoBehaviour
+    public class GroundLoot : MonoBehaviour, IPoolable
     {
         private static readonly List<GroundLoot> s_active = new();
         public static IReadOnlyList<GroundLoot> Active => s_active;
@@ -53,8 +54,6 @@ namespace RPGAuto.Loot
             _from = from;
             _to = to;
             _lifetime = lifetime;
-            _age = 0f;
-            _collected = false;
 
             bool gold = entry.IsGold;
             if (goldVisual != null) goldVisual.enabled = gold;
@@ -71,8 +70,20 @@ namespace RPGAuto.Loot
             }
 
             transform.position = from;
-            if (visualRoot != null) visualRoot.localRotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
         }
+
+        public void OnSpawned()
+        {
+            _age = 0f;
+            _collected = false;
+            if (visualRoot != null)
+            {
+                visualRoot.gameObject.SetActive(true); // 깜빡임 도중 반납됐던 경우 대비
+                visualRoot.localRotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+            }
+        }
+
+        public void OnDespawned() => _collected = true; // 반납 후 IsAvailable이 true로 보이지 않게
 
         /// <summary>플레이어가 주웠을 때</summary>
         public void Collect()

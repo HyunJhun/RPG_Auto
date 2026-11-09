@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using RPGAuto.Combat;
+using RPGAuto.Core.Pooling;
 using RPGAuto.Monster;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Pool;
 
 namespace RPGAuto.Loot
 {
@@ -19,22 +19,12 @@ namespace RPGAuto.Loot
         [SerializeField] private float groundLifetime = 60f;
         [SerializeField] private int poolMaxSize = 64;
 
-        private ObjectPool<GroundLoot> _pool;
+        private PrefabPool<GroundLoot> _pool;
         private readonly List<LootEntry> _buffer = new();
 
         private void Awake()
         {
-            _pool = new ObjectPool<GroundLoot>(
-                createFunc: () =>
-                {
-                    var loot = Instantiate(groundLootPrefab, transform);
-                    loot.name = groundLootPrefab.name;
-                    return loot;
-                },
-                actionOnGet: l => l.gameObject.SetActive(true),
-                actionOnRelease: l => l.gameObject.SetActive(false),
-                actionOnDestroy: l => { if (l != null) Destroy(l.gameObject); },
-                collectionCheck: true, defaultCapacity: 16, maxSize: poolMaxSize);
+            _pool = new PrefabPool<GroundLoot>(groundLootPrefab, transform, 16, poolMaxSize);
         }
 
         private void OnEnable() => MonsterController.OnAnyKilled += HandleMonsterKilled;
@@ -68,7 +58,7 @@ namespace RPGAuto.Loot
                 if (NavMesh.SamplePosition(to, out var hit, 1.5f, NavMesh.AllAreas)) to = hit.position;
                 else to = origin;
 
-                _pool.Get().Init(this, _buffer[i], from, to, groundLifetime);
+                _pool.Get(from, Quaternion.identity).Init(this, _buffer[i], from, to, groundLifetime);
             }
         }
 

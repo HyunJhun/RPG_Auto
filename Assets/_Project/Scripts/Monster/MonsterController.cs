@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using RPGAuto.Combat;
 using RPGAuto.Combat.Targeting;
 using RPGAuto.Core;
+using RPGAuto.Core.Pooling;
 using RPGAuto.Data;
 using RPGAuto.Monster.States;
 using UnityEngine;
@@ -18,7 +19,7 @@ namespace RPGAuto.Monster
     }
 
     [RequireComponent(typeof(NavMeshAgent), typeof(CombatStats))]
-    public class MonsterController : MonoBehaviour
+    public class MonsterController : MonoBehaviour, IPoolable
     {
         private static readonly List<MonsterController> s_active = new();
         /// <summary>현재 활성 몬스터 목록 (타겟 탐지/이름표용)</summary>
@@ -153,10 +154,10 @@ namespace RPGAuto.Monster
         private void OnEnable() => s_active.Add(this);
         private void OnDisable() => s_active.Remove(this);
 
-        /// <summary>풀에서 꺼낼 때 호출</summary>
-        public void Spawn(Vector3 position)
+        /// <summary>풀에서 꺼낸 직후 (PrefabPool이 위치·회전을 잡고 활성화한 다음 호출)</summary>
+        public void OnSpawned()
         {
-            transform.rotation = Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f);
+            Vector3 position = transform.position;
             transform.localScale = _baseScale;
             Agent.Warp(position);
             HomePosition = position;
@@ -170,6 +171,13 @@ namespace RPGAuto.Monster
             ApplyColor(_baseColor);
 
             StateMachine.ChangeState(IdleState);
+        }
+
+        /// <summary>풀에 반납되기 직전</summary>
+        public void OnDespawned()
+        {
+            AggroTarget = null;
+            if (Agent.isOnNavMesh) Agent.ResetPath();
         }
 
         private void Update()

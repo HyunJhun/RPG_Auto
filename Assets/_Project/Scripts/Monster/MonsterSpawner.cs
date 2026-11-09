@@ -1,11 +1,11 @@
 using System.Collections.Generic;
+using RPGAuto.Core.Pooling;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Pool;
 
 namespace RPGAuto.Monster
 {
-    /// <summary>영역 안에 몬스터를 유지하는 스포너 (Object Pool)</summary>
+    /// <summary>영역 안에 몬스터를 유지하는 스포너 (PrefabPool)</summary>
     public class MonsterSpawner : MonoBehaviour
     {
         [SerializeField] private MonsterController prefab;
@@ -13,22 +13,16 @@ namespace RPGAuto.Monster
         [SerializeField] private int maxAlive = 5;
         [SerializeField] private float respawnDelay = 4f;
 
-        private ObjectPool<MonsterController> _pool;
+        private PrefabPool<MonsterController> _pool;
         private readonly List<float> _respawnTimes = new();
-        private Vector3 _pendingPosition;
 
         public int AliveCount { get; private set; }
 
         private void Awake()
         {
-            _pool = new ObjectPool<MonsterController>(
-                createFunc: Create,
-                actionOnGet: null,
-                actionOnRelease: m => m.gameObject.SetActive(false),
-                actionOnDestroy: m => { if (m != null) Destroy(m.gameObject); },
-                collectionCheck: true,
-                defaultCapacity: maxAlive,
-                maxSize: maxAlive * 2);
+            if (prefab == null) return;
+            _pool = new PrefabPool<MonsterController>(prefab, transform, maxAlive, maxAlive * 2,
+                onCreated: m => m.OnDespawnRequested += HandleDespawn);
         }
 
         private void Start()
@@ -48,27 +42,17 @@ namespace RPGAuto.Monster
 
         private void SpawnOne()
         {
-            if (prefab == null) return;
-            if (!TryGetSpawnPoint(out _pendingPosition))
+            if (_pool == null) return;
+            if (!TryGetSpawnPoint(out var point))
             {
                 _respawnTimes.Add(Time.time + 1f); // 자리가 없으면 잠시 후 재시도
                 return;
             }
 
-            var monster = _pool.Get();
-            monster.transform.position = _pendingPosition;
-            monster.gameObject.SetActive(true);
-            monster.Spawn(_pendingPosition);
+            // 위치 지정 → 활성화 → IPoolable.OnSpawned(초기화) 순서는 PrefabPool이 보장
+            var rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+            _pool.Get(point, rotation);
             AliveCount++;
-        }
-
-        private MonsterController Create()
-        {
-            // 생성 시점부터 NavMesh 위에 두어 NavMeshAgent 경고를 막는다
-            var monster = Instantiate(prefab, _pendingPosition, Quaternion.identity, transform);
-            monster.name = prefab.name;
-            monster.OnDespawnRequested += HandleDespawn;
-            return monster;
         }
 
         private void HandleDespawn(MonsterController monster)

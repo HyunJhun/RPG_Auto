@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using RPGAuto.Combat;
+using RPGAuto.Core.Pooling;
 using RPGAuto.Monster;
 using RPGAuto.Player;
 using UnityEngine;
-using UnityEngine.Pool;
 using UnityEngine.UI;
 
 namespace RPGAuto.UI
@@ -20,7 +20,7 @@ namespace RPGAuto.UI
         [SerializeField] private float maxVisibleDistance = 30f;
 
         private RectTransform _root;
-        private ObjectPool<Text> _pool;
+        private PrefabPool<Text> _pool;
         private readonly Dictionary<MonsterController, Text> _plates = new();
         private readonly List<MonsterController> _toRemove = new();
         private int _colorLevel = -1;
@@ -29,12 +29,7 @@ namespace RPGAuto.UI
         {
             _root = (RectTransform)transform;
             if (viewCamera == null) viewCamera = Camera.main;
-            _pool = new ObjectPool<Text>(
-                createFunc: () => Instantiate(nameplatePrefab, _root),
-                actionOnGet: t => t.gameObject.SetActive(true),
-                actionOnRelease: t => t.gameObject.SetActive(false),
-                actionOnDestroy: t => { if (t != null) Destroy(t.gameObject); },
-                collectionCheck: true, defaultCapacity: 16, maxSize: 64);
+            _pool = new PrefabPool<Text>(nameplatePrefab, _root, defaultCapacity: 16, maxSize: 64);
         }
 
         private void OnEnable()
