@@ -187,7 +187,7 @@ namespace RPGAuto.EditorTools
             const float w = 440f, h = 660f;
             var root = CreateStretch("UI_ItemDetailPopup", canvas);
             var panel = CreateRect("UI_ItemDetailPopup_Panel", root, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), Vector2.zero, new Vector2(w, h));
-            AddImage(panel, new Color(0.08f, 0.08f, 0.1f, 0.97f));
+            AddImage(panel, new Color(0.08f, 0.08f, 0.1f, 1f)); // 불투명 (뒤 화면이 비치지 않게)
             var close = CreateButton("UI_ItemDetailPopup_Button_Close", panel, "X", 22, CloseColor);
             Place((RectTransform)close.transform, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-10f, -10f), new Vector2(40f, 40f));
 
