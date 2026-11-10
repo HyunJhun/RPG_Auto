@@ -1,4 +1,4 @@
-﻿using RPGAuto.Core;
+using RPGAuto.Core;
 using UnityEngine;
 
 namespace RPGAuto.Monster.States
@@ -108,6 +108,7 @@ namespace RPGAuto.Monster.States
             _timer -= deltaTime;
             if (_timer > 0f) return;
             _timer = _m.AttackInterval;
+            _m.NotifyAttack();
             RPGAuto.Combat.DamageCalculator.Attack(_m.Stats, target, RPGAuto.Combat.DamageType.Physical, _m.AttackMultiplier);
         }
 

@@ -96,6 +96,8 @@ namespace RPGAuto.Monster
 
         /// <summary>사망 연출 종료 후 풀 반환 요청 (Observer)</summary>
         public event Action<MonsterController> OnDespawnRequested;
+        /// <summary>공격을 휘두른 순간 (모델 애니메이션용, Observer)</summary>
+        public event Action OnAttack;
 
         private void Awake()
         {
@@ -214,6 +216,7 @@ namespace RPGAuto.Monster
         }
 
         internal void RequestDespawn() => OnDespawnRequested?.Invoke(this);
+        internal void NotifyAttack() => OnAttack?.Invoke();
 
         internal void SetColliderEnabled(bool enabled)
         {
