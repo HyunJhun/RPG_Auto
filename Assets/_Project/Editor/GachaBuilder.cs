@@ -40,7 +40,7 @@ namespace RPGAuto.EditorTools
             if (canvas == null) throw new System.Exception("UI_Canvas가 없습니다.");
             DestroyChild(canvas, "UI_GachaWindow");
 
-            var openButton = CloneMenuButton(canvas.Find("UI_MenuBar"), "Gacha", "GACHA", "ToggleGacha", 4);
+            var openButton = CloneMenuButton(canvas.Find("UI_MenuBar"), "Gacha", "뽑기", "ToggleGacha", 4);
             BuildWindow(canvas, gacha, player.GetComponent<PlayerInventory>(), player.GetComponent<PlayerWallet>(),
                 Object.FindFirstObjectByType<PlayerInputHandler>(), openButton);
 
@@ -67,14 +67,14 @@ namespace RPGAuto.EditorTools
             static ItemData Eq(string id) => EquipmentBuilder.Load(id) ?? throw new System.Exception($"EQ_{id} 없음 — Build Equipment Data 먼저 실행");
 
             var relic = LoadOrCreate<ItemData>(ItemFolder + "/IT_AncientRelic.asset");
-            Set(relic, ("itemId", "I104"), ("displayName", "Ancient Relic"), ("shortLabel", "RELIC"),
+            Set(relic, ("itemId", "I104"), ("displayName", "고대 유물"), ("shortLabel", "유물"),
                 ("slotColor", new Color(0.95f, 0.6f, 0.15f)), ("category", (int)ItemCategory.Material),
-                ("description", "A relic from a lost age. Obtainable only from summons."), ("sellPrice", 5000L));
+                ("description", "잊혀진 시대의 유물. 소환으로만 얻을 수 있습니다."), ("sellPrice", 5000L));
 
             var data = LoadOrCreate<GachaData>(GachaFolder + "/GACHA_Supply.asset");
             var so = new SerializedObject(data);
-            so.FindProperty("displayName").stringValue = "Supply Summon";
-            so.FindProperty("description").stringValue = "Summon supplies and rare materials. A 10x summon guarantees at least one Rare or better.";
+            so.FindProperty("displayName").stringValue = "보급품 소환";
+            so.FindProperty("description").stringValue = "보급품과 희귀 재료를 소환합니다. 10회 소환 시 희귀 등급 이상 1개가 보장됩니다.";
             so.FindProperty("singleCost").longValue = 300;
             so.FindProperty("tenCost").longValue = 2700;
             so.FindProperty("tenPullGuarantee").enumValueIndex = (int)GachaGrade.Rare;
@@ -116,7 +116,7 @@ namespace RPGAuto.EditorTools
             const float rightX = 24f + bannerW + 20f, rightW = w - rightX - 24f;
             float bannerH = h - top - 24f;
 
-            var root = CreateWindow(canvas, "UI_GachaWindow", "SUMMON", new Vector2(w, h), out var panel, out var close);
+            var root = CreateWindow(canvas, "UI_GachaWindow", "소환", new Vector2(w, h), out var panel, out var close);
 
             // ---- 배너 (좌측) ----
             var banner = CreateTopLeft("UI_GachaWindow_Banner", panel, 24f, top, bannerW, bannerH);
@@ -132,10 +132,10 @@ namespace RPGAuto.EditorTools
             PlaceTopLeft(rates.rectTransform, 16f, 142f, bw, 220f);
             rates.supportRichText = true;
 
-            var gold = CreateText("UI_GachaWindow_GoldText", banner, "Gold  0", 24, TextAnchor.MiddleLeft, new Color(1f, 0.85f, 0.35f));
+            var gold = CreateText("UI_GachaWindow_GoldText", banner, "골드  0", 24, TextAnchor.MiddleLeft, new Color(1f, 0.85f, 0.35f));
             PlaceTopLeft(gold.rectTransform, 16f, bannerH - 112f, bw, 40f);
             AddOutline(gold);
-            var testGold = CreateButton("UI_GachaWindow_Button_TestGold", banner, "+10,000 G (TEST)", 16, new Color(0.35f, 0.25f, 0.5f, 1f));
+            var testGold = CreateButton("UI_GachaWindow_Button_TestGold", banner, "+10,000 G (테스트)", 16, new Color(0.35f, 0.25f, 0.5f, 1f));
             PlaceTopLeft((RectTransform)testGold.transform, 16f, bannerH - 64f, bw, 48f);
 
             // ---- 결과 (우측) ----
@@ -147,7 +147,7 @@ namespace RPGAuto.EditorTools
             grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             grid.constraintCount = 5;
             grid.childAlignment = TextAnchor.MiddleCenter;
-            var hint = CreateText("UI_GachaWindow_Results_EmptyHint", results, "Press Summon to begin", 20, TextAnchor.MiddleCenter, new Color(0.6f, 0.6f, 0.65f));
+            var hint = CreateText("UI_GachaWindow_Results_EmptyHint", results, "소환 버튼을 눌러 시작하세요", 20, TextAnchor.MiddleCenter, new Color(0.6f, 0.6f, 0.65f));
             hint.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
             Stretch(hint.rectTransform, 12f);
 
@@ -156,9 +156,9 @@ namespace RPGAuto.EditorTools
             message.fontStyle = FontStyle.Bold;
 
             float btnW = (rightW - 16f) / 2f;
-            var single = CreateButton("UI_GachaWindow_Button_Single", panel, "Summon x1", 22, new Color(0.25f, 0.4f, 0.65f, 1f));
+            var single = CreateButton("UI_GachaWindow_Button_Single", panel, "1회 소환", 22, new Color(0.25f, 0.4f, 0.65f, 1f));
             PlaceTopLeft((RectTransform)single.transform, rightX, h - 24f - 100f, btnW, 100f);
-            var ten = CreateButton("UI_GachaWindow_Button_Ten", panel, "Summon x10", 22, new Color(0.6f, 0.35f, 0.15f, 1f));
+            var ten = CreateButton("UI_GachaWindow_Button_Ten", panel, "10회 소환", 22, new Color(0.6f, 0.35f, 0.15f, 1f));
             PlaceTopLeft((RectTransform)ten.transform, rightX + btnW + 16f, h - 24f - 100f, btnW, 100f);
 
             // ---- 바인딩 ----

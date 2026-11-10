@@ -16,14 +16,14 @@ namespace RPGAuto.UI
     public class CharacterWindowView : MonoBehaviour, IGameWindow
     {
         private static readonly string[] SlotLabels =
-            { "WEAPON", "HELMET", "ARMOR", "CLOAK", "GLOVES", "PANTS", "BOOTS", "BELT", "NECKLACE", "EARRING", "RING", "RING" };
+            { "무기", "투구", "갑옷", "망토", "장갑", "바지", "신발", "허리띠", "목걸이", "귀걸이", "반지", "반지" };
 
         [Header("Data")]
         [SerializeField] private CombatStats stats;
         [SerializeField] private PlayerProgression progression;
         [SerializeField] private PlayerEquipment equipment;
         [SerializeField] private PlayerInputHandler input;
-        [SerializeField] private string characterName = "Adventurer";
+        [SerializeField] private string characterName = "모험가";
 
         [Header("Window")]
         [SerializeField] private GameObject window;
@@ -144,7 +144,7 @@ namespace RPGAuto.UI
                     var eq = equipment.Get(positions[i]);
                     equipSlots[i].BindEquipment(eq, SlotLabels[i], eq != null && eq == _selected);
                 }
-                if (bonusText != null) bonusText.text = "Equipment Bonus\n" + StatText.Summary(equipment.TotalBonus, 6);
+                if (bonusText != null) bonusText.text = "장비 보너스\n" + StatText.Summary(equipment.TotalBonus, 6);
             }
             else
             {
@@ -157,26 +157,26 @@ namespace RPGAuto.UI
         private void BuildStatRows()
         {
             if (statRowContainer == null || statRowPrefab == null) return;
-            AddHeader("CHARACTER");
-            AddRow("Level", () => progression.Level.ToString());
-            AddRow("EXP", () => progression.IsMaxLevel
-                ? "MAX"
+            AddHeader("캐릭터");
+            AddRow("레벨", () => progression.Level.ToString());
+            AddRow("경험치", () => progression.IsMaxLevel
+                ? "최대"
                 : $"{progression.Exp:N0} / {progression.RequiredExp:N0} ({progression.ExpRatio * 100f:0.000}%)");
             AddRow("HP", () => $"{Mathf.CeilToInt(stats.Hp)} / {Mathf.CeilToInt(stats.MaxHp)}");
             AddRow("MP", () => $"{Mathf.CeilToInt(stats.Mp)} / {Mathf.CeilToInt(stats.MaxMp)}");
-            AddHeader("PRIMARY");
-            AddRow("STR", () => StatText.Format(stats.Str));
-            AddRow("DEX", () => StatText.Format(stats.Dex));
-            AddRow("LUK", () => StatText.Format(stats.Luk));
-            AddRow("INT", () => StatText.Format(stats.Int));
-            AddHeader("COMBAT");
-            AddRow("Physical ATK", () => WithBonus(stats.PhysicalAttack, equipment.TotalBonus.physicalAttack));
-            AddRow("Magic ATK", () => WithBonus(stats.MagicAttack, equipment.TotalBonus.magicAttack));
-            AddRow("HP Regen", () => $"{stats.HpRegen:0.##}/s");
-            AddRow("MP Regen", () => $"{stats.MpRegen:0.##}/s");
-            AddRow("Accuracy", () => WithBonus(stats.Accuracy, equipment.TotalBonus.accuracy));
-            AddRow("Physical DEF", () => WithBonus(stats.PhysicalDefense, equipment.TotalBonus.physicalDefense));
-            AddRow("Magic DEF", () => WithBonus(stats.MagicDefense, equipment.TotalBonus.magicDefense));
+            AddHeader("기본 능력치");
+            AddRow("힘", () => StatText.Format(stats.Str));
+            AddRow("민첩", () => StatText.Format(stats.Dex));
+            AddRow("행운", () => StatText.Format(stats.Luk));
+            AddRow("지능", () => StatText.Format(stats.Int));
+            AddHeader("전투 능력치");
+            AddRow("물리 공격력", () => WithBonus(stats.PhysicalAttack, equipment.TotalBonus.physicalAttack));
+            AddRow("마법 공격력", () => WithBonus(stats.MagicAttack, equipment.TotalBonus.magicAttack));
+            AddRow("HP 회복", () => $"{stats.HpRegen:0.##}/초");
+            AddRow("MP 회복", () => $"{stats.MpRegen:0.##}/초");
+            AddRow("명중", () => WithBonus(stats.Accuracy, equipment.TotalBonus.accuracy));
+            AddRow("물리 방어력", () => WithBonus(stats.PhysicalDefense, equipment.TotalBonus.physicalDefense));
+            AddRow("마법 방어력", () => WithBonus(stats.MagicDefense, equipment.TotalBonus.magicDefense));
         }
 
         /// <summary>최종값 + 장비로 오른 양 표시 (예: 120 (+23))</summary>

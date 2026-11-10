@@ -28,6 +28,7 @@ namespace RPGAuto.Player.Assist
         public PlayerInventory Inventory { get; private set; }
         public PlayerEquipment Equipment { get; private set; }
         public PlayerWallet Wallet { get; private set; }
+        public RPGAuto.Shop.PlayerTradeSettings TradeSettings { get; private set; }
         public AutoCombatSettings Settings => (_combat != null ? _combat : _combat = GetComponent<PlayerCombat>()).Settings;
 
         public float CheckInterval => checkInterval;
@@ -65,6 +66,7 @@ namespace RPGAuto.Player.Assist
             Inventory = GetComponent<PlayerInventory>();
             Equipment = GetComponent<PlayerEquipment>();
             Wallet = GetComponent<PlayerWallet>();
+            TradeSettings = GetComponent<RPGAuto.Shop.PlayerTradeSettings>();
             _combat = GetComponent<PlayerCombat>();
             _stats = GetComponent<CombatStats>();
 
@@ -87,7 +89,7 @@ namespace RPGAuto.Player.Assist
         {
             if (Settings.assistMode == enabled) return;
             Settings.assistMode = enabled;
-            if (!enabled && IsOnTrip) Cancel("Assist off");
+            if (!enabled && IsOnTrip) Cancel("보조 모드 꺼짐");
             GetComponent<CombatSettingsSaver>()?.Save();
             OnAssistModeChanged?.Invoke(enabled);
         }
@@ -118,8 +120,8 @@ namespace RPGAuto.Player.Assist
         /// <summary>귀환이 필요한 이유 (없으면 null)</summary>
         public string GetTripReason()
         {
-            if (CountHpPotions() <= Settings.assistPotionMin) return "Low on potions";
-            if (Settings.assistOnFullBag && IsBagFull) return "Bag is full";
+            if (CountHpPotions() <= Settings.assistPotionMin) return "물약 부족";
+            if (Settings.assistOnFullBag && IsBagFull) return "가방이 가득 참";
             return null;
         }
 
@@ -161,7 +163,7 @@ namespace RPGAuto.Player.Assist
 
         private void HandleDied()
         {
-            if (IsOnTrip) Cancel("Assist canceled");
+            if (IsOnTrip) Cancel("보조 모드 이동 취소");
         }
     }
 }

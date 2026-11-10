@@ -42,7 +42,7 @@ namespace RPGAuto.UI
         private void RefreshAuto(bool enabled)
         {
             if (autoBackground != null) autoBackground.color = enabled ? autoOnColor : autoOffColor;
-            if (autoLabel != null) autoLabel.text = enabled ? "AUTO\nON" : "AUTO\nOFF";
+            if (autoLabel != null) autoLabel.text = enabled ? "자동\n켜짐" : "자동\n꺼짐";
         }
     }
 }

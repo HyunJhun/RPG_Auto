@@ -72,9 +72,9 @@ namespace RPGAuto.EditorTools
 
             DestroyChild(panel, "UI_SettingsWindow_Button_SaveGame");
             DestroyChild(panel, "UI_SettingsWindow_Button_DeleteSave");
-            var saveButton = CreateButton("UI_SettingsWindow_Button_SaveGame", panel, "Save", 18, new Color(0.2f, 0.4f, 0.25f, 1f));
+            var saveButton = CreateButton("UI_SettingsWindow_Button_SaveGame", panel, "저장", 18, new Color(0.2f, 0.4f, 0.25f, 1f));
             PlaceTopLeft((RectTransform)saveButton.transform, 256f, y, 160f, 50f);
-            var deleteButton = CreateButton("UI_SettingsWindow_Button_DeleteSave", panel, "Delete Save", 18, new Color(0.35f, 0.15f, 0.15f, 1f));
+            var deleteButton = CreateButton("UI_SettingsWindow_Button_DeleteSave", panel, "저장 삭제", 18, new Color(0.35f, 0.15f, 0.15f, 1f));
             PlaceTopLeft((RectTransform)deleteButton.transform, 428f, y, w - 24f - 428f, 50f);
 
             // 기존 "자동 저장" 문구를 제목줄 왼쪽의 저장 상태 표시로 옮긴다

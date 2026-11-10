@@ -152,11 +152,11 @@ MonoBehaviour:
   bobSpeed: 3
   spinSpeed: 120
   showDuration: 1
-  launchSpeed: 5
-  flyAcceleration: 45
-  flyMaxSpeed: 28
-  homingStrength: 10
-  arriveDistance: 0.3
+  arcHeight: 1.6
+  arcSide: 1.2
+  flySpeed: 14
+  minFlyTime: 0.35
+  maxFlyTime: 0.8
   retryInterval: 0.5
   blinkDuration: 5
 --- !u!1 &1135247299700239418

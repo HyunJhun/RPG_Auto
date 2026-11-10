@@ -107,10 +107,10 @@ namespace RPGAuto.Gacha
 
         public static string ToMessage(GachaPullStatus status) => status switch
         {
-            GachaPullStatus.NotEnoughGold => "Not enough gold",
-            GachaPullStatus.InventoryFull => "Not enough inventory space",
-            GachaPullStatus.Overweight => "Too heavy - reduce your weight first",
-            GachaPullStatus.Invalid => "Summon is not available",
+            GachaPullStatus.NotEnoughGold => "골드가 부족합니다",
+            GachaPullStatus.InventoryFull => "인벤토리 공간이 부족합니다",
+            GachaPullStatus.Overweight => "무게가 초과되었습니다. 먼저 무게를 줄이세요",
+            GachaPullStatus.Invalid => "소환할 수 없습니다",
             _ => string.Empty
         };
     }

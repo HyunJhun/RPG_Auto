@@ -67,10 +67,10 @@ namespace RPGAuto.EditorTools
             QuickSlotBar quickSlots, PlayerInputHandler input, Button openButton, InventorySlotView slotPrefab,
             ItemDetailPopup detail, ExpansionPopup expansion)
         {
-            var root = CreateSideWindow(canvas, "UI_InventoryWindow", "INVENTORY", true, new Vector2(PanelWidth, PanelHeight), out var panel, out var close);
+            var root = CreateSideWindow(canvas, "UI_InventoryWindow", "인벤토리", true, new Vector2(PanelWidth, PanelHeight), out var panel, out var close);
 
             // 좌측 분류 필터
-            string[] filters = { "ALL", "EQUIP", "ACC", "USE", "MISC" };
+            string[] filters = { "전체", "장비", "장신구", "소모품", "기타" };
             var filterButtons = new Object[filters.Length];
             for (int i = 0; i < filters.Length; i++)
             {
@@ -78,6 +78,12 @@ namespace RPGAuto.EditorTools
                 PlaceTopLeft((RectTransform)b.transform, 12f, 72f + i * 64f, 64f, 56f);
                 filterButtons[i] = b;
             }
+
+            // 정렬: [정렬] 버튼 + 기준 전환 버튼 (필터 아래)
+            var sort = CreateButton("UI_InventoryWindow_Button_Sort", panel, "정렬", 15, new Color(0.25f, 0.35f, 0.5f, 1f));
+            PlaceTopLeft((RectTransform)sort.transform, 12f, 72f + filters.Length * 64f + 16f, 64f, 56f);
+            var sortMode = CreateButton("UI_InventoryWindow_Button_SortMode", panel, "종류순", 13, ButtonColor);
+            PlaceTopLeft((RectTransform)sortMode.transform, 12f, 72f + filters.Length * 64f + 80f, 64f, 44f);
 
             // 칸 목록 (스크롤, 4열)
             var content = CreateScrollArea("UI_InventoryWindow_Grid", panel, out var gridFrame);
@@ -94,13 +100,15 @@ namespace RPGAuto.EditorTools
 
             // 상점 모드 버튼 줄
             var shopBar = CreateRect("UI_InventoryWindow_ShopBar", panel, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(88f, 66f), new Vector2(PanelWidth - 100f, 52f));
-            var autoFill = CreateButton("UI_InventoryWindow_Button_AutoFill", shopBar, "AUTO FILL", 18, new Color(0.45f, 0.3f, 0.15f, 1f));
-            PlaceTopLeft((RectTransform)autoFill.transform, 0f, 0f, 200f, 52f);
-            var clear = CreateButton("UI_InventoryWindow_Button_ClearBasket", shopBar, "CLEAR", 18, ButtonColor);
-            PlaceTopLeft((RectTransform)clear.transform, 212f, 0f, PanelWidth - 100f - 212f, 52f);
+            var autoFill = CreateButton("UI_InventoryWindow_Button_AutoFill", shopBar, "자동 담기", 18, new Color(0.45f, 0.3f, 0.15f, 1f));
+            PlaceTopLeft((RectTransform)autoFill.transform, 0f, 0f, 160f, 52f);
+            var tradeSettings = CreateButton("UI_InventoryWindow_Button_TradeSettings", shopBar, "담기 설정", 16, new Color(0.3f, 0.3f, 0.45f, 1f));
+            PlaceTopLeft((RectTransform)tradeSettings.transform, 168f, 0f, 112f, 52f);
+            var clear = CreateButton("UI_InventoryWindow_Button_ClearBasket", shopBar, "비우기", 18, ButtonColor);
+            PlaceTopLeft((RectTransform)clear.transform, 288f, 0f, PanelWidth - 100f - 288f, 52f);
 
             // 하단: 무게 / 칸 수 / 확장
-            var weight = CreateText("UI_InventoryWindow_WeightText", panel, "WEIGHT 0 / 0", 18, TextAnchor.MiddleLeft, Color.white);
+            var weight = CreateText("UI_InventoryWindow_WeightText", panel, "무게 0 / 0", 18, TextAnchor.MiddleLeft, Color.white);
             Place(weight.rectTransform, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(20f, 12f), new Vector2(300f, 40f));
             AddOutline(weight);
             var slots = CreateText("UI_InventoryWindow_SlotText", panel, "0 / 0", 18, TextAnchor.MiddleRight, Color.white);
@@ -114,7 +122,8 @@ namespace RPGAuto.EditorTools
                 ("window", panel.gameObject), ("openButton", openButton), ("closeButton", close),
                 ("slotContainer", content), ("gridFrame", gridFrame), ("slotPrefab", slotPrefab),
                 ("weightText", weight), ("slotText", slots), ("expandButton", expand),
-                ("shopBar", shopBar.gameObject), ("autoFillButton", autoFill), ("clearBasketButton", clear),
+                ("shopBar", shopBar.gameObject), ("autoFillButton", autoFill), ("clearBasketButton", clear), ("tradeSettingsButton", tradeSettings),
+                ("sortButton", sort), ("sortModeButton", sortMode), ("sortModeText", sortMode.GetComponentInChildren<Text>()),
                 ("detailPopup", detail), ("expansionPopup", expansion));
             SetArray(view, "filterButtons", filterButtons);
             root.SetAsLastSibling();
@@ -168,6 +177,14 @@ namespace RPGAuto.EditorTools
             e.fontStyle = FontStyle.Bold;
             e.raycastTarget = false;
 
+            // 잠금 배지 "잠" (좌상단, E 배지 오른쪽)
+            var lockBadge = CreateTopLeft("UI_InventorySlot_LockBadge", root, 28f, 4f, 22f, 22f);
+            AddImage(lockBadge, new Color(0.3f, 0.5f, 0.75f, 1f)).raycastTarget = false;
+            var lk = CreateText("UI_InventorySlot_LockBadge_Label", lockBadge, "잠", 13, TextAnchor.MiddleCenter, Color.white);
+            Stretch(lk.rectTransform, 0f);
+            lk.raycastTarget = false;
+            lockBadge.gameObject.SetActive(false);
+
             var selected = CreateStretch("UI_InventorySlot_Selected", root);
             Stretch(selected, -2f);
             var selImg = AddImage(selected, new Color(1f, 0.82f, 0.3f, 1f));
@@ -177,7 +194,7 @@ namespace RPGAuto.EditorTools
             var view = root.gameObject.AddComponent<InventorySlotView>();
             Set(view, ("background", bg), ("icon", icon), ("label", label), ("levelText", level), ("enhanceText", enhance),
                 ("countText", count), ("quickSlotMark", mark), ("equippedBadge", badge.gameObject),
-                ("selectedFrame", selected.gameObject), ("placeholderText", placeholder), ("upgradeMark", upgrade));
+                ("selectedFrame", selected.gameObject), ("placeholderText", placeholder), ("upgradeMark", upgrade), ("lockBadge", lockBadge.gameObject));
             return SavePrefab<InventorySlotView>(root.gameObject, Root + "/Prefabs/UI/UI_InventorySlot.prefab");
         }
 
@@ -186,7 +203,7 @@ namespace RPGAuto.EditorTools
         private static ItemDetailPopup BuildDetailPopup(Transform canvas, PlayerInventory inventory, PlayerEquipment equipment,
             QuickSlotBar quickSlots, EnhancePopup enhance)
         {
-            const float w = 440f, h = 660f;
+            const float w = 440f, h = 724f;
             var root = CreateStretch("UI_ItemDetailPopup", canvas);
             var panel = CreateRect("UI_ItemDetailPopup_Panel", root, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), Vector2.zero, new Vector2(w, h));
             AddImage(panel, new Color(0.08f, 0.08f, 0.1f, 1f)); // 불투명 (뒤 화면이 비치지 않게)
@@ -219,7 +236,7 @@ namespace RPGAuto.EditorTools
 
             // 퀵슬롯 등록 (소모품)
             var qsGroup = CreateTopLeft("UI_ItemDetailPopup_QuickSlotGroup", panel, 20f, 432f, cw, 76f);
-            var qsTitle = CreateText("UI_ItemDetailPopup_QuickSlotTitle", qsGroup, "Register to Quick Slot", 15, TextAnchor.UpperLeft, new Color(0.7f, 0.7f, 0.75f));
+            var qsTitle = CreateText("UI_ItemDetailPopup_QuickSlotTitle", qsGroup, "퀵슬롯 등록", 15, TextAnchor.UpperLeft, new Color(0.7f, 0.7f, 0.75f));
             PlaceTopLeft(qsTitle.rectTransform, 0f, 0f, cw, 22f);
             string[] keys = { "7", "8", "9", "0" };
             var qs = new Object[keys.Length];
@@ -241,19 +258,29 @@ namespace RPGAuto.EditorTools
                 PlaceTopLeft((RectTransform)qty.transform, 20f, 516f, cw, 40f);
             }
 
+            // 잠금 / 분해 (하단 버튼 위 줄)
+            float ly = h - 20f - 56f - 64f;
+            var lockBtn = CreateButton("UI_ItemDetailPopup_Button_Lock", panel, "잠금", 18, new Color(0.25f, 0.35f, 0.5f, 1f));
+            PlaceTopLeft((RectTransform)lockBtn.transform, 20f, ly, 195f, 52f);
+            var disBtn = CreateButton("UI_ItemDetailPopup_Button_Disassemble", panel, "분해", 18, new Color(0.45f, 0.3f, 0.45f, 1f));
+            PlaceTopLeft((RectTransform)disBtn.transform, 225f, ly, w - 245f, 52f);
+
             // 하단 버튼
             float by = h - 20f - 56f;
-            var use = CreateButton("UI_ItemDetailPopup_Button_Use", panel, "USE", 20, new Color(0.2f, 0.5f, 0.3f, 1f));
+            var use = CreateButton("UI_ItemDetailPopup_Button_Use", panel, "사용", 20, new Color(0.2f, 0.5f, 0.3f, 1f));
             PlaceTopLeft((RectTransform)use.transform, 20f, by, 130f, 56f);
-            var equip = CreateButton("UI_ItemDetailPopup_Button_Equip", panel, "EQUIP", 20, new Color(0.2f, 0.4f, 0.6f, 1f));
+            var equip = CreateButton("UI_ItemDetailPopup_Button_Equip", panel, "장착", 20, new Color(0.2f, 0.4f, 0.6f, 1f));
             PlaceTopLeft((RectTransform)equip.transform, 20f, by, 130f, 56f);
-            var enh = CreateButton("UI_ItemDetailPopup_Button_Enhance", panel, "ENHANCE", 20, new Color(0.55f, 0.4f, 0.15f, 1f));
+            var enh = CreateButton("UI_ItemDetailPopup_Button_Enhance", panel, "강화", 20, new Color(0.55f, 0.4f, 0.15f, 1f));
             PlaceTopLeft((RectTransform)enh.transform, 160f, by, 130f, 56f);
-            var discard = CreateButton("UI_ItemDetailPopup_Button_Discard", panel, "DISCARD", 18, new Color(0.45f, 0.18f, 0.18f, 1f));
+            var discard = CreateButton("UI_ItemDetailPopup_Button_Discard", panel, "버리기", 18, new Color(0.45f, 0.18f, 0.18f, 1f));
             PlaceTopLeft((RectTransform)discard.transform, 300f, by, w - 320f, 56f);
 
             var view = root.gameObject.AddComponent<ItemDetailPopup>();
             Set(view, ("inventory", inventory), ("equipment", equipment), ("quickSlots", quickSlots), ("enhancePopup", enhance),
+                ("disassembleTable", CreateDisassembleTable(enhance)),
+                ("lockButton", lockBtn), ("lockButtonText", lockBtn.GetComponentInChildren<Text>()),
+                ("disassembleButton", disBtn), ("disassembleButtonText", disBtn.GetComponentInChildren<Text>()), ("confirmWindow", 3f),
                 ("window", panel), ("closeButton", close), ("rightPanelWidth", PanelWidth), ("leftPanelWidth", CharacterWindowBuilder.PanelWidth),
                 ("iconBackground", iconBg), ("icon", icon), ("iconLabel", iconLabel), ("nameText", name), ("typeText", type),
                 ("levelText", level), ("statsText", stats), ("descriptionText", desc), ("infoText", info), ("messageText", message),
@@ -263,12 +290,33 @@ namespace RPGAuto.EditorTools
             return view;
         }
 
+        /// <summary>분해 보상표: 강화 주문서를 등급별 1/2/4/8/16개 + 강화 1단계당 1개</summary>
+        private static DisassembleTable CreateDisassembleTable(EnhancePopup enhance)
+        {
+            EnsureFolder(Root + "/Data/Items");
+            var table = LoadOrCreate<DisassembleTable>(Root + "/Data/Items/DisassembleTable.asset");
+            var enhanceTable = new SerializedObject(enhance).FindProperty("table")?.objectReferenceValue as EnhanceTable;
+            Set(table, ("rewardItem", enhanceTable != null ? enhanceTable.ScrollItem : null), ("perEnhanceLevel", 1));
+            SetIntArray(table, "baseByGrade", 1, 2, 4, 8, 16);
+            return table;
+        }
+
+        private static void SetIntArray(Object target, string path, params int[] values)
+        {
+            var so = new SerializedObject(target);
+            var arr = so.FindProperty(path);
+            arr.arraySize = values.Length;
+            for (int i = 0; i < values.Length; i++) arr.GetArrayElementAtIndex(i).intValue = values[i];
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(target);
+        }
+
         // ================= Enhance =================
 
         private static EnhancePopup BuildEnhancePopup(Transform canvas, EnhanceTable table, PlayerInventory inventory, PlayerWallet wallet)
         {
             const float w = 520f, h = 560f;
-            var root = CreateWindow(canvas, "UI_EnhancePopup", "ENHANCE", new Vector2(w, h), out var panel, out var close);
+            var root = CreateWindow(canvas, "UI_EnhancePopup", "강화", new Vector2(w, h), out var panel, out var close);
             var (iconBg, icon, iconLabel) = CreateItemIcon("UI_EnhancePopup_Icon", panel, 24f, 72f, 88f, 16);
             var title = CreateText("UI_EnhancePopup_ItemTitle", panel, "", 22, TextAnchor.MiddleLeft, Color.white);
             PlaceTopLeft(title.rectTransform, 128f, 72f, w - 152f, 88f);
@@ -288,7 +336,7 @@ namespace RPGAuto.EditorTools
             var result = CreateText("UI_EnhancePopup_Result", panel, "", 21, TextAnchor.MiddleCenter, Color.white);
             PlaceTopLeft(result.rectTransform, 24f, 448f, cw, 30f);
             result.fontStyle = FontStyle.Bold;
-            var button = CreateButton("UI_EnhancePopup_Button_Enhance", panel, "ENHANCE", 24, new Color(0.55f, 0.4f, 0.15f, 1f));
+            var button = CreateButton("UI_EnhancePopup_Button_Enhance", panel, "강화", 24, new Color(0.55f, 0.4f, 0.15f, 1f));
             PlaceTopLeft((RectTransform)button.transform, 24f, h - 24f - 56f, cw, 56f);
 
             var view = root.gameObject.AddComponent<EnhancePopup>();
@@ -303,7 +351,7 @@ namespace RPGAuto.EditorTools
         private static ExpansionPopup BuildExpansionPopup(Transform canvas, InventoryExpansionConfig config, PlayerInventory inventory, PlayerWallet wallet)
         {
             const float w = 560f, h = 500f;
-            var root = CreateWindow(canvas, "UI_ExpansionPopup", "EXPAND INVENTORY", new Vector2(w, h), out var panel, out var close);
+            var root = CreateWindow(canvas, "UI_ExpansionPopup", "인벤토리 확장", new Vector2(w, h), out var panel, out var close);
             float cw = w - 48f;
 
             (Slider slider, Text label, Text cost) Section(string id, float y)
@@ -320,7 +368,7 @@ namespace RPGAuto.EditorTools
             var slots = Section("Slot", 72f);
             var weight = Section("Weight", 160f);
             var hint = CreateText("UI_ExpansionPopup_Hint", panel,
-                $"Slot: {config.GoldPerSlot:N0} G each   ·   Weight: {config.GoldPerWeightStep:N0} G per {config.WeightStep:0}",
+                $"칸: 1칸당 {config.GoldPerSlot:N0} G   ·   무게: {config.WeightStep:0}당 {config.GoldPerWeightStep:N0} G",
                 15, TextAnchor.MiddleLeft, new Color(0.6f, 0.6f, 0.65f));
             PlaceTopLeft(hint.rectTransform, 24f, 252f, cw, 24f);
             var total = CreateText("UI_ExpansionPopup_Total", panel, "", 20, TextAnchor.MiddleLeft, Color.white);
@@ -328,7 +376,7 @@ namespace RPGAuto.EditorTools
             total.fontStyle = FontStyle.Bold;
             var result = CreateText("UI_ExpansionPopup_Result", panel, "", 18, TextAnchor.MiddleLeft, Color.white);
             PlaceTopLeft(result.rectTransform, 24f, 340f, cw, 28f);
-            var confirm = CreateButton("UI_ExpansionPopup_Button_Confirm", panel, "EXPAND", 22, new Color(0.25f, 0.45f, 0.3f, 1f));
+            var confirm = CreateButton("UI_ExpansionPopup_Button_Confirm", panel, "확장", 22, new Color(0.25f, 0.45f, 0.3f, 1f));
             PlaceTopLeft((RectTransform)confirm.transform, 24f, h - 24f - 56f, cw, 56f);
 
             var view = root.gameObject.AddComponent<ExpansionPopup>();

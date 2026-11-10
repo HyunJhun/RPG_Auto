@@ -61,15 +61,15 @@ namespace RPGAuto.UI
             testGoldButton?.onClick.AddListener(() =>
             {
                 wallet.AddGold(testGoldAmount);
-                ShowMessage($"[TEST] Gold +{testGoldAmount:N0}", false);
+                ShowMessage($"[테스트] 골드 +{testGoldAmount:N0}", false);
             });
 
             if (gacha != null)
             {
                 if (bannerName != null) bannerName.text = gacha.DisplayName;
                 if (bannerDescription != null) bannerDescription.text = gacha.Description;
-                if (singleText != null) singleText.text = $"Summon x1\n{gacha.SingleCost:N0} G";
-                if (tenText != null) tenText.text = $"Summon x10\n{gacha.TenCost:N0} G";
+                if (singleText != null) singleText.text = $"1회 소환\n{gacha.SingleCost:N0} G";
+                if (tenText != null) tenText.text = $"10회 소환\n{gacha.TenCost:N0} G";
                 if (ratesText != null) ratesText.text = BuildRatesText();
             }
             SetOpen(false);
@@ -121,7 +121,7 @@ namespace RPGAuto.UI
 
             var best = GachaGrade.Common;
             foreach (var r in _results) if (r.Grade > best) best = r.Grade;
-            ShowMessage(best >= GachaGrade.Epic ? $"{best} reward obtained!" : $"Summoned x{count}", false, GachaService.GradeColor(best));
+            ShowMessage(best >= GachaGrade.Epic ? $"{GameText.Grade(best)} 등급 보상 획득!" : $"{count}회 소환 완료", false, GachaService.GradeColor(best));
         }
 
         private void ShowMessage(string text, bool error, Color? color = null)
@@ -133,19 +133,19 @@ namespace RPGAuto.UI
 
         private void RefreshGold()
         {
-            if (goldText != null && wallet != null) goldText.text = $"Gold  {wallet.Gold:N0}";
+            if (goldText != null && wallet != null) goldText.text = $"골드  {wallet.Gold:N0}";
         }
 
         private string BuildRatesText()
         {
-            var sb = new StringBuilder("RATES\n");
+            var sb = new StringBuilder("등급별 확률\n");
             foreach (var table in gacha.Grades)
             {
                 if (table.rewards.Count == 0) continue;
                 string hex = ColorUtility.ToHtmlStringRGB(GachaService.GradeColor(table.grade));
-                sb.Append($"<color=#{hex}>{table.grade,-10}</color> {gacha.GetRatePercent(table.grade):0.##}%\n");
+                sb.Append($"<color=#{hex}>{GameText.Grade(table.grade),-6}</color> {gacha.GetRatePercent(table.grade):0.##}%\n");
             }
-            sb.Append($"\nx10: {gacha.TenPullGuarantee}+ guaranteed");
+            sb.Append($"\n10회 소환 시 {GameText.Grade(gacha.TenPullGuarantee)} 이상 1개 보장");
             return sb.ToString();
         }
     }

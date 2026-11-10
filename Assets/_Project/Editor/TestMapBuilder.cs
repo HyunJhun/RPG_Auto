@@ -56,7 +56,7 @@ namespace RPGAuto.EditorTools
             AssetDatabase.DeleteAsset(Root + "/Prefabs/Monster/Monster_Normal.prefab");
             AssetDatabase.DeleteAsset(Root + "/Prefabs/Monster/Monster_Elite.prefab");
 
-            _font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            _font = UIBuildKit.DefaultFont;
             _uiSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
             _knobSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
 
@@ -128,11 +128,11 @@ namespace RPGAuto.EditorTools
             // ---------- Data ----------
             var basicAttack = CreateSkills(out var skillList);
             var hpPotion = LoadOrCreate<ItemData>(ItemDataFolder + "/IT_HpPotion.asset");
-            Set(hpPotion, ("itemId", "I001"), ("displayName", "HP Potion"), ("shortLabel", "HP"),
+            Set(hpPotion, ("itemId", "I001"), ("displayName", "HP 물약"), ("shortLabel", "HP"),
                 ("slotColor", new Color(0.75f, 0.15f, 0.2f)), ("effect", (int)ConsumableEffect.RestoreHp),
                 ("restorePercent", 0.25f), ("cooldown", 1f));
             var mpPotion = LoadOrCreate<ItemData>(ItemDataFolder + "/IT_MpPotion.asset");
-            Set(mpPotion, ("itemId", "I002"), ("displayName", "MP Potion"), ("shortLabel", "MP"),
+            Set(mpPotion, ("itemId", "I002"), ("displayName", "MP 물약"), ("shortLabel", "MP"),
                 ("slotColor", new Color(0.2f, 0.35f, 0.85f)), ("effect", (int)ConsumableEffect.RestoreMp),
                 ("restorePercent", 0.3f), ("cooldown", 1f));
 
@@ -269,8 +269,10 @@ namespace RPGAuto.EditorTools
             CharacterWindowBuilder.ApplyToOpenScene();
             SkillWindowBuilder.ApplyToOpenScene();
             ShopBuilder.ApplyToOpenScene();
+            TradeSettingsBuilder.ApplyToOpenScene();
             NpcBuilder.ApplyToOpenScene();
             AssistBuilder.ApplyToOpenScene();
+            ModelBuilder.ApplyToOpenScene();
             GachaBuilder.ApplyToOpenScene();
             SettingsBuilder.ApplyToOpenScene();
             SaveBuilder.ApplyToOpenScene();
@@ -296,26 +298,26 @@ namespace RPGAuto.EditorTools
             Set(eHeal, ("healPercentOfMaxHp", 0.3f));
 
             var basic = LoadOrCreate<SkillData>(SkillDataFolder + "/SK_BasicAttack.asset");
-            Set(basic, ("displayName", "Basic Attack"), ("shortLabel", "ATK"), ("slotColor", new Color(0.6f, 0.2f, 0.2f)),
+            Set(basic, ("displayName", "기본 공격"), ("shortLabel", "공격"), ("slotColor", new Color(0.6f, 0.2f, 0.2f)),
                 ("targetType", (int)SkillTargetType.Enemy), ("cooldown", 0.9f), ("mpCost", 0f), ("range", 2.2f),
                 ("actionLock", 0.45f), ("effect", eBasic));
 
             var slash = LoadOrCreate<SkillData>(SkillDataFolder + "/SK_Slash.asset");
-            Set(slash, ("displayName", "Slash"), ("shortLabel", "SLASH"), ("slotColor", new Color(0.75f, 0.35f, 0.2f)),
+            Set(slash, ("displayName", "베기"), ("shortLabel", "베기"), ("slotColor", new Color(0.75f, 0.35f, 0.2f)),
                 ("targetType", (int)SkillTargetType.Enemy), ("cooldown", 4f), ("mpCost", 10f), ("range", 2.5f),
                 ("actionLock", 0.6f), ("effect", eSlash),
                 ("defaultAutoUse.autoUse", true), ("defaultAutoUse.applyMpLimit", true), ("defaultAutoUse.rangeFirst", true),
                 ("defaultAutoUse.useHpMin", false), ("defaultAutoUse.useHpMax", false));
 
             var whirl = LoadOrCreate<SkillData>(SkillDataFolder + "/SK_Whirlwind.asset");
-            Set(whirl, ("displayName", "Whirlwind"), ("shortLabel", "WHIRL"), ("slotColor", new Color(0.25f, 0.5f, 0.75f)),
+            Set(whirl, ("displayName", "회오리 베기"), ("shortLabel", "회오리"), ("slotColor", new Color(0.25f, 0.5f, 0.75f)),
                 ("targetType", (int)SkillTargetType.Enemy), ("cooldown", 8f), ("mpCost", 20f), ("range", 3f),
                 ("actionLock", 0.8f), ("effect", eWhirl),
                 ("defaultAutoUse.autoUse", true), ("defaultAutoUse.applyMpLimit", true), ("defaultAutoUse.rangeFirst", true),
                 ("defaultAutoUse.useHpMin", true), ("defaultAutoUse.hpMinPercent", 50f), ("defaultAutoUse.useHpMax", false));
 
             var heal = LoadOrCreate<SkillData>(SkillDataFolder + "/SK_SecondWind.asset");
-            Set(heal, ("displayName", "Second Wind"), ("shortLabel", "HEAL"), ("slotColor", new Color(0.25f, 0.65f, 0.35f)),
+            Set(heal, ("displayName", "숨 고르기"), ("shortLabel", "회복"), ("slotColor", new Color(0.25f, 0.65f, 0.35f)),
                 ("targetType", (int)SkillTargetType.Self), ("cooldown", 15f), ("mpCost", 15f), ("range", 0f),
                 ("actionLock", 0.5f), ("effect", eHeal),
                 ("defaultAutoUse.autoUse", true), ("defaultAutoUse.applyMpLimit", false),
@@ -370,7 +372,7 @@ namespace RPGAuto.EditorTools
         {
             string path = Root + "/Prefabs/UI/UI_Nameplate.prefab";
             var plateRt = CreateRect("UI_Nameplate", null, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0f), Vector2.zero, new Vector2(320f, 30f));
-            var plateText = AddText(plateRt.gameObject, "Lv.1 Monster", 20, TextAnchor.LowerCenter, Color.white);
+            var plateText = AddText(plateRt.gameObject, "Lv.1 몬스터", 20, TextAnchor.LowerCenter, Color.white);
             var outline = plateRt.gameObject.AddComponent<Outline>();
             outline.effectColor = new Color(0f, 0f, 0f, 0.85f);
             outline.effectDistance = new Vector2(1.5f, -1.5f);
@@ -460,7 +462,7 @@ namespace RPGAuto.EditorTools
             var content = CreateStretch("UI_TargetInfo_Content", panel, 0f);
 
             var nameRt = CreateRect("UI_TargetInfo_Name", content, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(480f, 36f));
-            var nameText = AddText(nameRt.gameObject, "Target", 26, TextAnchor.MiddleCenter, Color.white);
+            var nameText = AddText(nameRt.gameObject, "대상", 26, TextAnchor.MiddleCenter, Color.white);
             nameRt.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.8f);
 
             var hp = InstantiateStatBar(statBarPrefab, content, "UI_TargetInfo_HPBar", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
@@ -487,7 +489,7 @@ namespace RPGAuto.EditorTools
             fill.fillAmount = 0f;
 
             var textRt = CreateRect("UI_ExpBar_Text", canvas, Vector2.zero, Vector2.zero, new Vector2(16f, 16f), new Vector2(300f, 26f));
-            var text = AddText(textRt.gameObject, "EXP 0.000%", 20, TextAnchor.LowerLeft, new Color(1f, 0.9f, 0.6f));
+            var text = AddText(textRt.gameObject, "경험치 0.000%", 20, TextAnchor.LowerLeft, new Color(1f, 0.9f, 0.6f));
             textRt.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.8f);
 
             Set(bar.gameObject.AddComponent<ExpBarView>(), ("progression", progression), ("fill", fill), ("percentText", text));
@@ -499,7 +501,7 @@ namespace RPGAuto.EditorTools
             var statRt = CreateRect("UI_MenuBar_Button_Stat", bar, new Vector2(1f, 1f), new Vector2(1f, 1f), Vector2.zero, new Vector2(110f, 70f));
             AddImage(statRt.gameObject, new Color(0.15f, 0.15f, 0.18f, 0.9f), _uiSprite).type = Image.Type.Sliced;
             var button = statRt.gameObject.AddComponent<Button>();
-            AddText(CreateRect("UI_MenuBar_Button_Stat_Label", statRt, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 8f), new Vector2(110f, 30f)).gameObject, "STAT", 22, TextAnchor.MiddleCenter, Color.white);
+            AddText(CreateRect("UI_MenuBar_Button_Stat_Label", statRt, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 8f), new Vector2(110f, 30f)).gameObject, "능력치", 22, TextAnchor.MiddleCenter, Color.white);
             AddKeyHint(statRt, "UI_MenuBar_Button_Stat_KeyHint", new Vector2(0.5f, 0f), new Vector2(0f, 6f), new Vector2(100f, 20f), 15, TextAnchor.LowerCenter, input, "ToggleStatWindow");
             return button;
         }
@@ -516,7 +518,7 @@ namespace RPGAuto.EditorTools
             var attackRt = CreateRect("UI_Button_Attack", panel, br, new Vector2(0.5f, 0.5f), attackCenter, new Vector2(170f, 170f));
             AddImage(attackRt.gameObject, new Color(0.7f, 0.2f, 0.2f, 0.92f), _knobSprite);
             var attackButton = attackRt.gameObject.AddComponent<Button>();
-            AddText(CreateRect("UI_Button_Attack_Label", attackRt, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 8f), new Vector2(160f, 50f)).gameObject, "ATK", 38, TextAnchor.MiddleCenter, Color.white);
+            AddText(CreateRect("UI_Button_Attack_Label", attackRt, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 8f), new Vector2(160f, 50f)).gameObject, "공격", 38, TextAnchor.MiddleCenter, Color.white);
             AddKeyHint(attackRt, "UI_Button_Attack_KeyHint", new Vector2(0.5f, 0f), new Vector2(0f, 34f), new Vector2(120f, 24f), 18, TextAnchor.LowerCenter, input, "Attack");
 
             // 자동 전투 버튼
@@ -524,7 +526,7 @@ namespace RPGAuto.EditorTools
             var autoBg = AddImage(autoRt.gameObject, new Color(0.25f, 0.25f, 0.28f), _uiSprite);
             autoBg.type = Image.Type.Sliced;
             var autoButton = autoRt.gameObject.AddComponent<Button>();
-            var autoLabel = AddText(CreateStretch("UI_Button_AutoCombat_Label", autoRt, 0f).gameObject, "AUTO\nOFF", 22, TextAnchor.MiddleCenter, Color.white);
+            var autoLabel = AddText(CreateStretch("UI_Button_AutoCombat_Label", autoRt, 0f).gameObject, "자동\n꺼짐", 22, TextAnchor.MiddleCenter, Color.white);
             AddKeyHint(autoRt, "UI_Button_AutoCombat_KeyHint", Vector2.zero, new Vector2(5f, 3f), new Vector2(60f, 20f), 15, TextAnchor.LowerLeft, input, "ToggleAutoCombat");
 
             Set(panel.gameObject.AddComponent<CombatButtonsView>(), ("input", input), ("combat", combat), ("attackButton", attackButton),
@@ -616,7 +618,7 @@ namespace RPGAuto.EditorTools
             // 자동 사용 표시 3: AUTO 배지
             var badgeRt = CreateRect("UI_QuickSlot_AutoBadge", root, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, 2f), new Vector2(56f, 20f));
             AddImage(badgeRt.gameObject, new Color(1f, 0.8f, 0.25f), _uiSprite, false).type = Image.Type.Sliced;
-            AddText(CreateStretch("UI_QuickSlot_AutoBadge_Label", badgeRt, 0f).gameObject, "AUTO", 14, TextAnchor.MiddleCenter, Color.black).fontStyle = FontStyle.Bold;
+            AddText(CreateStretch("UI_QuickSlot_AutoBadge_Label", badgeRt, 0f).gameObject, "자동", 14, TextAnchor.MiddleCenter, Color.black).fontStyle = FontStyle.Bold;
 
             key.gameObject.AddComponent<KeyHintText>();
             Set(root.gameObject.AddComponent<QuickSlotView>(), ("icon", icon), ("label", label), ("countText", count),

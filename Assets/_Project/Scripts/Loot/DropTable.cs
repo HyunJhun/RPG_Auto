@@ -24,7 +24,7 @@ namespace RPGAuto.Loot
         public static LootEntry OfGold(long amount) => new(null, 0, amount);
         public static LootEntry OfItem(ItemData item, int count) => new(item, count, 0);
 
-        public override string ToString() => IsGold ? $"Gold +{Gold:N0}" : $"{Item.DisplayName} x{Count}";
+        public override string ToString() => IsGold ? $"골드 +{Gold:N0}" : $"{Item.DisplayName} x{Count}";
     }
 
     /// <summary>몬스터 드랍 테이블</summary>

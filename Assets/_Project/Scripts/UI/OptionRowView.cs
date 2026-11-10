@@ -55,7 +55,7 @@ namespace RPGAuto.UI
                 if (toggle.HasValue)
                 {
                     if (toggleButton.targetGraphic != null) toggleButton.targetGraphic.color = toggle.Value ? onColor : offColor;
-                    if (toggleText != null) toggleText.text = toggle.Value ? "ON" : "OFF";
+                    if (toggleText != null) toggleText.text = toggle.Value ? "켜짐" : "꺼짐";
                 }
             }
 

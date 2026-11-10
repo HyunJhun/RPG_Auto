@@ -33,8 +33,8 @@ namespace RPGAuto.Items
     public class ItemData : ScriptableObject
     {
         [SerializeField] private string itemId = "I000";
-        [SerializeField] private string displayName = "Potion";
-        [SerializeField] private string shortLabel = "POT";
+        [SerializeField] private string displayName = "물약";
+        [SerializeField] private string shortLabel = "물약";
         [SerializeField] private Color slotColor = new(0.8f, 0.2f, 0.2f);
         [SerializeField] private ItemCategory category = ItemCategory.Consumable;
         [SerializeField] private ItemGrade grade = ItemGrade.Common;

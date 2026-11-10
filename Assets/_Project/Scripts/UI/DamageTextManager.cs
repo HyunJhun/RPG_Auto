@@ -74,7 +74,7 @@ namespace RPGAuto.UI
         private void HandleMissed(CombatStats target, CombatStats attacker)
         {
             if (target == player || attacker == player)
-                Spawn(target, "MISS", missColor, missFontSize);
+                Spawn(target, "빗나감", missColor, missFontSize);
         }
 
         private void Spawn(CombatStats target, string value, Color color, int fontSize)

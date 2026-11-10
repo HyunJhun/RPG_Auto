@@ -148,7 +148,7 @@ namespace RPGAuto.UI
         {
             if (entry.IsGold)
             {
-                plate.text = $"{entry.Gold:N0} Gold";
+                plate.text = $"{entry.Gold:N0} 골드";
                 plate.color = goldLabelColor;
                 return;
             }
@@ -191,7 +191,7 @@ namespace RPGAuto.UI
 
         private void ApplyText(MonsterController m, Text plate)
         {
-            string elite = m.Grade != MonsterGrade.Normal ? $"[{m.Grade}] " : string.Empty;
+            string elite = m.Grade != MonsterGrade.Normal ? $"[{GameText.Grade(m.Grade)}] " : string.Empty;
             plate.text = $"{elite}Lv.{m.Level} {m.DisplayName}";
             plate.color = LevelColorRule.Get(m.Level, _colorLevel < 1 ? 1 : _colorLevel);
         }

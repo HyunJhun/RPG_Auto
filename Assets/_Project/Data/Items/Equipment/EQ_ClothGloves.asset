@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: EQ_ClothGloves
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EquipmentData
   itemId: EClothGloves
-  displayName: Cloth Gloves
-  shortLabel: GLOVE
+  displayName: "\uCC9C \uC7A5\uAC11"
+  shortLabel: "\uC7A5\uAC11"
   slotColor: {r: 0.45, g: 0.35, b: 0.25, a: 1}
   category: 2
   grade: 0
-  description: Common gloves. Each enhancement level adds 10% to its stats.
+  description: "\uC77C\uBC18 \uB4F1\uAE09 \uC7A5\uAC11. \uAC15\uD654 \uB2E8\uACC4\uB9C8\uB2E4
+    \uB2A5\uB825\uCE58\uAC00 10%\uC529 \uC99D\uAC00\uD569\uB2C8\uB2E4."
   sellPrice: 8
   autoSell: 0
   weight: 3

@@ -24,6 +24,8 @@ namespace RPGAuto.UI
         [SerializeField] private Text placeholderText;
         [Tooltip("장착 장비보다 좋은 장비 표시 (우하단 +)")]
         [SerializeField] private Text upgradeMark;
+        [Tooltip("잠금 표시 (좌상단, E 배지 오른쪽)")]
+        [SerializeField] private GameObject lockBadge;
 
         [Header("Style")]
         [SerializeField] private Color emptyColor = new(0.1f, 0.1f, 0.12f, 0.85f);
@@ -50,6 +52,7 @@ namespace RPGAuto.UI
             }
             Show(entry.Item, entry.Equipment, entry.Item.IsStackable ? entry.Count : 1, selected, equipped, quickKey, levelOk);
             SetText(upgradeMark, upgrade ? "+" : null);
+            if (lockBadge != null) lockBadge.SetActive(entry.IsLocked);
         }
 
         /// <summary>장비창 칸 (장착 중인 장비 또는 빈 칸 + 부위 이름)</summary>
@@ -64,6 +67,7 @@ namespace RPGAuto.UI
             }
             Show(equipment.Data, equipment, 1, selected, false, null, true);
             SetText(upgradeMark, null);
+            if (lockBadge != null) lockBadge.SetActive(false);
         }
 
         public void Clear(string placeholder)
@@ -81,6 +85,7 @@ namespace RPGAuto.UI
             SetText(upgradeMark, null);
             if (equippedBadge != null) equippedBadge.SetActive(false);
             if (selectedFrame != null) selectedFrame.SetActive(false);
+            if (lockBadge != null) lockBadge.SetActive(false);
         }
 
         private void Show(ItemData item, EquipmentInstance eq, int count, bool selected, bool equipped, string quickKey, bool levelOk)

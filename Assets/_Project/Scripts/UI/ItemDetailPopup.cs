@@ -25,6 +25,7 @@ namespace RPGAuto.UI
         [SerializeField] private PlayerEquipment equipment;
         [SerializeField] private QuickSlotBar quickSlots;
         [SerializeField] private EnhancePopup enhancePopup;
+        [SerializeField] private DisassembleTable disassembleTable;
 
         [Header("Window")]
         [SerializeField] private RectTransform window;
@@ -53,6 +54,12 @@ namespace RPGAuto.UI
         [SerializeField] private Text equipButtonText;
         [SerializeField] private Button enhanceButton;
         [SerializeField] private Button discardButton;
+        [SerializeField] private Button lockButton;
+        [SerializeField] private Text lockButtonText;
+        [SerializeField] private Button disassembleButton;
+        [SerializeField] private Text disassembleButtonText;
+        [Tooltip("분해 버튼을 한 번 누른 뒤 이 시간 안에 다시 눌러야 분해된다")]
+        [SerializeField] private float confirmWindow = 3f;
         [SerializeField] private OptionRowView quantityRow;
         [SerializeField] private GameObject quickSlotGroup;
         [SerializeField] private Button[] quickSlotButtons = new Button[QuickSlotBar.ItemSlotCount];
@@ -66,6 +73,7 @@ namespace RPGAuto.UI
         private ItemData _item;
         private EquipmentInstance _equipment;
         private int _quantity = 1;
+        private float _confirmUntil = -1f;
 
         public bool IsOpen => window != null && window.gameObject.activeSelf;
 
@@ -76,6 +84,8 @@ namespace RPGAuto.UI
             equipButton?.onClick.AddListener(ToggleEquip);
             enhanceButton?.onClick.AddListener(() => { if (_equipment != null) enhancePopup?.Open(_equipment); });
             discardButton?.onClick.AddListener(Discard);
+            lockButton?.onClick.AddListener(ToggleLock);
+            disassembleButton?.onClick.AddListener(Disassemble);
             if (quantityRow != null)
             {
                 quantityRow.OnMinus += () => { _quantity = Mathf.Max(1, _quantity - 1); Refresh(); };
@@ -135,6 +145,7 @@ namespace RPGAuto.UI
             _item = item;
             _equipment = eq;
             _quantity = 1;
+            _confirmUntil = -1f;
             if (messageText != null) messageText.text = string.Empty;
             Place(dock);
             SetOpen(true);
@@ -163,7 +174,7 @@ namespace RPGAuto.UI
 
         private void Use()
         {
-            if (_item != null && !inventory.TryUse(_item)) ShowMessage("Cannot use now", false);
+            if (_item != null && !inventory.TryUse(_item)) ShowMessage("지금은 사용할 수 없습니다", false);
         }
 
         private void ToggleEquip()
@@ -175,15 +186,59 @@ namespace RPGAuto.UI
                 return;
             }
             var result = equipment.Equip(_equipment);
-            if (result == EquipResult.LevelTooLow) ShowMessage($"Requires Lv.{_equipment.Data.RequiredLevel}", false);
+            if (result == EquipResult.LevelTooLow) ShowMessage($"Lv.{_equipment.Data.RequiredLevel} 이상 착용 가능", false);
+        }
+
+        /// <summary>지금 보고 있는 아이템의 인벤토리 칸 (장비 = 개체, 묶음 = 아이템)</summary>
+        private InventoryEntry CurrentEntry => _equipment != null ? inventory.FindEntry(_equipment) : inventory.FindStack(_item);
+
+        private void ToggleLock()
+        {
+            var entry = CurrentEntry;
+            if (entry == null) return;
+            inventory.SetLocked(entry, !entry.IsLocked);
+            ShowMessage(entry.IsLocked ? "잠금: 판매·버리기·분해·자동 담기에서 제외됩니다" : "잠금을 해제했습니다", true);
+        }
+
+        /// <summary>분해: 되돌릴 수 없으므로 두 번 눌러야 실행</summary>
+        private void Disassemble()
+        {
+            var entry = CurrentEntry;
+            var check = DisassembleService.Check(entry, inventory, equipment);
+            if (check != DisassembleResult.Ok) { ShowMessage(DisassembleService.ToMessage(check), false); return; }
+
+            int reward = disassembleTable != null ? disassembleTable.RewardCount(entry.Equipment) : 0;
+            string rewardName = disassembleTable != null && disassembleTable.RewardItem != null ? disassembleTable.RewardItem.DisplayName : "재료";
+            if (Time.unscaledTime > _confirmUntil)
+            {
+                _confirmUntil = Time.unscaledTime + confirmWindow;
+                if (disassembleButtonText != null) disassembleButtonText.text = "분해 확인";
+                ShowMessage($"한 번 더 누르면 분해합니다 ({rewardName} {reward}개 획득)", false);
+                return;
+            }
+
+            _confirmUntil = -1f;
+            var result = DisassembleService.Disassemble(entry, inventory, equipment, disassembleTable, out int got);
+            if (result != DisassembleResult.Ok) ShowMessage(DisassembleService.ToMessage(result), false);
+            // 성공하면 장비가 사라지므로 팝업은 HandleChanged에서 닫힌다
+        }
+
+        private void Update()
+        {
+            if (_confirmUntil > 0f && Time.unscaledTime > _confirmUntil)
+            {
+                _confirmUntil = -1f;
+                if (disassembleButtonText != null) disassembleButtonText.text = "분해";
+            }
         }
 
         private void Discard()
         {
             if (_item == null) return;
+            if (CurrentEntry is { IsLocked: true }) { ShowMessage("잠긴 아이템은 버릴 수 없습니다", false); return; }
             if (_equipment != null)
             {
-                if (equipment != null && equipment.IsEquipped(_equipment)) { ShowMessage("Unequip the item first", false); return; }
+                if (equipment != null && equipment.IsEquipped(_equipment)) { ShowMessage("먼저 장착을 해제하세요", false); return; }
                 inventory.RemoveEquipment(_equipment);
             }
             else inventory.RemoveItem(_item, Mathf.Clamp(_quantity, 1, MaxQuantity));
@@ -209,11 +264,11 @@ namespace RPGAuto.UI
 
             var target = equipment.GetComparisonTarget(data);
             float diff = EquipmentPower.Score(_equipment) - EquipmentPower.Score(target);
-            string verdict = Mathf.Approximately(diff, 0f) ? "<color=#CCCCCC>same power</color>"
-                : diff > 0 ? $"<color=#7CFC7C>power +{diff:0.#}</color>" : $"<color=#FF7366>power {diff:0.#}</color>";
+            string verdict = Mathf.Approximately(diff, 0f) ? "<color=#CCCCCC>전투력 동일</color>"
+                : diff > 0 ? $"<color=#7CFC7C>전투력 +{diff:0.#}</color>" : $"<color=#FF7366>전투력 {diff:0.#}</color>";
             string header = target != null
-                ? $"<size=15><color=#A0A8B8>vs equipped {target.DisplayName}</color>  {verdict}</size>\n"
-                : $"<size=15><color=#A0A8B8>vs empty slot</color>  {verdict}</size>\n";
+                ? $"<size=15><color=#A0A8B8>장착 중인 {target.DisplayName}와 비교</color>  {verdict}</size>\n"
+                : $"<size=15><color=#A0A8B8>빈 칸과 비교</color>  {verdict}</size>\n";
             return header + StatText.Lines(_equipment.Stats, target != null ? target.Stats : new RPGAuto.Data.StatBlock());
         }
 
@@ -244,14 +299,14 @@ namespace RPGAuto.UI
             bool equipped = _equipment != null && equipment != null && equipment.IsEquipped(_equipment);
 
             if (typeText != null)
-                typeText.text = isEquip ? $"{grade}  ·  {data.SlotType}{(equipped ? "  ·  Equipped" : "")}" : $"{grade}  ·  {_item.Category}";
+                typeText.text = isEquip ? $"{GameText.Grade(grade)}  ·  {GameText.Slot(data.SlotType)}{(equipped ? "  ·  장착 중" : "")}" : $"{GameText.Grade(grade)}  ·  {GameText.Category(_item.Category)}";
             if (levelText != null)
             {
                 levelText.gameObject.SetActive(isEquip);
                 if (isEquip)
                 {
                     bool ok = equipment == null || equipment.MeetsLevel(data);
-                    levelText.text = $"Required Lv.{data.RequiredLevel}";
+                    levelText.text = $"착용 레벨 Lv.{data.RequiredLevel}";
                     levelText.color = ok ? new Color(0.85f, 0.85f, 0.85f) : errorColor;
                 }
             }
@@ -263,19 +318,27 @@ namespace RPGAuto.UI
             string sell = _item.IsSellable ? $"{_item.SellPrice:N0} G" : "-";
             if (infoText != null)
                 infoText.text = _equipment != null
-                    ? $"Weight {_item.Weight:0.#}     Sell {sell}     Enhance +{_equipment.EnhanceLevel} / +{data.MaxEnhance}"
-                    : $"Owned {owned:N0}     Weight {_item.Weight:0.#} (x{owned:N0} = {_item.Weight * owned:#,0.#})     Sell {sell}";
+                    ? $"무게 {_item.Weight:0.#}     판매가 {sell}     강화 +{_equipment.EnhanceLevel} / +{data.MaxEnhance}"
+                    : $"보유 {owned:N0}     무게 {_item.Weight:0.#} (x{owned:N0} = {_item.Weight * owned:#,0.#})     판매가 {sell}";
 
             if (useButton != null) useButton.gameObject.SetActive(_item.IsUsable);
             if (equipButton != null) equipButton.gameObject.SetActive(_equipment != null);
-            if (equipButtonText != null) equipButtonText.text = equipped ? "UNEQUIP" : "EQUIP";
+            if (equipButtonText != null) equipButtonText.text = equipped ? "해제" : "장착";
             if (enhanceButton != null) enhanceButton.gameObject.SetActive(_equipment != null);
+
+            var current = CurrentEntry;
+            bool locked = current != null && current.IsLocked;
+            if (lockButton != null) lockButton.gameObject.SetActive(current != null);
+            if (lockButtonText != null) lockButtonText.text = locked ? "잠금 해제" : "잠금";
+            if (disassembleButton != null) disassembleButton.gameObject.SetActive(_equipment != null && current != null);
+            if (disassembleButtonText != null && _confirmUntil < 0f) disassembleButtonText.text = "분해";
+            if (discardButton != null) discardButton.interactable = !locked;
 
             bool stack = _equipment == null;
             _quantity = Mathf.Clamp(_quantity, 1, MaxQuantity);
             if (quantityRow != null)
             {
-                if (stack) quantityRow.Show("Discard Quantity", null, _quantity.ToString());
+                if (stack) quantityRow.Show("버릴 수량", null, _quantity.ToString());
                 else quantityRow.Hide();
             }
 

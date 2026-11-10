@@ -34,7 +34,7 @@ namespace RPGAuto.Player.Assist
             var merchant = AssistController.FindNearestMerchant(p.transform.position);
             if (merchant == null)
             {
-                _a.Flash("No merchant nearby");
+                _a.Flash("근처에 상인이 없습니다");
                 SuppressFor(_a.CooldownAfterTrip);
                 return;
             }
@@ -42,7 +42,7 @@ namespace RPGAuto.Player.Assist
             _a.Merchant = merchant;
             _a.HuntAnchor = p.Combat.Anchor;
             _a.StateMachine.ChangeState(_a.ToMerchantState);
-            _a.Flash(reason + " - going to merchant", 2f);
+            _a.Flash(reason + " - 상인에게 이동합니다", 2f);
         }
 
         public void Exit() { }
@@ -81,7 +81,7 @@ namespace RPGAuto.Player.Assist
             var p = A.Player;
             if (HasArrived(p.transform.position)) { OnArrived(); return; }
 
-            if (p.HasMoveInput || p.StateMachine.Current == p.ManualMoveState) { A.Cancel("Assist canceled"); return; }
+            if (p.HasMoveInput || p.StateMachine.Current == p.ManualMoveState) { A.Cancel("보조 모드 이동 취소"); return; }
 
             // 다른 행동(탭 이동 도착, 피격 대응 등)으로 이동이 끊겼으면 다시 걷는다
             if (p.StateMachine.Current != p.AutoMoveState && Time.time >= _repathAt) MoveTo();
@@ -93,7 +93,7 @@ namespace RPGAuto.Player.Assist
         {
             _repathAt = Time.time + 0.5f;
             var p = A.Player;
-            if (!NavMesh.SamplePosition(Destination, out var hit, 4f, NavMesh.AllAreas)) { A.Cancel("Path not found"); return; }
+            if (!NavMesh.SamplePosition(Destination, out var hit, 4f, NavMesh.AllAreas)) { A.Cancel("길을 찾을 수 없습니다"); return; }
             p.AutoMoveState.SetDestination(hit.position);
             if (p.StateMachine.Current != p.AutoMoveState) p.StateMachine.ChangeState(p.AutoMoveState);
         }
@@ -105,7 +105,7 @@ namespace RPGAuto.Player.Assist
         public AssistToMerchantState(AssistController assist) : base(assist) { }
 
         protected override Vector3 Destination => A.Merchant.Position;
-        protected override string StatusText => $"Going to {A.Merchant.DisplayName}...";
+        protected override string StatusText => $"{A.Merchant.DisplayName}에게 이동 중...";
         protected override bool HasArrived(Vector3 position) => A.Merchant.IsInRange(position);
         protected override void OnArrived() => A.StateMachine.ChangeState(A.TradeState);
     }
@@ -123,7 +123,7 @@ namespace RPGAuto.Player.Assist
         {
             var p = _a.Player;
             if (p.StateMachine.Current != p.IdleState) p.StateMachine.ChangeState(p.IdleState);
-            _a.SetStatus("Trading...");
+            _a.SetStatus("거래 중...");
             _doneAt = Time.time + _a.TradeDuration;
             _traded = false;
         }
@@ -132,7 +132,7 @@ namespace RPGAuto.Player.Assist
         {
             var p = _a.Player;
             p.RotateTowards(_a.Merchant.Position - p.transform.position, deltaTime);
-            if (p.HasMoveInput) { _a.Cancel("Assist canceled"); return; }
+            if (p.HasMoveInput) { _a.Cancel("보조 모드 이동 취소"); return; }
             if (_traded || Time.time < _doneAt) return;
 
             _traded = true;
@@ -149,14 +149,12 @@ namespace RPGAuto.Player.Assist
             var inv = _a.Inventory;
             var wallet = _a.Wallet;
 
-            // 1) 판매: 자동 판매 대상 전리품 전부
+            var settings = _a.TradeSettings != null ? _a.TradeSettings.Settings : null;
+
+            // 1) 판매: 자동 거래 설정(분류·등급 규칙)에 맞는 아이템 전부
             var sells = new List<SellLine>();
-            foreach (var e in inv.Entries)
-            {
-                if (!e.Item.AutoSell) continue;
-                var line = new SellLine { Entry = e, Quantity = e.Count };
+            foreach (var line in AutoTradeService.SelectSell(settings, inv, _a.Equipment, shop))
                 if (ShopService.CheckSell(line, inv, _a.Equipment) == ShopResult.Ok) sells.Add(line);
-            }
             long earned = ShopService.TotalSell(sells);
             if (sells.Count > 0 && ShopService.Sell(sells, wallet, inv, _a.Equipment) != ShopResult.Ok) earned = 0;
 
@@ -166,8 +164,8 @@ namespace RPGAuto.Player.Assist
             var single = new BuyLine[1];
             foreach (var product in shop.Products)
             {
-                if (product.item == null || product.restockTarget <= 0) continue;
-                int need = product.restockTarget - inv.GetCount(product.item);
+                // 2) 구매: 자동 거래 설정의 목표 수량까지
+                int need = AutoTradeService.NeedToBuy(settings, product, inv);
                 if (need <= 0) continue;
 
                 long unit = ShopService.UnitBuyPrice(product, shop.TaxRate);
@@ -184,8 +182,8 @@ namespace RPGAuto.Player.Assist
                 if (ShopService.Buy(single, shop.TaxRate, wallet, inv) == ShopResult.Ok) { spent += cost; bought += qty; }
             }
 
-            if (earned == 0 && bought == 0) return "Nothing to trade (not enough gold?)";
-            return $"Sold +{earned:N0}G / Bought {bought} items -{spent:N0}G";
+            if (earned == 0 && bought == 0) return "거래할 것이 없습니다 (골드 부족?)";
+            return $"판매 +{earned:N0}G / 구매 {bought}개 -{spent:N0}G";
         }
     }
 
@@ -197,7 +195,7 @@ namespace RPGAuto.Player.Assist
         public AssistReturnState(AssistController assist) : base(assist) { }
 
         protected override Vector3 Destination => A.HuntAnchor;
-        protected override string StatusText => "Returning to hunting spot...";
+        protected override string StatusText => "사냥터로 복귀 중...";
 
         protected override bool HasArrived(Vector3 position)
         {
@@ -211,7 +209,7 @@ namespace RPGAuto.Player.Assist
             A.MonitorState.SuppressFor(A.CooldownAfterTrip);
             A.StateMachine.ChangeState(A.MonitorState);
             A.Player.Combat.SetAutoCombat(true);
-            A.Flash("Auto combat resumed", 2f);
+            A.Flash("자동 전투 재개", 2f);
         }
     }
 }

@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: EQ_ClothShoes
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EquipmentData
   itemId: EClothShoes
-  displayName: Cloth Shoes
-  shortLabel: SHOES
+  displayName: "\uCC9C \uC2E0\uBC1C"
+  shortLabel: "\uC2E0\uBC1C"
   slotColor: {r: 0.45, g: 0.35, b: 0.25, a: 1}
   category: 2
   grade: 0
-  description: Common boots. Each enhancement level adds 10% to its stats.
+  description: "\uC77C\uBC18 \uB4F1\uAE09 \uC2E0\uBC1C. \uAC15\uD654 \uB2E8\uACC4\uB9C8\uB2E4
+    \uB2A5\uB825\uCE58\uAC00 10%\uC529 \uC99D\uAC00\uD569\uB2C8\uB2E4."
   sellPrice: 8
   autoSell: 0
   weight: 4

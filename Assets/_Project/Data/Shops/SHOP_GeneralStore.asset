@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a09e5eed5aae8464c84cc8e456d41ba3, type: 3}
   m_Name: SHOP_GeneralStore
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Shop.ShopData
-  shopName: General Goods Merchant
+  shopName: "\uC7A1\uD654 \uC0C1\uC778"
   taxRate: 0.2
   products:
   - item: {fileID: 11400000, guid: 3bb7c669eebff3541b7f3de89303b0b0, type: 2}

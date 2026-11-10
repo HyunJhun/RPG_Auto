@@ -12,7 +12,10 @@ namespace RPGAuto.EditorTools
         private static Font _font;
         private static Sprite _uiSprite;
 
-        public static Font DefaultFont => _font != null ? _font : (_font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
+        public const string FontPath = Root + "/Font/NotoSansKR-Bold.ttf";
+        /// <summary>한글 폰트 (없으면 기본 폰트)</summary>
+        public static Font DefaultFont => _font != null ? _font
+            : (_font = AssetDatabase.LoadAssetAtPath<Font>(FontPath) ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
         public static Sprite UISprite => _uiSprite != null ? _uiSprite : (_uiSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd"));
 
         public static readonly Color PanelColor = new(0.06f, 0.06f, 0.08f, 1f);
@@ -221,7 +224,7 @@ namespace RPGAuto.EditorTools
         public static void RaisePopups(Transform canvas)
         {
             if (canvas == null) return;
-            foreach (var n in new[] { "UI_ItemDetailPopup", "UI_EnhancePopup", "UI_ExpansionPopup" })
+            foreach (var n in new[] { "UI_AutoTradePopup", "UI_ItemDetailPopup", "UI_EnhancePopup", "UI_ExpansionPopup" })
                 canvas.Find(n)?.SetAsLastSibling();
         }
 

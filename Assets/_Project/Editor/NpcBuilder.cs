@@ -52,7 +52,7 @@ namespace RPGAuto.EditorTools
             npc.GetComponent<Renderer>().sharedMaterial = CreateLitMaterial("M_Npc_Merchant", new Color(0.35f, 0.75f, 0.45f), 0f, 0.4f);
 
             var merchant = npc.AddComponent<MerchantNpc>();
-            Set(merchant, ("displayName", "General Goods Merchant"), ("title", "Merchant"), ("interactRange", 2.5f),
+            Set(merchant, ("displayName", "잡화 상인"), ("title", "상인"), ("interactRange", 2.5f),
                 ("headHeight", 2.4f), ("shop", shop), ("closeMargin", 3f));
 
             // 탭 판정에 NPC 레이어 포함
@@ -67,7 +67,7 @@ namespace RPGAuto.EditorTools
             var button = CreateButton("UI_InteractPrompt_Button", promptRoot, "", 20, new Color(0.15f, 0.35f, 0.2f, 0.95f));
             Stretch((RectTransform)button.transform, 0f);
             var label = button.GetComponentInChildren<Text>();
-            label.text = "TALK";
+            label.text = "대화";
             label.alignment = TextAnchor.UpperCenter;
             label.rectTransform.offsetMax = new Vector2(0f, -6f);
             label.fontStyle = FontStyle.Bold;

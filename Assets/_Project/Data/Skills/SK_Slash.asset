@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95174f6f7ab421e409b4962d632d1f5a, type: 3}
   m_Name: SK_Slash
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Skills.SkillData
-  displayName: Slash
-  shortLabel: SLASH
+  displayName: "\uBCA0\uAE30"
+  shortLabel: "\uBCA0\uAE30"
   slotColor: {r: 0.75, g: 0.35, b: 0.2, a: 1}
-  description: A heavy slash dealing 250% physical damage to the target.
+  description: "\uB300\uC0C1\uC5D0\uAC8C \uBB3C\uB9AC \uD53C\uD574 250%\uB97C \uC8FC\uB294
+    \uBB35\uC9C1\uD55C \uBCA0\uAE30."
   targetType: 0
   cooldown: 4
   mpCost: 10

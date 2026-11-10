@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: EQ_ClothHood
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EquipmentData
   itemId: EClothHood
-  displayName: Cloth Hood
-  shortLabel: HOOD
+  displayName: "\uCC9C \uB450\uAC74"
+  shortLabel: "\uB450\uAC74"
   slotColor: {r: 0.55, g: 0.45, b: 0.35, a: 1}
   category: 2
   grade: 0
-  description: Common helmet. Each enhancement level adds 10% to its stats.
+  description: "\uC77C\uBC18 \uB4F1\uAE09 \uD22C\uAD6C. \uAC15\uD654 \uB2E8\uACC4\uB9C8\uB2E4
+    \uB2A5\uB825\uCE58\uAC00 10%\uC529 \uC99D\uAC00\uD569\uB2C8\uB2E4."
   sellPrice: 10
   autoSell: 0
   weight: 5

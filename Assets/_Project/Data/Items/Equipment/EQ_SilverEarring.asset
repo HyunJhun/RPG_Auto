@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: EQ_SilverEarring
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EquipmentData
   itemId: ESilverEarring
-  displayName: Silver Earring
-  shortLabel: EARR
+  displayName: "\uC740 \uADC0\uAC78\uC774"
+  shortLabel: "\uADC0\uAC78\uC774"
   slotColor: {r: 0.85, g: 0.75, b: 0.35, a: 1}
   category: 2
   grade: 2
-  description: Rare earring. Each enhancement level adds 10% to its stats.
+  description: "\uD76C\uADC0 \uB4F1\uAE09 \uADC0\uAC78\uC774. \uAC15\uD654 \uB2E8\uACC4\uB9C8\uB2E4
+    \uB2A5\uB825\uCE58\uAC00 10%\uC529 \uC99D\uAC00\uD569\uB2C8\uB2E4."
   sellPrice: 450
   autoSell: 0
   weight: 0.3

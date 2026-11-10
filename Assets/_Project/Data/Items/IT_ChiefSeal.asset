@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: IT_ChiefSeal
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.ItemData
   itemId: I102
-  displayName: Chief's Seal
-  shortLabel: SEAL
+  displayName: "\uC871\uC7A5\uC758 \uC778\uC7A5"
+  shortLabel: "\uC778\uC7A5"
   slotColor: {r: 0.6, g: 0.3, b: 0.85, a: 1}
   category: 1
   grade: 2
-  description: Proof of defeating a Goblin Chief. Rare crafting material.
+  description: "\uACE0\uBE14\uB9B0 \uC871\uC7A5\uC744 \uC4F0\uB7EC\uB728\uB9B0 \uC99D\uD45C.
+    \uD76C\uADC0 \uC81C\uC791 \uC7AC\uB8CC\uC785\uB2C8\uB2E4."
   sellPrice: 250
   autoSell: 1
   weight: 2

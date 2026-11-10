@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95174f6f7ab421e409b4962d632d1f5a, type: 3}
   m_Name: SK_Whirlwind
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Skills.SkillData
-  displayName: Whirlwind
-  shortLabel: WHIRL
+  displayName: "\uD68C\uC624\uB9AC \uBCA0\uAE30"
+  shortLabel: "\uD68C\uC624\uB9AC"
   slotColor: {r: 0.25, g: 0.5, b: 0.75, a: 1}
-  description: Spin around, dealing 160% physical damage to all enemies within 4m.
+  description: "\uBAB8\uC744 \uD68C\uC804\uD574 \uC8FC\uBCC0 4m \uC548\uC758 \uBAA8\uB4E0
+    \uC801\uC5D0\uAC8C \uBB3C\uB9AC \uD53C\uD574 160%\uB97C \uC90D\uB2C8\uB2E4."
   targetType: 0
   cooldown: 8
   mpCost: 20

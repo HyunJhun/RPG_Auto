@@ -28,7 +28,7 @@ namespace RPGAuto.UI
             float ratio = progression.ExpRatio;
             if (fill != null) fill.fillAmount = ratio;
             if (percentText != null)
-                percentText.text = progression.IsMaxLevel ? "EXP MAX" : $"EXP {ratio * 100f:0.000}%";
+                percentText.text = progression.IsMaxLevel ? "경험치 MAX" : $"경험치 {ratio * 100f:0.000}%";
         }
     }
 }

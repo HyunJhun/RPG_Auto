@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95174f6f7ab421e409b4962d632d1f5a, type: 3}
   m_Name: SK_BasicAttack
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Skills.SkillData
-  displayName: Basic Attack
-  shortLabel: ATK
+  displayName: "\uAE30\uBCF8 \uACF5\uACA9"
+  shortLabel: "\uACF5\uACA9"
   slotColor: {r: 0.6, g: 0.2, b: 0.2, a: 1}
-  description: A quick strike against a single enemy.
+  description: "\uC801 \uD558\uB098\uB97C \uBE60\uB974\uAC8C \uACF5\uACA9\uD569\uB2C8\uB2E4."
   targetType: 0
   cooldown: 0.9
   mpCost: 0

@@ -10,19 +10,19 @@ namespace RPGAuto.UI
     {
         private static readonly (string label, System.Func<StatBlock, float> get)[] Fields =
         {
-            ("Physical ATK", s => s.physicalAttack),
-            ("Magic ATK", s => s.magicAttack),
-            ("Physical DEF", s => s.physicalDefense),
-            ("Magic DEF", s => s.magicDefense),
-            ("Accuracy", s => s.accuracy),
-            ("Max HP", s => s.maxHp),
-            ("Max MP", s => s.maxMp),
-            ("HP Regen", s => s.hpRegen),
-            ("MP Regen", s => s.mpRegen),
-            ("STR", s => s.str),
-            ("DEX", s => s.dex),
-            ("LUK", s => s.luk),
-            ("INT", s => s.intelligence),
+            ("물리 공격력", s => s.physicalAttack),
+            ("마법 공격력", s => s.magicAttack),
+            ("물리 방어력", s => s.physicalDefense),
+            ("마법 방어력", s => s.magicDefense),
+            ("명중", s => s.accuracy),
+            ("최대 HP", s => s.maxHp),
+            ("최대 MP", s => s.maxMp),
+            ("HP 회복", s => s.hpRegen),
+            ("MP 회복", s => s.mpRegen),
+            ("힘", s => s.str),
+            ("민첩", s => s.dex),
+            ("행운", s => s.luk),
+            ("지능", s => s.intelligence),
         };
 
         private const string UpColor = "#7CFC7C";
@@ -63,7 +63,7 @@ namespace RPGAuto.UI
                 parts.Add($"{label} +{Format(v)}");
                 if (parts.Count >= max) break;
             }
-            return parts.Count > 0 ? string.Join("   ", parts) : "None";
+            return parts.Count > 0 ? string.Join("   ", parts) : "없음";
         }
 
         public static string Format(float v) => Mathf.Approximately(v, Mathf.Round(v)) ? Mathf.RoundToInt(v).ToString() : v.ToString("0.#");

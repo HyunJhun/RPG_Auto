@@ -42,7 +42,7 @@ namespace RPGAuto.EditorTools
             if (canvas == null) throw new System.Exception("UI_Canvas가 없습니다.");
             DestroyChild(canvas, "UI_SkillWindow");
 
-            var openButton = CloneMenuButton(canvas.Find("UI_MenuBar"), "Skill", "SKILL", "ToggleSkillWindow", 2);
+            var openButton = CloneMenuButton(canvas.Find("UI_MenuBar"), "Skill", "스킬", "ToggleSkillWindow", 2);
             BuildWindow(canvas, skills, player.GetComponent<QuickSlotBar>(), player.GetComponent<PlayerCombat>(),
                 Object.FindFirstObjectByType<PlayerInputHandler>(), openButton);
 
@@ -53,10 +53,10 @@ namespace RPGAuto.EditorTools
 
         private static void CreateSkillData(PlayerSkillController skills)
         {
-            SetDescription("SK_BasicAttack", "A quick strike against a single enemy.");
-            SetDescription("SK_Slash", "A heavy slash dealing 250% physical damage to the target.");
-            SetDescription("SK_Whirlwind", "Spin around, dealing 160% physical damage to all enemies within 4m.");
-            SetDescription("SK_SecondWind", "Catch your breath and recover 30% of max HP.");
+            SetDescription("SK_BasicAttack", "적 하나를 빠르게 공격합니다.");
+            SetDescription("SK_Slash", "대상에게 물리 피해 250%를 주는 묵직한 베기.");
+            SetDescription("SK_Whirlwind", "몸을 회전해 주변 4m 안의 모든 적에게 물리 피해 160%를 줍니다.");
+            SetDescription("SK_SecondWind", "숨을 고르며 최대 HP의 30%를 회복합니다.");
 
             var ePierce = LoadOrCreate<DamageSkillEffect>(SkillFolder + "/Effects/E_Damage_Pierce.asset");
             Set(ePierce, ("damageType", (int)DamageType.Physical), ("damageMultiplier", 3.2f), ("areaRadius", 0f));
@@ -64,15 +64,15 @@ namespace RPGAuto.EditorTools
             Set(eShock, ("damageType", (int)DamageType.Physical), ("damageMultiplier", 1.4f), ("areaRadius", 3f), ("areaCenteredOnCaster", false));
 
             var pierce = LoadOrCreate<SkillData>(SkillFolder + "/SK_Pierce.asset");
-            Set(pierce, ("displayName", "Pierce"), ("shortLabel", "PIERCE"), ("slotColor", new Color(0.7f, 0.2f, 0.45f)),
-                ("description", "A precise thrust dealing 320% physical damage to the target."),
+            Set(pierce, ("displayName", "찌르기"), ("shortLabel", "찌르기"), ("slotColor", new Color(0.7f, 0.2f, 0.45f)),
+                ("description", "대상에게 물리 피해 320%를 주는 정확한 찌르기."),
                 ("targetType", (int)SkillTargetType.Enemy), ("cooldown", 10f), ("mpCost", 25f), ("range", 2.5f),
                 ("actionLock", 0.7f), ("effect", ePierce),
                 ("defaultAutoUse.autoUse", true), ("defaultAutoUse.applyMpLimit", true), ("defaultAutoUse.rangeFirst", true));
 
             var shock = LoadOrCreate<SkillData>(SkillFolder + "/SK_Shockwave.asset");
-            Set(shock, ("displayName", "Shockwave"), ("shortLabel", "SHOCK"), ("slotColor", new Color(0.55f, 0.45f, 0.15f)),
-                ("description", "Strike the ground from afar, dealing 140% physical damage to enemies within 3m of the target."),
+            Set(shock, ("displayName", "충격파"), ("shortLabel", "충격파"), ("slotColor", new Color(0.55f, 0.45f, 0.15f)),
+                ("description", "멀리서 땅을 내려쳐 대상 주변 3m 안의 적에게 물리 피해 140%를 줍니다."),
                 ("targetType", (int)SkillTargetType.Enemy), ("cooldown", 12f), ("mpCost", 30f), ("range", 6f),
                 ("actionLock", 0.8f), ("effect", eShock),
                 ("defaultAutoUse.autoUse", true), ("defaultAutoUse.applyMpLimit", true), ("defaultAutoUse.rangeFirst", false));
@@ -107,7 +107,7 @@ namespace RPGAuto.EditorTools
             const float listW = 380f, listH = 520f, top = 72f;
             const float detailX = 24f + listW + 20f, detailW = w - detailX - 24f, detailH = h - top - 24f;
 
-            var root = CreateWindow(canvas, "UI_SkillWindow", "SKILL", new Vector2(w, h), out var panel, out var close);
+            var root = CreateWindow(canvas, "UI_SkillWindow", "스킬", new Vector2(w, h), out var panel, out var close);
 
             // ---- 목록 ----
             var listFrame = CreateTopLeft("UI_SkillWindow_List", panel, 24f, top, listW, listH);
@@ -125,7 +125,7 @@ namespace RPGAuto.EditorTools
             // ---- 상세 ----
             var detail = CreateTopLeft("UI_SkillWindow_Detail", panel, detailX, top, detailW, detailH);
             AddImage(detail, FrameColor);
-            var empty = CreateText("UI_SkillWindow_Detail_EmptyHint", detail, "Select a skill", 20, TextAnchor.MiddleCenter, new Color(0.6f, 0.6f, 0.65f));
+            var empty = CreateText("UI_SkillWindow_Detail_EmptyHint", detail, "스킬을 선택하세요", 20, TextAnchor.MiddleCenter, new Color(0.6f, 0.6f, 0.65f));
             Stretch(empty.rectTransform, 12f);
             var content = CreateStretch("UI_SkillWindow_Detail_Content", detail);
 
@@ -150,7 +150,7 @@ namespace RPGAuto.EditorTools
             desc.horizontalOverflow = HorizontalWrapMode.Wrap;
 
             // 퀵슬롯 1~6
-            var qsTitle = CreateText("UI_SkillWindow_Detail_QuickSlotTitle", content, "Register to Quick Slot", 16, TextAnchor.UpperLeft, new Color(0.7f, 0.7f, 0.75f));
+            var qsTitle = CreateText("UI_SkillWindow_Detail_QuickSlotTitle", content, "퀵슬롯 등록", 16, TextAnchor.UpperLeft, new Color(0.7f, 0.7f, 0.75f));
             PlaceTopLeft(qsTitle.rectTransform, 16f, 170f, 300f, 22f);
             var qsButtons = new Object[QuickSlotBar.SkillSlotCount];
             float qw = (detailW - 32f - 5 * 8f) / 6f;
@@ -162,7 +162,7 @@ namespace RPGAuto.EditorTools
             }
 
             // 자동 사용 조건
-            var autoTitle = CreateText("UI_SkillWindow_Detail_AutoTitle", content, "Auto Use Settings", 16, TextAnchor.UpperLeft, new Color(0.7f, 0.7f, 0.75f));
+            var autoTitle = CreateText("UI_SkillWindow_Detail_AutoTitle", content, "자동 사용 설정", 16, TextAnchor.UpperLeft, new Color(0.7f, 0.7f, 0.75f));
             PlaceTopLeft(autoTitle.rectTransform, 16f, 256f, 300f, 22f);
             string[] ids = { "AutoUse", "MpLimit", "RangeFirst", "HpMin", "HpMax", "Cycle" };
             var rows = new OptionRowView[ids.Length];
@@ -198,7 +198,7 @@ namespace RPGAuto.EditorTools
             const float h = 40f;
             var root = CreateRect("UI_OptionRow", null, new Vector2(0f, 1f), new Vector2(0f, 1f), Vector2.zero, new Vector2(width, h));
 
-            var label = CreateText("UI_OptionRow_Label", root, "Option", 18, TextAnchor.MiddleLeft, new Color(0.9f, 0.9f, 0.92f));
+            var label = CreateText("UI_OptionRow_Label", root, "옵션", 18, TextAnchor.MiddleLeft, new Color(0.9f, 0.9f, 0.92f));
             label.rectTransform.anchorMin = new Vector2(0f, 0f);
             label.rectTransform.anchorMax = new Vector2(1f, 1f);
             label.rectTransform.offsetMin = new Vector2(4f, 0f);
@@ -216,7 +216,7 @@ namespace RPGAuto.EditorTools
             var value = CreateText("UI_OptionRow_Value", root, "0", 18, TextAnchor.MiddleCenter, Color.white);
             Place(value.rectTransform, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-44f, 0f), new Vector2(64f, h));
             var minus = RightButton("UI_OptionRow_Button_Minus", "-", 112f, 40f);
-            var toggle = RightButton("UI_OptionRow_Button_Toggle", "OFF", 162f, 84f);
+            var toggle = RightButton("UI_OptionRow_Button_Toggle", "꺼짐", 162f, 84f);
 
             var view = root.gameObject.AddComponent<OptionRowView>();
             Set(view, ("label", label), ("toggleButton", toggle), ("toggleText", toggle.GetComponentInChildren<Text>()),

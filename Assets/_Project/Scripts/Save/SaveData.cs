@@ -36,6 +36,7 @@ namespace RPGAuto.Save
         public int enhance;
         /// <summary>장착 위치 (EquipPosition), 미장착이면 -1</summary>
         public int equipPosition = -1;
+        public bool locked;
     }
 
     /// <summary>퀵슬롯 한 칸 (스킬이면 skillIndex, 아이템이면 itemId)</summary>

@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: EQ_AncientBlade
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EquipmentData
   itemId: EAncientBlade
-  displayName: Ancient Blade
-  shortLabel: BLADE
+  displayName: "\uACE0\uB300\uC758 \uAC80"
+  shortLabel: "\uB300\uAC80"
   slotColor: {r: 0.75, g: 0.75, b: 0.8, a: 1}
   category: 2
   grade: 4
-  description: Legendary weapon. Each enhancement level adds 10% to its stats.
+  description: "\uC804\uC124 \uB4F1\uAE09 \uBB34\uAE30. \uAC15\uD654 \uB2E8\uACC4\uB9C8\uB2E4
+    \uB2A5\uB825\uCE58\uAC00 10%\uC529 \uC99D\uAC00\uD569\uB2C8\uB2E4."
   sellPrice: 8000
   autoSell: 0
   weight: 25

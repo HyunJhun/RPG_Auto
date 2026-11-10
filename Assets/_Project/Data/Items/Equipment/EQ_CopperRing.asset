@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: EQ_CopperRing
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EquipmentData
   itemId: ECopperRing
-  displayName: Copper Ring
-  shortLabel: RING
+  displayName: "\uAD6C\uB9AC \uBC18\uC9C0"
+  shortLabel: "\uBC18\uC9C0"
   slotColor: {r: 0.85, g: 0.75, b: 0.35, a: 1}
   category: 2
   grade: 1
-  description: Uncommon ring. Each enhancement level adds 10% to its stats.
+  description: "\uACE0\uAE09 \uB4F1\uAE09 \uBC18\uC9C0. \uAC15\uD654 \uB2E8\uACC4\uB9C8\uB2E4
+    \uB2A5\uB825\uCE58\uAC00 10%\uC529 \uC99D\uAC00\uD569\uB2C8\uB2E4."
   sellPrice: 90
   autoSell: 0
   weight: 0.5

@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f31ef19b9aadb44582d37a412aeb102, type: 3}
   m_Name: GACHA_Supply
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Gacha.GachaData
-  displayName: Supply Summon
-  description: Summon supplies and rare materials. A 10x summon guarantees at least
-    one Rare or better.
+  displayName: "\uBCF4\uAE09\uD488 \uC18C\uD658"
+  description: "\uBCF4\uAE09\uD488\uACFC \uD76C\uADC0 \uC7AC\uB8CC\uB97C \uC18C\uD658\uD569\uB2C8\uB2E4.
+    10\uD68C \uC18C\uD658 \uC2DC \uD76C\uADC0 \uB4F1\uAE09 \uC774\uC0C1 1\uAC1C\uAC00
+    \uBCF4\uC7A5\uB429\uB2C8\uB2E4."
   singleCost: 300
   tenCost: 2700
   tenPullGuarantee: 1

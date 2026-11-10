@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: EQ_KnightSword
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EquipmentData
   itemId: EKnightSword
-  displayName: Knight Sword
-  shortLabel: SWORD
+  displayName: "\uAE30\uC0AC\uC758 \uAC80"
+  shortLabel: "\uAC80"
   slotColor: {r: 0.75, g: 0.75, b: 0.8, a: 1}
   category: 2
   grade: 2
-  description: Rare weapon. Each enhancement level adds 10% to its stats.
+  description: "\uD76C\uADC0 \uB4F1\uAE09 \uBB34\uAE30. \uAC15\uD654 \uB2E8\uACC4\uB9C8\uB2E4
+    \uB2A5\uB825\uCE58\uAC00 10%\uC529 \uC99D\uAC00\uD569\uB2C8\uB2E4."
   sellPrice: 600
   autoSell: 0
   weight: 22

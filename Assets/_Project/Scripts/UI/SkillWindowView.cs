@@ -170,7 +170,7 @@ namespace RPGAuto.UI
             foreach (var row in _rows) row.Bind(row.Skill, row.Skill == _selected, MarkOf(row.Skill));
 
             if (globalMpLimitRow != null)
-                globalMpLimitRow.Show("Skill Auto MP Limit", null, $"{combat.Settings.skillMpLimitPercent:0}%");
+                globalMpLimitRow.Show("스킬 자동 사용 MP 제한", null, $"{combat.Settings.skillMpLimitPercent:0}%");
 
             bool has = _selected != null;
             if (detailRoot != null) detailRoot.SetActive(has);
@@ -182,11 +182,11 @@ namespace RPGAuto.UI
             if (detailIcon != null) detailIcon.color = d.SlotColor;
             if (detailIconLabel != null) detailIconLabel.text = d.ShortLabel;
             if (detailName != null) detailName.text = d.DisplayName;
-            if (detailType != null) detailType.text = d.RequiresTarget ? "Attack Skill" : "Self Skill";
+            if (detailType != null) detailType.text = d.RequiresTarget ? "공격 스킬" : "자신 스킬";
             if (detailStats != null)
                 detailStats.text = d.RequiresTarget
-                    ? $"MP {d.MpCost:0}   Cooldown {d.Cooldown:0.#}s   Range {d.Range:0.#}m"
-                    : $"MP {d.MpCost:0}   Cooldown {d.Cooldown:0.#}s";
+                    ? $"MP {d.MpCost:0}   재사용 {d.Cooldown:0.#}초   사거리 {d.Range:0.#}m"
+                    : $"MP {d.MpCost:0}   재사용 {d.Cooldown:0.#}초";
             if (detailDescription != null) detailDescription.text = d.Description;
 
             int assigned = quickSlots.FindSkillSlot(_selected);
@@ -198,20 +198,20 @@ namespace RPGAuto.UI
 
             bool registered = assigned >= 0;
             bool autoOn = registered && quickSlots.GetSlot(assigned).IsAutoUse;
-            autoUseRow?.Show(registered ? "Auto Use" : "Auto Use (register to quick slot)", autoOn, null, registered);
-            mpLimitRow?.Show("Apply MP Limit", c.applyMpLimit, null);
-            if (d.RequiresTarget) rangeFirstRow?.Show("Range First (use only in range)", c.rangeFirst, null);
+            autoUseRow?.Show(registered ? "자동 사용" : "자동 사용 (퀵슬롯 등록 필요)", autoOn, null, registered);
+            mpLimitRow?.Show("MP 제한 적용", c.applyMpLimit, null);
+            if (d.RequiresTarget) rangeFirstRow?.Show("사거리 우선 (사거리 안에서만 사용)", c.rangeFirst, null);
             else rangeFirstRow?.Hide();
-            hpMinRow?.Show("Use when HP ≥", c.useHpMin, $"{c.hpMinPercent:0}%");
-            hpMaxRow?.Show("Use when HP ≤", c.useHpMax, $"{c.hpMaxPercent:0}%");
-            cycleRow?.Show("Custom Cycle", c.useCustomCycle, c.useCustomCycle ? $"{c.cycleSeconds:0}s" : $"{d.Cooldown:0.#}s");
+            hpMinRow?.Show("HP ≥ 일 때 사용", c.useHpMin, $"{c.hpMinPercent:0}%");
+            hpMaxRow?.Show("HP ≤ 일 때 사용", c.useHpMax, $"{c.hpMaxPercent:0}%");
+            cycleRow?.Show("사용 주기 지정", c.useCustomCycle, c.useCustomCycle ? $"{c.cycleSeconds:0}초" : $"{d.Cooldown:0.#}초");
         }
 
         private string MarkOf(SkillSlot skill)
         {
             int slot = quickSlots.FindSkillSlot(skill);
             if (slot < 0) return string.Empty;
-            return quickSlots.GetSlot(slot).IsAutoUse ? $"Q{slot + 1}  AUTO" : $"Q{slot + 1}";
+            return quickSlots.GetSlot(slot).IsAutoUse ? $"Q{slot + 1}  자동" : $"Q{slot + 1}";
         }
     }
 }

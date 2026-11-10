@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: IT_MpPotion
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.ItemData
   itemId: I002
-  displayName: MP Potion
+  displayName: "MP \uBB3C\uC57D"
   shortLabel: MP
   slotColor: {r: 0.2, g: 0.35, b: 0.85, a: 1}
   category: 0
   grade: 0
-  description: Restores 30% of max MP.
+  description: "\uCD5C\uB300 MP\uC758 30%\uB97C \uD68C\uBCF5\uD569\uB2C8\uB2E4."
   sellPrice: 12
   autoSell: 0
   weight: 1

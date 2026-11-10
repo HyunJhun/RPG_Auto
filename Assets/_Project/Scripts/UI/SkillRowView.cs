@@ -29,7 +29,7 @@ namespace RPGAuto.UI
             if (iconLabel != null) iconLabel.text = d.ShortLabel;
             if (nameText != null) nameText.text = d.DisplayName;
             if (infoText != null)
-                infoText.text = $"{(d.RequiresTarget ? "Attack" : "Self")}  ·  MP {d.MpCost:0}  ·  CD {d.Cooldown:0.#}s";
+                infoText.text = $"{(d.RequiresTarget ? "공격" : "자신")}  ·  MP {d.MpCost:0}  ·  재사용 {d.Cooldown:0.#}초";
             if (markText != null) markText.text = mark ?? string.Empty;
             if (selectedFrame != null) selectedFrame.SetActive(selected);
         }

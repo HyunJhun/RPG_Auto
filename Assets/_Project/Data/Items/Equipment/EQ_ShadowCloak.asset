@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: EQ_ShadowCloak
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EquipmentData
   itemId: EShadowCloak
-  displayName: Shadow Cloak
-  shortLabel: CLOAK
+  displayName: "\uADF8\uB9BC\uC790 \uB9DD\uD1A0"
+  shortLabel: "\uB9DD\uD1A0"
   slotColor: {r: 0.35, g: 0.3, b: 0.5, a: 1}
   category: 2
   grade: 3
-  description: Epic cloak. Each enhancement level adds 10% to its stats.
+  description: "\uC601\uC6C5 \uB4F1\uAE09 \uB9DD\uD1A0. \uAC15\uD654 \uB2E8\uACC4\uB9C8\uB2E4
+    \uB2A5\uB825\uCE58\uAC00 10%\uC529 \uC99D\uAC00\uD569\uB2C8\uB2E4."
   sellPrice: 1800
   autoSell: 0
   weight: 8

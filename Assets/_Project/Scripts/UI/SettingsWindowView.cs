@@ -14,7 +14,7 @@ namespace RPGAuto.UI
     /// </summary>
     public class SettingsWindowView : MonoBehaviour, IGameWindow
     {
-        private static readonly string[] PriorityLabels = { "Nearest", "Elite+", "Low HP" };
+        private static readonly string[] PriorityLabels = { "가까운 순", "정예 우선", "HP 낮은 순" };
 
         [Header("Data")]
         [SerializeField] private PlayerCombat combat;
@@ -121,20 +121,20 @@ namespace RPGAuto.UI
 
         private void Refresh()
         {
-            targetNormalRow?.Show("Normal Monsters", S.targetNormal, null);
-            targetEliteRow?.Show("Elite Monsters", S.targetElite, null);
-            targetBossRow?.Show("Boss Monsters", S.targetBoss, null);
-            priorityRow?.Show("Target Priority", null, PriorityLabels[(int)S.priorityMode]);
-            detectRadiusRow?.Show("Detect Radius", null, $"{S.detectRadius:0}m");
-            returnDistanceRow?.Show("Max Distance from Start", null, $"{S.returnDistance:0}m");
-            skillMpLimitRow?.Show("Skill Auto MP Limit", null, $"{S.skillMpLimitPercent:0}%");
-            hpPotionRow?.Show("HP Potion when HP ≤", null, $"{S.hpPotionPercent:0}%");
-            mpPotionRow?.Show("MP Potion when MP ≤", null, $"{S.mpPotionPercent:0}%");
-            autoLootRow?.Show("Auto Pickup (Auto Combat)", S.autoLoot, null);
-            autoLootRadiusRow?.Show("Auto Pickup Radius", null, $"{S.autoLootRadius:0}m", S.autoLoot);
-            assistModeRow?.Show("Assist Mode (shop round trip)", S.assistMode, null);
-            assistPotionRow?.Show("Go shopping when HP Potions ≤", null, $"{S.assistPotionMin}", S.assistMode);
-            assistBagRow?.Show("Go shopping when bag is full", S.assistOnFullBag, null);
+            targetNormalRow?.Show("일반 몬스터", S.targetNormal, null);
+            targetEliteRow?.Show("정예 몬스터", S.targetElite, null);
+            targetBossRow?.Show("보스 몬스터", S.targetBoss, null);
+            priorityRow?.Show("탐지 우선순위", null, PriorityLabels[(int)S.priorityMode]);
+            detectRadiusRow?.Show("탐지 반경", null, $"{S.detectRadius:0}m");
+            returnDistanceRow?.Show("시작 지점 최대 거리", null, $"{S.returnDistance:0}m");
+            skillMpLimitRow?.Show("스킬 자동 사용 MP 제한", null, $"{S.skillMpLimitPercent:0}%");
+            hpPotionRow?.Show("HP 물약 사용: HP ≤", null, $"{S.hpPotionPercent:0}%");
+            mpPotionRow?.Show("MP 물약 사용: MP ≤", null, $"{S.mpPotionPercent:0}%");
+            autoLootRow?.Show("자동 줍기 (자동 전투)", S.autoLoot, null);
+            autoLootRadiusRow?.Show("자동 줍기 반경", null, $"{S.autoLootRadius:0}m", S.autoLoot);
+            assistModeRow?.Show("보조 모드 (상점 왕복)", S.assistMode, null);
+            assistPotionRow?.Show("HP 물약이 이 개수 이하면 귀환", null, $"{S.assistPotionMin}", S.assistMode);
+            assistBagRow?.Show("가방이 가득 차면 귀환", S.assistOnFullBag, null);
         }
     }
 }

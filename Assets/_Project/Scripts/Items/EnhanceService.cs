@@ -53,13 +53,13 @@ namespace RPGAuto.Items
 
         public static string ToMessage(EnhanceResult result, EquipmentInstance eq) => result switch
         {
-            EnhanceResult.Success => $"Success! {eq.DisplayName}",
-            EnhanceResult.Failed => "Enhancement failed",
-            EnhanceResult.FailedDowngrade => $"Failed... dropped to +{eq.EnhanceLevel}",
-            EnhanceResult.MaxLevel => "Already at max enhancement",
-            EnhanceResult.NotEnoughGold => "Not enough gold",
-            EnhanceResult.NotEnoughMaterial => "Not enough enhancement scrolls",
-            _ => "Cannot enhance"
+            EnhanceResult.Success => $"강화 성공! {eq.DisplayName}",
+            EnhanceResult.Failed => "강화 실패",
+            EnhanceResult.FailedDowngrade => $"강화 실패... +{eq.EnhanceLevel}(으)로 하락",
+            EnhanceResult.MaxLevel => "이미 최대 강화 단계입니다",
+            EnhanceResult.NotEnoughGold => "골드가 부족합니다",
+            EnhanceResult.NotEnoughMaterial => "강화 주문서가 부족합니다",
+            _ => "강화할 수 없습니다"
         };
     }
 }

@@ -54,11 +54,11 @@ namespace RPGAuto.UI
         }
 
         private void HandleLoot(LootEntry entry) =>
-            Push(entry.IsGold ? $"Gold +{entry.Gold:N0}" : $"{entry.Item.DisplayName}  x{entry.Count}",
+            Push(entry.IsGold ? $"골드 +{entry.Gold:N0}" : $"{entry.Item.DisplayName}  x{entry.Count}",
                  entry.IsGold ? goldColor : itemColor);
 
         private void HandleBlocked(RPGAuto.Items.AcceptResult reason) =>
-            Push(reason == RPGAuto.Items.AcceptResult.Overweight ? "Too heavy to carry more" : "Inventory is full", warningColor);
+            Push(reason == RPGAuto.Items.AcceptResult.Overweight ? "무게가 초과되어 더 들 수 없습니다" : "인벤토리가 가득 찼습니다", warningColor);
 
         private void Push(string message, Color color)
         {

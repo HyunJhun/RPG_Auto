@@ -23,6 +23,8 @@ namespace RPGAuto.UI
         [SerializeField] private PlayerWallet wallet;
         [SerializeField] private PlayerInputHandler input;
         [SerializeField] private InventoryWindowView inventoryWindow;
+        [Tooltip("자동 담기·일괄 구매 기준 (자동 거래 설정)")]
+        [SerializeField] private PlayerTradeSettings tradeSettings;
 
         [Header("Window")]
         [SerializeField] private GameObject window;
@@ -85,10 +87,10 @@ namespace RPGAuto.UI
             testGoldButton?.onClick.AddListener(() =>
             {
                 wallet.AddGold(testGoldAmount);
-                ShowMessage($"[TEST] Gold +{testGoldAmount:N0}", true);
+                ShowMessage($"[테스트] 골드 +{testGoldAmount:N0}", true);
             });
             if (titleText != null && shop != null) titleText.text = shop.ShopName;
-            if (taxText != null && shop != null) taxText.text = $"Current Tax Rate  {shop.TaxRate * 100f:0}%";
+            if (taxText != null && shop != null) taxText.text = $"현재 세율  {shop.TaxRate * 100f:0}%";
             SetOpen(false);
         }
 
@@ -170,18 +172,17 @@ namespace RPGAuto.UI
             else Rebuild();
         }
 
-        /// <summary>자동 담기: [자동 담기] 대상으로 지정된 전리품(ItemData.AutoSell)을 바구니에 담는다</summary>
+        /// <summary>자동 담기: 자동 거래 설정(분류·등급 규칙)에 맞는 아이템을 바구니에 담는다</summary>
         public void AutoFill()
         {
             int added = 0;
-            foreach (var e in inventory.Entries)
+            foreach (var line in AutoTradeService.SelectSell(tradeSettings != null ? tradeSettings.Settings : null, inventory, equipment, shop))
             {
-                if (!e.Item.AutoSell) continue;
-                if (_sell.Exists(l => l.Entry == e)) continue;
-                _sell.Add(new SellLine { Entry = e, Quantity = e.Count });
+                if (_sell.Exists(l => l.Entry == line.Entry)) continue;
+                _sell.Add(line);
                 added++;
             }
-            ShowMessage(added > 0 ? $"Added {added} kinds of loot" : "No loot to add", added > 0);
+            ShowMessage(added > 0 ? $"{added}칸을 담았습니다" : "설정에 맞는 아이템이 없습니다", added > 0);
             SelectTab(Tab.Sell);
         }
 
@@ -207,13 +208,13 @@ namespace RPGAuto.UI
             for (int i = 0; i < _buy.Count; i++) _buy[i] = new BuyLine { Product = _buy[i].Product, Quantity = 0 };
         }
 
-        /// <summary>일괄 구매: 상품마다 정해 둔 수량(restockTarget)까지 채우도록 수량을 설정</summary>
+        /// <summary>일괄 구매: 자동 거래 설정의 상품별 목표 수량까지 채우도록 수량을 설정</summary>
         private void BulkBuy()
         {
             for (int i = 0; i < _buy.Count; i++)
             {
                 var p = _buy[i].Product;
-                int need = p.restockTarget > 0 ? Mathf.Max(0, p.restockTarget - inventory.GetCount(p.item)) : 0;
+                int need = AutoTradeService.NeedToBuy(tradeSettings != null ? tradeSettings.Settings : null, p, inventory);
                 _buy[i] = new BuyLine { Product = p, Quantity = Mathf.Min(need, ShopService.MaxQuantity) };
             }
             Rebuild();
@@ -227,14 +228,14 @@ namespace RPGAuto.UI
             {
                 long cost = ShopService.TotalCost(_buy, shop.TaxRate);
                 result = ShopService.Buy(_buy, shop.TaxRate, wallet, inventory);
-                done = $"Purchase complete  (-{cost:N0} G)";
+                done = $"구매 완료  (-{cost:N0} G)";
                 if (result == ShopResult.Ok) ResetQuantities();
             }
             else
             {
                 long total = ShopService.TotalSell(_sell);
                 result = ShopService.Sell(_sell, wallet, inventory, equipment);
-                done = $"Sale complete  (+{total:N0} G)";
+                done = $"판매 완료  (+{total:N0} G)";
                 if (result == ShopResult.Ok) _sell.Clear();
             }
             bool ok = result == ShopResult.Ok;
@@ -266,7 +267,7 @@ namespace RPGAuto.UI
             if (buyTabButton != null) buyTabButton.targetGraphic.color = buy ? tabOn : tabOff;
             if (sellTabButton != null) sellTabButton.targetGraphic.color = buy ? tabOff : tabOn;
             if (bulkBuyButton != null) bulkBuyButton.gameObject.SetActive(buy);
-            if (doneText != null) doneText.text = buy ? "BUY" : "SELL";
+            if (doneText != null) doneText.text = buy ? "구매" : "판매";
 
             int count = buy ? _buy.Count : _sell.Count;
             while (_rows.Count < count)
@@ -289,7 +290,7 @@ namespace RPGAuto.UI
                 {
                     var l = _buy[i];
                     long unit = ShopService.UnitBuyPrice(l.Product, shop.TaxRate);
-                    _rows[i].Bind(l.Product.item, l.Product.item.DisplayName, $"Owned {inventory.GetCount(l.Product.item):N0}",
+                    _rows[i].Bind(l.Product.item, l.Product.item.DisplayName, $"보유 {inventory.GetCount(l.Product.item):N0}",
                         unit, Mathf.Max(l.Quantity, MaxBuyable(l.Product, unit)), l.Quantity, false);
                 }
                 else
@@ -297,14 +298,14 @@ namespace RPGAuto.UI
                     var l = _sell[i];
                     var e = l.Entry;
                     string name = e.IsEquipment ? e.Equipment.DisplayName : e.Item.DisplayName;
-                    _rows[i].Bind(e.Item, name, $"Owned {e.Count:N0}", e.Item.SellPrice, e.Count, l.Quantity, true);
+                    _rows[i].Bind(e.Item, name, $"보유 {e.Count:N0}", e.Item.SellPrice, e.Count, l.Quantity, true);
                 }
             }
 
             if (listEmptyHint != null)
             {
                 listEmptyHint.gameObject.SetActive(count == 0);
-                listEmptyHint.text = buy ? "No products" : "Tap items in your inventory\nor use AUTO FILL";
+                listEmptyHint.text = buy ? "판매 상품이 없습니다" : "인벤토리에서 아이템을 누르거나\n[자동 담기]를 사용하세요";
             }
             RefreshSummary();
         }
@@ -339,7 +340,7 @@ namespace RPGAuto.UI
             float expected = inventory.CurrentWeight + delta;
             if (weightText != null)
             {
-                weightText.text = $"Expected Weight  {expected:#,0.#} / {inventory.MaxWeight:#,0}";
+                weightText.text = $"예상 무게  {expected:#,0.#} / {inventory.MaxWeight:#,0}";
                 weightText.color = expected > inventory.MaxWeight ? errorColor : Color.white;
             }
 
@@ -348,16 +349,16 @@ namespace RPGAuto.UI
                 long cost = ShopService.TotalCost(_buy, shop.TaxRate);
                 if (paymentText != null)
                 {
-                    paymentText.text = $"Payment  {cost:N0} G";
+                    paymentText.text = $"결제 금액  {cost:N0} G";
                     paymentText.color = wallet.CanAfford(cost) ? new Color(1f, 0.85f, 0.35f) : errorColor;
                 }
             }
             else if (paymentText != null)
             {
-                paymentText.text = $"Receive  {ShopService.TotalSell(_sell):N0} G";
+                paymentText.text = $"받을 금액  {ShopService.TotalSell(_sell):N0} G";
                 paymentText.color = new Color(1f, 0.85f, 0.35f);
             }
-            if (goldText != null) goldText.text = $"Gold  {wallet.Gold:N0}";
+            if (goldText != null) goldText.text = $"골드  {wallet.Gold:N0}";
         }
     }
 }

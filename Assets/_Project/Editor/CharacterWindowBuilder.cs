@@ -48,7 +48,7 @@ namespace RPGAuto.EditorTools
             if (openButton != null)
             {
                 var label = openButton.transform.Find("UI_MenuBar_Button_Stat_Label")?.GetComponent<Text>();
-                if (label != null) label.text = "CHAR";
+                if (label != null) label.text = "캐릭터";
             }
 
             BuildWindow(canvas, go.GetComponent<CombatStats>(), go.GetComponent<PlayerProgression>(), go.GetComponent<PlayerEquipment>(),
@@ -60,7 +60,7 @@ namespace RPGAuto.EditorTools
             PlayerInputHandler input, Button openButton, InventorySlotView slotPrefab, ItemDetailPopup detail)
         {
             const float w = PanelWidth, cw = w - 40f;
-            var root = CreateSideWindow(canvas, "UI_CharacterWindow", "Adventurer", false, new Vector2(w, PanelHeight), out var panel, out var close);
+            var root = CreateSideWindow(canvas, "UI_CharacterWindow", "모험가", false, new Vector2(w, PanelHeight), out var panel, out var close);
             var name = panel.Find("UI_CharacterWindow_Title").GetComponent<Text>();
 
             // 레벨 배지 (좌상단)
@@ -83,14 +83,14 @@ namespace RPGAuto.EditorTools
                 v.fontStyle = FontStyle.Bold;
                 return v;
             }
-            var attack = SummaryCell("Attack", "ATTACK", 0);
-            var defense = SummaryCell("Defense", "DEFENSE", 1);
-            var accuracy = SummaryCell("Accuracy", "ACCURACY", 2);
+            var attack = SummaryCell("Attack", "공격력", 0);
+            var defense = SummaryCell("Defense", "방어력", 1);
+            var accuracy = SummaryCell("Accuracy", "명중", 2);
 
             // 탭
-            var equipTab = CreateButton("UI_CharacterWindow_Tab_Equipment", panel, "EQUIPMENT", 18, ButtonColor);
+            var equipTab = CreateButton("UI_CharacterWindow_Tab_Equipment", panel, "장비", 18, ButtonColor);
             PlaceTopLeft((RectTransform)equipTab.transform, 20f, 168f, cw / 2f - 4f, 44f);
-            var statTab = CreateButton("UI_CharacterWindow_Tab_Stats", panel, "STATS", 18, ButtonColor);
+            var statTab = CreateButton("UI_CharacterWindow_Tab_Stats", panel, "능력치", 18, ButtonColor);
             PlaceTopLeft((RectTransform)statTab.transform, 20f + cw / 2f + 4f, 168f, cw / 2f - 4f, 44f);
 
             // [장비] 탭: 장착 슬롯 12칸 (EquipPosition 순서)
@@ -138,7 +138,7 @@ namespace RPGAuto.EditorTools
         private static GameObject CreateStatRowPrefab(float width)
         {
             var root = CreateRect("UI_StatRow", null, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(width, 30f));
-            var label = CreateText("UI_StatRow_Label", root, "Label", 18, TextAnchor.MiddleLeft, new Color(0.85f, 0.85f, 0.88f));
+            var label = CreateText("UI_StatRow_Label", root, "항목", 18, TextAnchor.MiddleLeft, new Color(0.85f, 0.85f, 0.88f));
             Stretch(label.rectTransform, 0f);
             label.rectTransform.offsetMin = new Vector2(8f, 0f);
             var value = CreateText("UI_StatRow_Value", root, "0", 18, TextAnchor.MiddleRight, Color.white);

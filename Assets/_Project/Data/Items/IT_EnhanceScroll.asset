@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: IT_EnhanceScroll
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.ItemData
   itemId: I201
-  displayName: Enhancement Scroll
-  shortLabel: SCROLL
+  displayName: "\uAC15\uD654 \uC8FC\uBB38\uC11C"
+  shortLabel: "\uC8FC\uBB38\uC11C"
   slotColor: {r: 0.8, g: 0.72, b: 0.45, a: 1}
   category: 1
   grade: 1
-  description: Used to enhance equipment. Higher enhancement levels require more
-    scrolls.
+  description: "\uC7A5\uBE44 \uAC15\uD654\uC5D0 \uC0AC\uC6A9\uD569\uB2C8\uB2E4. \uAC15\uD654
+    \uB2E8\uACC4\uAC00 \uB192\uC744\uC218\uB85D \uB354 \uB9CE\uC774 \uD544\uC694\uD569\uB2C8\uB2E4."
   sellPrice: 50
   autoSell: 0
   weight: 0.2

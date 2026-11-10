@@ -12,10 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95174f6f7ab421e409b4962d632d1f5a, type: 3}
   m_Name: SK_Pierce
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Skills.SkillData
-  displayName: Pierce
-  shortLabel: PIERCE
+  displayName: "\uCC0C\uB974\uAE30"
+  shortLabel: "\uCC0C\uB974\uAE30"
   slotColor: {r: 0.7, g: 0.2, b: 0.45, a: 1}
-  description: A precise thrust dealing 320% physical damage to the target.
+  description: "\uB300\uC0C1\uC5D0\uAC8C \uBB3C\uB9AC \uD53C\uD574 320%\uB97C \uC8FC\uB294
+    \uC815\uD655\uD55C \uCC0C\uB974\uAE30."
   targetType: 0
   cooldown: 10
   mpCost: 25

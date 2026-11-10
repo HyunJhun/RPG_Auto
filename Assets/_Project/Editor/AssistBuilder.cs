@@ -38,7 +38,7 @@ namespace RPGAuto.EditorTools
 
             // ---------- ASSIST 버튼: AUTO 버튼 바로 위 ----------
             DestroyChild(auto.parent, "UI_Button_AssistMode");
-            var button = CreateButton("UI_Button_AssistMode", auto.parent, "ASSIST\nOFF", 18, new Color(0.25f, 0.25f, 0.28f, 1f));
+            var button = CreateButton("UI_Button_AssistMode", auto.parent, "보조\n꺼짐", 18, new Color(0.25f, 0.25f, 0.28f, 1f));
             var rt = (RectTransform)button.transform;
             rt.anchorMin = auto.anchorMin;
             rt.anchorMax = auto.anchorMax;

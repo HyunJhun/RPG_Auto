@@ -91,7 +91,7 @@ namespace RPGAuto.UI
 
             if (atMax)
             {
-                if (rateText != null) rateText.text = "Maximum enhancement reached";
+                if (rateText != null) rateText.text = "최대 강화 단계입니다";
                 if (statsText != null) statsText.text = StatText.Lines(_target.Stats);
                 if (costText != null) costText.text = string.Empty;
                 if (enhanceButton != null) enhanceButton.interactable = false;
@@ -99,16 +99,16 @@ namespace RPGAuto.UI
             }
 
             if (rateText != null)
-                rateText.text = $"Success Rate  {step.successRate * 100f:0}%\nOn Fail  {(step.downgradeOnFail ? "<color=#FF7366>-1 enhancement</color>" : "no change")}";
+                rateText.text = $"성공 확률  {step.successRate * 100f:0}%\n실패 시  {(step.downgradeOnFail ? "<color=#FF7366>강화 단계 -1</color>" : "변화 없음")}";
             if (statsText != null) statsText.text = StatText.Lines(data.GetStats(lv + 1), _target.Stats);
 
             int scrolls = inventory.GetCount(table.ScrollItem);
             string goldColor = ColorUtility.ToHtmlStringRGB(wallet.CanAfford(step.goldCost) ? Color.white : lackColor);
             string scrollColor = ColorUtility.ToHtmlStringRGB(scrolls >= step.scrollCost ? Color.white : lackColor);
-            string scrollName = table.ScrollItem != null ? table.ScrollItem.DisplayName : "Scroll";
+            string scrollName = table.ScrollItem != null ? table.ScrollItem.DisplayName : "주문서";
             if (costText != null)
-                costText.text = $"<color=#{goldColor}>Gold  {step.goldCost:N0}  (owned {wallet.Gold:N0})</color>\n" +
-                                $"<color=#{scrollColor}>{scrollName}  x{step.scrollCost}  (owned {scrolls:N0})</color>";
+                costText.text = $"<color=#{goldColor}>골드  {step.goldCost:N0}  (보유 {wallet.Gold:N0})</color>\n" +
+                                $"<color=#{scrollColor}>{scrollName}  x{step.scrollCost}  (보유 {scrolls:N0})</color>";
             if (enhanceButton != null)
                 enhanceButton.interactable = EnhanceService.Check(_target, table, wallet, inventory) == EnhanceResult.Success;
         }

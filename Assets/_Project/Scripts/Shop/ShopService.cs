@@ -14,7 +14,8 @@ namespace RPGAuto.Shop
         Overweight,
         NotEnoughItems,
         NotSellable,
-        Equipped
+        Equipped,
+        Locked
     }
 
     /// <summary>구매 주문 한 줄</summary>
@@ -107,6 +108,7 @@ namespace RPGAuto.Shop
             var e = line.Entry;
             if (e == null || line.Quantity <= 0) return ShopResult.Invalid;
             if (!e.Item.IsSellable) return ShopResult.NotSellable;
+            if (e.IsLocked) return ShopResult.Locked;
             if (e.IsEquipment)
             {
                 if (!inventory.Contains(e.Equipment)) return ShopResult.NotEnoughItems;
@@ -138,14 +140,15 @@ namespace RPGAuto.Shop
         public static string ToMessage(ShopResult result) => result switch
         {
             ShopResult.Ok => string.Empty,
-            ShopResult.Nothing => "Nothing selected",
-            ShopResult.NotEnoughGold => "Not enough gold",
-            ShopResult.InventoryFull => "Not enough inventory slots",
-            ShopResult.Overweight => "Too heavy - reduce your weight first",
-            ShopResult.NotEnoughItems => "Not enough items",
-            ShopResult.NotSellable => "This item cannot be sold",
-            ShopResult.Equipped => "Unequip the item before selling",
-            _ => "Cannot complete the transaction"
+            ShopResult.Nothing => "선택한 항목이 없습니다",
+            ShopResult.NotEnoughGold => "골드가 부족합니다",
+            ShopResult.InventoryFull => "인벤토리 칸이 부족합니다",
+            ShopResult.Overweight => "무게가 초과되었습니다. 먼저 무게를 줄이세요",
+            ShopResult.NotEnoughItems => "아이템 수량이 부족합니다",
+            ShopResult.NotSellable => "판매할 수 없는 아이템입니다",
+            ShopResult.Equipped => "장착을 해제한 뒤 판매하세요",
+            ShopResult.Locked => "잠긴 아이템은 판매할 수 없습니다",
+            _ => "거래를 완료할 수 없습니다"
         };
     }
 }

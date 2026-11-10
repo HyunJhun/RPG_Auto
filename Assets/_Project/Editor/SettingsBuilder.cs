@@ -35,7 +35,7 @@ namespace RPGAuto.EditorTools
             if (canvas == null) throw new System.Exception("UI_Canvas가 없습니다.");
             DestroyChild(canvas, "UI_SettingsWindow");
 
-            var openButton = CloneMenuButton(canvas.Find("UI_MenuBar"), "Settings", "OPTION", "Cancel", 5);
+            var openButton = CloneMenuButton(canvas.Find("UI_MenuBar"), "Settings", "설정", "Cancel", 5);
             BuildWindow(canvas, player.GetComponent<PlayerCombat>(), saver, Object.FindFirstObjectByType<PlayerInputHandler>(), openButton);
 
             EditorSceneManager.MarkSceneDirty(player.gameObject.scene);
@@ -44,7 +44,7 @@ namespace RPGAuto.EditorTools
         private static void BuildWindow(Transform canvas, PlayerCombat combat, CombatSettingsSaver saver, PlayerInputHandler input, Button openButton)
         {
             const float w = 640f, h = 980f, top = 64f, listH = 830f;
-            var root = CreateWindow(canvas, "UI_SettingsWindow", "SETTINGS", new Vector2(w, h), out var panel, out var close);
+            var root = CreateWindow(canvas, "UI_SettingsWindow", "설정", new Vector2(w, h), out var panel, out var close);
 
             var list = CreateTopLeft("UI_SettingsWindow_List", panel, 24f, top, w - 48f, listH);
             AddImage(list, FrameColor);
@@ -72,29 +72,29 @@ namespace RPGAuto.EditorTools
                 t.fontStyle = FontStyle.Bold;
             }
 
-            Header("Detection", "DETECTION");
+            Header("Detection", "탐지");
             var normal = Row("TargetNormal");
             var elite = Row("TargetElite");
             var boss = Row("TargetBoss");
             var priority = Row("Priority");
             var radius = Row("DetectRadius");
             var ret = Row("ReturnDistance");
-            Header("Skill", "SKILL");
+            Header("Skill", "스킬");
             var mpLimit = Row("SkillMpLimit");
-            Header("Potion", "POTION  (quick slot AUTO only)");
+            Header("Potion", "물약  (퀵슬롯 자동 사용만)");
             var hpPot = Row("HpPotion");
             var mpPot = Row("MpPotion");
-            Header("Loot", "LOOT");
+            Header("Loot", "전리품");
             var loot = Row("AutoLoot");
             var lootRadius = Row("AutoLootRadius");
-            Header("Assist", "ASSIST MODE");
+            Header("Assist", "보조 모드");
             var assistMode = Row("AssistMode");
             var assistPotion = Row("AssistPotionMin");
             var assistBag = Row("AssistFullBag");
 
-            var reset = CreateButton("UI_SettingsWindow_Button_Reset", panel, "Reset to Default", 18, new Color(0.45f, 0.2f, 0.2f, 1f));
+            var reset = CreateButton("UI_SettingsWindow_Button_Reset", panel, "기본값으로", 18, new Color(0.45f, 0.2f, 0.2f, 1f));
             PlaceTopLeft((RectTransform)reset.transform, 24f, top + listH + 16f, 220f, 50f);
-            var hint = CreateText("UI_SettingsWindow_SaveHint", panel, "Changes are saved automatically", 16, TextAnchor.MiddleRight, new Color(0.6f, 0.6f, 0.65f));
+            var hint = CreateText("UI_SettingsWindow_SaveHint", panel, "변경 사항은 자동 저장됩니다", 16, TextAnchor.MiddleRight, new Color(0.6f, 0.6f, 0.65f));
             PlaceTopLeft(hint.rectTransform, w - 24f - 320f, top + listH + 16f, 320f, 50f);
 
             var view = root.gameObject.AddComponent<SettingsWindowView>();

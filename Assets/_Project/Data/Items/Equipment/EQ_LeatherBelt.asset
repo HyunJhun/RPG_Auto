@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: EQ_LeatherBelt
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EquipmentData
   itemId: ELeatherBelt
-  displayName: Leather Belt
-  shortLabel: BELT
+  displayName: "\uAC00\uC8FD \uD5C8\uB9AC\uB760"
+  shortLabel: "\uD5C8\uB9AC\uB760"
   slotColor: {r: 0.45, g: 0.35, b: 0.25, a: 1}
   category: 2
   grade: 1
-  description: Uncommon belt. Each enhancement level adds 10% to its stats.
+  description: "\uACE0\uAE09 \uB4F1\uAE09 \uD5C8\uB9AC\uB760. \uAC15\uD654 \uB2E8\uACC4\uB9C8\uB2E4
+    \uB2A5\uB825\uCE58\uAC00 10%\uC529 \uC99D\uAC00\uD569\uB2C8\uB2E4."
   sellPrice: 60
   autoSell: 0
   weight: 3

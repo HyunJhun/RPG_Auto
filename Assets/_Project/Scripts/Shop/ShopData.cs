@@ -19,7 +19,7 @@ namespace RPGAuto.Shop
             public int restockTarget;
         }
 
-        [SerializeField] private string shopName = "General Goods Merchant";
+        [SerializeField] private string shopName = "잡화 상인";
         [Tooltip("구매 가격에 붙는 세율 (0.2 = 20%)")]
         [SerializeField, Range(0f, 1f)] private float taxRate = 0.2f;
         [SerializeField] private List<Product> products = new();

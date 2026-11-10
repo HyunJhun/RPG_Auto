@@ -84,13 +84,13 @@ namespace RPGAuto.Save
                 if (File.Exists(FilePath)) File.Delete(FilePath);
                 File.Move(tmp, FilePath); // 쓰는 도중 종료돼도 기존 파일이 깨지지 않게
                 LastSavedAt = DateTime.Now;
-                OnSaveStatus?.Invoke(true, $"Saved {LastSavedAt:HH:mm:ss}");
+                OnSaveStatus?.Invoke(true, $"저장됨 {LastSavedAt:HH:mm:ss}");
                 return true;
             }
             catch (Exception e)
             {
                 Debug.LogError($"[PlayerSaveSystem] 저장 실패: {e}");
-                OnSaveStatus?.Invoke(false, "Save failed");
+                OnSaveStatus?.Invoke(false, "저장 실패");
                 return false;
             }
         }
@@ -111,7 +111,7 @@ namespace RPGAuto.Save
 
             foreach (var entry in _inventory.Entries)
             {
-                var saved = new SavedEntry { itemId = entry.Item.ItemId, count = entry.Count };
+                var saved = new SavedEntry { itemId = entry.Item.ItemId, count = entry.Count, locked = entry.IsLocked };
                 if (entry.IsEquipment)
                 {
                     saved.enhance = entry.Equipment.EnhanceLevel;
@@ -150,7 +150,7 @@ namespace RPGAuto.Save
             catch (Exception e)
             {
                 Debug.LogError($"[PlayerSaveSystem] 저장 파일을 읽지 못했습니다: {e.Message}");
-                OnSaveStatus?.Invoke(false, "Load failed");
+                OnSaveStatus?.Invoke(false, "불러오기 실패");
                 return false;
             }
             if (data == null || itemDatabase == null)
@@ -160,7 +160,7 @@ namespace RPGAuto.Save
             }
 
             Apply(data);
-            OnSaveStatus?.Invoke(true, "Loaded");
+            OnSaveStatus?.Invoke(true, "불러옴");
             return true;
         }
 
@@ -183,10 +183,15 @@ namespace RPGAuto.Save
                 if (item is EquipmentData eqData)
                 {
                     var eq = new EquipmentInstance(eqData, saved.enhance);
-                    _inventory.RestoreEquipment(eq);
+                    var restored = _inventory.RestoreEquipment(eq);
+                    if (saved.locked) _inventory.SetLocked(restored, true);
                     if (saved.equipPosition >= 0) toEquip.Add((saved.equipPosition, eq));
                 }
-                else _inventory.RestoreStack(item, saved.count);
+                else
+                {
+                    var restored = _inventory.RestoreStack(item, saved.count);
+                    if (saved.locked) _inventory.SetLocked(restored, true);
+                }
             }
             // 반지는 빈 칸 순서로 들어가므로 위치 순으로 장착한다
             toEquip.Sort((a, b) => a.pos.CompareTo(b.pos));

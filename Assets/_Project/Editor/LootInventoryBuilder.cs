@@ -42,17 +42,17 @@ namespace RPGAuto.EditorTools
             var hp = AssetDatabase.LoadAssetAtPath<ItemData>(ItemFolder + "/IT_HpPotion.asset");
             var mp = AssetDatabase.LoadAssetAtPath<ItemData>(ItemFolder + "/IT_MpPotion.asset");
             if (hp == null || mp == null) throw new System.Exception("물약 데이터가 없습니다. 먼저 RPGAuto > Build Test Map 을 실행하세요.");
-            Set(hp, ("category", (int)ItemCategory.Consumable), ("description", "Restores 25% of max HP."));
-            Set(mp, ("category", (int)ItemCategory.Consumable), ("description", "Restores 30% of max MP."));
+            Set(hp, ("category", (int)ItemCategory.Consumable), ("description", "최대 HP의 25%를 회복합니다."));
+            Set(mp, ("category", (int)ItemCategory.Consumable), ("description", "최대 MP의 30%를 회복합니다."));
 
             var ear = LoadOrCreate<ItemData>(ItemFolder + "/IT_GoblinEar.asset");
-            Set(ear, ("itemId", "I101"), ("displayName", "Goblin Ear"), ("shortLabel", "EAR"),
+            Set(ear, ("itemId", "I101"), ("displayName", "고블린 귀"), ("shortLabel", "귀"),
                 ("slotColor", new Color(0.55f, 0.65f, 0.3f)), ("category", (int)ItemCategory.Material),
-                ("description", "A trophy cut from a goblin. Can be sold to merchants."));
+                ("description", "고블린에게서 베어 낸 전리품. 상인에게 팔 수 있습니다."));
             var seal = LoadOrCreate<ItemData>(ItemFolder + "/IT_ChiefSeal.asset");
-            Set(seal, ("itemId", "I102"), ("displayName", "Chief's Seal"), ("shortLabel", "SEAL"),
+            Set(seal, ("itemId", "I102"), ("displayName", "족장의 인장"), ("shortLabel", "인장"),
                 ("slotColor", new Color(0.6f, 0.3f, 0.85f)), ("category", (int)ItemCategory.Material),
-                ("description", "Proof of defeating a Goblin Chief. Rare crafting material."));
+                ("description", "고블린 족장을 쓰러뜨린 증표. 희귀 제작 재료입니다."));
 
             // ---------- Drop Tables ----------
             var dtGoblin = CreateDropTable("DT_Goblin", 3, 8,
@@ -240,7 +240,7 @@ namespace RPGAuto.EditorTools
             layout.childForceExpandHeight = false;
 
             // 줄 프리팹
-            var line = CreateText("UI_LootLog_Line", null, "Gold +0", 22, TextAnchor.MiddleLeft, Color.white);
+            var line = CreateText("UI_LootLog_Line", null, "골드 +0", 22, TextAnchor.MiddleLeft, Color.white);
             line.rectTransform.sizeDelta = new Vector2(420f, 30f);
             line.raycastTarget = false;
             line.gameObject.AddComponent<Outline>().effectColor = new Color(0f, 0f, 0f, 0.85f);
@@ -254,7 +254,7 @@ namespace RPGAuto.EditorTools
         }
 
         private static Button BuildMenuButton(Transform menuBar) =>
-            CloneMenuButton(menuBar, "Inventory", "BAG", "ToggleInventory", 1);
+            CloneMenuButton(menuBar, "Inventory", "가방", "ToggleInventory", 1);
 
     }
 }

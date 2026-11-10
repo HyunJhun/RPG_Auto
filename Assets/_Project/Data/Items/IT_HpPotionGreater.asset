@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: IT_HpPotionGreater
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.ItemData
   itemId: I003
-  displayName: Greater HP Potion
+  displayName: "\uACE0\uAE09 HP \uBB3C\uC57D"
   shortLabel: HP+
   slotColor: {r: 0.55, g: 0.05, b: 0.15, a: 1}
   category: 0
   grade: 1
-  description: Restores 50% of max HP.
+  description: "\uCD5C\uB300 HP\uC758 50%\uB97C \uD68C\uBCF5\uD569\uB2C8\uB2E4."
   sellPrice: 40
   autoSell: 0
   weight: 1.5

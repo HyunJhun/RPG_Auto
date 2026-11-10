@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: EQ_KnightArmor
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EquipmentData
   itemId: EKnightArmor
-  displayName: Knight Armor
-  shortLabel: ARMOR
+  displayName: "\uAE30\uC0AC\uC758 \uAC11\uC637"
+  shortLabel: "\uAC11\uC637"
   slotColor: {r: 0.55, g: 0.45, b: 0.35, a: 1}
   category: 2
   grade: 2
-  description: Rare armor. Each enhancement level adds 10% to its stats.
+  description: "\uD76C\uADC0 \uB4F1\uAE09 \uAC11\uC637. \uAC15\uD654 \uB2E8\uACC4\uB9C8\uB2E4
+    \uB2A5\uB825\uCE58\uAC00 10%\uC529 \uC99D\uAC00\uD569\uB2C8\uB2E4."
   sellPrice: 650
   autoSell: 0
   weight: 32

@@ -25,6 +25,8 @@ namespace RPGAuto.Items
         public EquipmentInstance Equipment { get; }
 
         public bool IsEquipment => Equipment != null;
+        /// <summary>잠금: 판매·버리기·분해·자동 담기에서 제외</summary>
+        public bool IsLocked { get; internal set; }
         public float Weight => Item.Weight * Count;
 
         internal InventoryEntry(ItemData item, int count)
@@ -243,6 +245,37 @@ namespace RPGAuto.Items
 
         private void Insert(InventoryEntry entry) => _entries.Add(entry);
 
+        // ---------------- 잠금 / 정렬 ----------------
+
+        /// <summary>묶음 아이템의 칸 (없으면 null)</summary>
+        public InventoryEntry FindStack(ItemData item) =>
+            item != null && _stacks.TryGetValue(item, out var e) ? e : null;
+
+        public void SetLocked(InventoryEntry entry, bool locked)
+        {
+            if (entry == null || !_entries.Contains(entry) || entry.IsLocked == locked) return;
+            entry.IsLocked = locked;
+            OnInventoryChanged?.Invoke();
+        }
+
+        /// <summary>칸 순서를 정렬 기준(Strategy: IComparer)대로 바꾼다. 같은 값이면 기존 순서 유지</summary>
+        public void Sort(IComparer<InventoryEntry> comparer)
+        {
+            if (comparer == null || _entries.Count < 2) return;
+            var sorted = new List<InventoryEntry>(_entries);
+            // List.Sort는 불안정 정렬이라 기존 순서를 마지막 기준으로 써서 안정 정렬로 만든다
+            var order = new Dictionary<InventoryEntry, int>();
+            for (int i = 0; i < _entries.Count; i++) order[_entries[i]] = i;
+            sorted.Sort((a, b) =>
+            {
+                int c = comparer.Compare(a, b);
+                return c != 0 ? c : order[a].CompareTo(order[b]);
+            });
+            _entries.Clear();
+            _entries.AddRange(sorted);
+            OnInventoryChanged?.Invoke();
+        }
+
         // ---------------- 세이브 복원 ----------------
 
         /// <summary>저장 데이터 복원 전: 모든 칸을 비우고 칸 수/최대 무게를 저장값으로 맞춘다.</summary>
@@ -268,19 +301,22 @@ namespace RPGAuto.Items
         }
 
         /// <summary>저장 데이터 복원: 묶음 아이템 (한도 검사 없음)</summary>
-        public void RestoreStack(ItemData item, int count)
+        public InventoryEntry RestoreStack(ItemData item, int count)
         {
-            if (item == null || count <= 0 || item is EquipmentData) return;
+            if (item == null || count <= 0 || item is EquipmentData) return null;
             AddStack(item, count);
             NotifyChanged(item);
+            return FindStack(item);
         }
 
         /// <summary>저장 데이터 복원: 장비 개체 (한도 검사 없음)</summary>
-        public void RestoreEquipment(EquipmentInstance equipment)
+        public InventoryEntry RestoreEquipment(EquipmentInstance equipment)
         {
-            if (equipment == null || Contains(equipment)) return;
-            Insert(new InventoryEntry(equipment));
+            if (equipment == null || Contains(equipment)) return null;
+            var entry = new InventoryEntry(equipment);
+            Insert(entry);
             NotifyChanged(equipment.Data);
+            return entry;
         }
 
         // ---------------- 확장 ----------------

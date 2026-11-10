@@ -48,7 +48,7 @@ namespace RPGAuto.UI
             if (_confirmUntil < 0f)
             {
                 _confirmUntil = Time.unscaledTime + confirmWindow;
-                if (_deleteLabel != null) _deleteLabel.text = "Tap again to delete";
+                if (_deleteLabel != null) _deleteLabel.text = "한 번 더 누르면 삭제";
                 return;
             }
             saveSystem.DeleteSaveAndRestart();
@@ -71,8 +71,8 @@ namespace RPGAuto.UI
         {
             if (statusText == null || saveSystem == null) return;
             statusText.color = new Color(0.6f, 0.6f, 0.65f);
-            statusText.text = saveSystem.LastSavedAt.HasValue ? $"Saved {saveSystem.LastSavedAt:HH:mm:ss}"
-                : saveSystem.HasSave ? "Save file found" : "No save yet";
+            statusText.text = saveSystem.LastSavedAt.HasValue ? $"저장됨 {saveSystem.LastSavedAt:HH:mm:ss}"
+                : saveSystem.HasSave ? "저장 파일 있음" : "저장 기록 없음";
         }
     }
 }

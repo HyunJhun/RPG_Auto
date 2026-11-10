@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95174f6f7ab421e409b4962d632d1f5a, type: 3}
   m_Name: SK_SecondWind
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Skills.SkillData
-  displayName: Second Wind
-  shortLabel: HEAL
+  displayName: "\uC228 \uACE0\uB974\uAE30"
+  shortLabel: "\uD68C\uBCF5"
   slotColor: {r: 0.25, g: 0.65, b: 0.35, a: 1}
-  description: Catch your breath and recover 30% of max HP.
+  description: "\uC228\uC744 \uACE0\uB974\uBA70 \uCD5C\uB300 HP\uC758 30%\uB97C \uD68C\uBCF5\uD569\uB2C8\uB2E4."
   targetType: 1
   cooldown: 15
   mpCost: 15

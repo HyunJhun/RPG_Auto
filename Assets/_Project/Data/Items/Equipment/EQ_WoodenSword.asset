@@ -13,12 +13,13 @@ MonoBehaviour:
   m_Name: EQ_WoodenSword
   m_EditorClassIdentifier: Assembly-CSharp::RPGAuto.Items.EquipmentData
   itemId: EWoodenSword
-  displayName: Wooden Sword
-  shortLabel: SWORD
+  displayName: "\uBAA9\uAC80"
+  shortLabel: "\uAC80"
   slotColor: {r: 0.75, g: 0.75, b: 0.8, a: 1}
   category: 2
   grade: 0
-  description: Common weapon. Each enhancement level adds 10% to its stats.
+  description: "\uC77C\uBC18 \uB4F1\uAE09 \uBB34\uAE30. \uAC15\uD654 \uB2E8\uACC4\uB9C8\uB2E4
+    \uB2A5\uB825\uCE58\uAC00 10%\uC529 \uC99D\uAC00\uD569\uB2C8\uB2E4."
   sellPrice: 20
   autoSell: 0
   weight: 15

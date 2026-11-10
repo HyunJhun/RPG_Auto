@@ -91,10 +91,10 @@ namespace RPGAuto.UI
             {
                 resultText.text = result switch
                 {
-                    ExpansionResult.Ok => "Inventory expanded!",
-                    ExpansionResult.Nothing => "Choose how much to expand",
-                    ExpansionResult.NotEnoughGold => "Not enough gold",
-                    _ => "Exceeds the maximum"
+                    ExpansionResult.Ok => "인벤토리를 확장했습니다!",
+                    ExpansionResult.Nothing => "확장할 양을 선택하세요",
+                    ExpansionResult.NotEnoughGold => "골드가 부족합니다",
+                    _ => "최대치를 넘을 수 없습니다"
                 };
                 resultText.color = result == ExpansionResult.Ok ? okColor : errorColor;
             }
@@ -109,20 +109,20 @@ namespace RPGAuto.UI
 
             if (slotText != null)
                 slotText.text = config.MaxAddSlots(inventory) == 0
-                    ? $"Slots  {inventory.Capacity}  (MAX)"
-                    : $"Slots  {inventory.Capacity}  →  {inventory.Capacity + slots}   (+{slots})";
+                    ? $"칸 수  {inventory.Capacity}  (최대)"
+                    : $"칸 수  {inventory.Capacity}  →  {inventory.Capacity + slots}   (+{slots})";
             if (slotCostText != null) slotCostText.text = $"{slots * config.GoldPerSlot:N0} G";
 
             if (weightText != null)
                 weightText.text = config.MaxAddWeightSteps(inventory) == 0
-                    ? $"Max Weight  {inventory.MaxWeight:#,0}  (MAX)"
-                    : $"Max Weight  {inventory.MaxWeight:#,0}  →  {inventory.MaxWeight + addWeight:#,0}   (+{addWeight:#,0})";
+                    ? $"최대 무게  {inventory.MaxWeight:#,0}  (최대)"
+                    : $"최대 무게  {inventory.MaxWeight:#,0}  →  {inventory.MaxWeight + addWeight:#,0}   (+{addWeight:#,0})";
             if (weightCostText != null) weightCostText.text = $"{steps * config.GoldPerWeightStep:N0} G";
 
             long total = config.Cost(slots, steps);
             if (totalText != null)
             {
-                totalText.text = $"Total  {total:N0} G     (owned {wallet.Gold:N0} G)";
+                totalText.text = $"합계  {total:N0} G     (보유 {wallet.Gold:N0} G)";
                 totalText.color = wallet.CanAfford(total) ? Color.white : errorColor;
             }
             if (confirmButton != null) confirmButton.interactable = total > 0 && wallet.CanAfford(total);

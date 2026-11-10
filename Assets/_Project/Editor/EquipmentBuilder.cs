@@ -27,34 +27,34 @@ namespace RPGAuto.EditorTools
         private static readonly (string id, string name, string label, EquipSlotType slot, ItemGrade grade, int lv, float w, long sell,
             float atk, float def, float acc, float hp, float mp, float matk, float mdef)[] Table =
         {
-            ("WoodenSword", "Wooden Sword", "SWORD", EquipSlotType.Weapon, ItemGrade.Common, 1, 15f, 20, 6, 0, 1, 0, 0, 0, 0),
-            ("ClothHood", "Cloth Hood", "HOOD", EquipSlotType.Helmet, ItemGrade.Common, 1, 5f, 10, 0, 2, 0, 10, 0, 0, 0),
-            ("ClothRobe", "Cloth Robe", "ROBE", EquipSlotType.Armor, ItemGrade.Common, 1, 12f, 15, 0, 4, 0, 20, 0, 0, 1),
-            ("ClothGloves", "Cloth Gloves", "GLOVE", EquipSlotType.Gloves, ItemGrade.Common, 1, 3f, 8, 0, 1, 2, 0, 0, 0, 0),
-            ("ClothPants", "Cloth Pants", "PANTS", EquipSlotType.Pants, ItemGrade.Common, 1, 6f, 10, 0, 2, 0, 0, 0, 0, 0),
-            ("ClothShoes", "Cloth Shoes", "SHOES", EquipSlotType.Boots, ItemGrade.Common, 1, 4f, 8, 0, 1, 0, 0, 0, 0, 0),
-            ("TwineRing", "Twine Ring", "RING", EquipSlotType.Ring, ItemGrade.Common, 1, 0.2f, 10, 0, 0, 2, 0, 0, 0, 0),
+            ("WoodenSword", "목검", "검", EquipSlotType.Weapon, ItemGrade.Common, 1, 15f, 20, 6, 0, 1, 0, 0, 0, 0),
+            ("ClothHood", "천 두건", "두건", EquipSlotType.Helmet, ItemGrade.Common, 1, 5f, 10, 0, 2, 0, 10, 0, 0, 0),
+            ("ClothRobe", "천 로브", "로브", EquipSlotType.Armor, ItemGrade.Common, 1, 12f, 15, 0, 4, 0, 20, 0, 0, 1),
+            ("ClothGloves", "천 장갑", "장갑", EquipSlotType.Gloves, ItemGrade.Common, 1, 3f, 8, 0, 1, 2, 0, 0, 0, 0),
+            ("ClothPants", "천 바지", "바지", EquipSlotType.Pants, ItemGrade.Common, 1, 6f, 10, 0, 2, 0, 0, 0, 0, 0),
+            ("ClothShoes", "천 신발", "신발", EquipSlotType.Boots, ItemGrade.Common, 1, 4f, 8, 0, 1, 0, 0, 0, 0, 0),
+            ("TwineRing", "노끈 반지", "반지", EquipSlotType.Ring, ItemGrade.Common, 1, 0.2f, 10, 0, 0, 2, 0, 0, 0, 0),
 
-            ("IronSword", "Iron Sword", "SWORD", EquipSlotType.Weapon, ItemGrade.Uncommon, 5, 20f, 120, 14, 0, 3, 0, 0, 0, 0),
-            ("IronHelm", "Iron Helm", "HELM", EquipSlotType.Helmet, ItemGrade.Uncommon, 5, 12f, 80, 0, 5, 0, 25, 0, 0, 0),
-            ("IronArmor", "Iron Armor", "ARMOR", EquipSlotType.Armor, ItemGrade.Uncommon, 5, 28f, 150, 0, 10, 0, 50, 0, 0, 2),
-            ("IronGauntlets", "Iron Gauntlets", "GAUNT", EquipSlotType.Gloves, ItemGrade.Uncommon, 5, 8f, 70, 2, 3, 0, 0, 0, 0, 0),
-            ("IronGreaves", "Iron Greaves", "GREAV", EquipSlotType.Pants, ItemGrade.Uncommon, 5, 14f, 80, 0, 5, 0, 0, 0, 0, 0),
-            ("IronBoots", "Iron Boots", "BOOTS", EquipSlotType.Boots, ItemGrade.Uncommon, 5, 10f, 70, 0, 3, 0, 0, 0, 0, 0),
-            ("WoolCloak", "Wool Cloak", "CLOAK", EquipSlotType.Cloak, ItemGrade.Uncommon, 5, 6f, 80, 0, 3, 0, 0, 0, 0, 3),
-            ("CopperRing", "Copper Ring", "RING", EquipSlotType.Ring, ItemGrade.Uncommon, 5, 0.5f, 90, 0, 0, 4, 0, 0, 0, 0),
-            ("LeatherBelt", "Leather Belt", "BELT", EquipSlotType.Belt, ItemGrade.Uncommon, 5, 3f, 60, 0, 0, 0, 30, 0, 0, 0),
+            ("IronSword", "철검", "검", EquipSlotType.Weapon, ItemGrade.Uncommon, 5, 20f, 120, 14, 0, 3, 0, 0, 0, 0),
+            ("IronHelm", "철 투구", "투구", EquipSlotType.Helmet, ItemGrade.Uncommon, 5, 12f, 80, 0, 5, 0, 25, 0, 0, 0),
+            ("IronArmor", "철 갑옷", "갑옷", EquipSlotType.Armor, ItemGrade.Uncommon, 5, 28f, 150, 0, 10, 0, 50, 0, 0, 2),
+            ("IronGauntlets", "철 건틀릿", "건틀릿", EquipSlotType.Gloves, ItemGrade.Uncommon, 5, 8f, 70, 2, 3, 0, 0, 0, 0, 0),
+            ("IronGreaves", "철 각반", "각반", EquipSlotType.Pants, ItemGrade.Uncommon, 5, 14f, 80, 0, 5, 0, 0, 0, 0, 0),
+            ("IronBoots", "철 장화", "장화", EquipSlotType.Boots, ItemGrade.Uncommon, 5, 10f, 70, 0, 3, 0, 0, 0, 0, 0),
+            ("WoolCloak", "양털 망토", "망토", EquipSlotType.Cloak, ItemGrade.Uncommon, 5, 6f, 80, 0, 3, 0, 0, 0, 0, 3),
+            ("CopperRing", "구리 반지", "반지", EquipSlotType.Ring, ItemGrade.Uncommon, 5, 0.5f, 90, 0, 0, 4, 0, 0, 0, 0),
+            ("LeatherBelt", "가죽 허리띠", "허리띠", EquipSlotType.Belt, ItemGrade.Uncommon, 5, 3f, 60, 0, 0, 0, 30, 0, 0, 0),
 
-            ("KnightSword", "Knight Sword", "SWORD", EquipSlotType.Weapon, ItemGrade.Rare, 10, 22f, 600, 26, 0, 6, 0, 0, 0, 0),
-            ("KnightArmor", "Knight Armor", "ARMOR", EquipSlotType.Armor, ItemGrade.Rare, 10, 32f, 650, 0, 18, 0, 90, 0, 0, 4),
-            ("SilverRing", "Silver Ring", "RING", EquipSlotType.Ring, ItemGrade.Rare, 10, 0.5f, 500, 4, 0, 6, 0, 0, 0, 0),
-            ("SilverNecklace", "Silver Necklace", "NECK", EquipSlotType.Necklace, ItemGrade.Rare, 10, 1f, 500, 0, 0, 0, 0, 40, 5, 0),
-            ("SilverEarring", "Silver Earring", "EARR", EquipSlotType.Earring, ItemGrade.Rare, 10, 0.3f, 450, 0, 0, 8, 0, 0, 0, 0),
+            ("KnightSword", "기사의 검", "검", EquipSlotType.Weapon, ItemGrade.Rare, 10, 22f, 600, 26, 0, 6, 0, 0, 0, 0),
+            ("KnightArmor", "기사의 갑옷", "갑옷", EquipSlotType.Armor, ItemGrade.Rare, 10, 32f, 650, 0, 18, 0, 90, 0, 0, 4),
+            ("SilverRing", "은 반지", "반지", EquipSlotType.Ring, ItemGrade.Rare, 10, 0.5f, 500, 4, 0, 6, 0, 0, 0, 0),
+            ("SilverNecklace", "은 목걸이", "목걸이", EquipSlotType.Necklace, ItemGrade.Rare, 10, 1f, 500, 0, 0, 0, 0, 40, 5, 0),
+            ("SilverEarring", "은 귀걸이", "귀걸이", EquipSlotType.Earring, ItemGrade.Rare, 10, 0.3f, 450, 0, 0, 8, 0, 0, 0, 0),
 
-            ("ChiefAxe", "Chief's Axe", "AXE", EquipSlotType.Weapon, ItemGrade.Epic, 12, 30f, 2000, 40, 0, 2, 0, 0, 0, 0),
-            ("ShadowCloak", "Shadow Cloak", "CLOAK", EquipSlotType.Cloak, ItemGrade.Epic, 12, 8f, 1800, 0, 10, 0, 0, 0, 0, 10),
+            ("ChiefAxe", "족장의 도끼", "도끼", EquipSlotType.Weapon, ItemGrade.Epic, 12, 30f, 2000, 40, 0, 2, 0, 0, 0, 0),
+            ("ShadowCloak", "그림자 망토", "망토", EquipSlotType.Cloak, ItemGrade.Epic, 12, 8f, 1800, 0, 10, 0, 0, 0, 0, 10),
 
-            ("AncientBlade", "Ancient Blade", "BLADE", EquipSlotType.Weapon, ItemGrade.Legendary, 15, 25f, 8000, 60, 0, 12, 0, 0, 0, 0),
+            ("AncientBlade", "고대의 검", "대검", EquipSlotType.Weapon, ItemGrade.Legendary, 15, 25f, 8000, 60, 0, 12, 0, 0, 0, 0),
         };
 
         [MenuItem("RPGAuto/Build Equipment Data")]
@@ -88,10 +88,10 @@ namespace RPGAuto.EditorTools
             SetGradeWeight("IT_AncientRelic", ItemGrade.Legendary, 5f);
 
             var scroll = LoadOrCreate<ItemData>(ScrollPath);
-            Set(scroll, ("itemId", "I201"), ("displayName", "Enhancement Scroll"), ("shortLabel", "SCROLL"),
+            Set(scroll, ("itemId", "I201"), ("displayName", "강화 주문서"), ("shortLabel", "주문서"),
                 ("slotColor", new Color(0.8f, 0.72f, 0.45f)), ("category", (int)ItemCategory.Material),
                 ("grade", (int)ItemGrade.Uncommon), ("weight", 0.2f), ("sellPrice", 50L),
-                ("description", "Used to enhance equipment. Higher enhancement levels require more scrolls."));
+                ("description", "장비 강화에 사용합니다. 강화 단계가 높을수록 더 많이 필요합니다."));
 
             // ---------- 장비 ----------
             var equips = new Dictionary<string, EquipmentData>();
@@ -102,7 +102,7 @@ namespace RPGAuto.EditorTools
                     ("slotColor", SlotColor(e.slot)), ("category", (int)ItemCategory.Equipment), ("grade", (int)e.grade),
                     ("weight", e.w), ("sellPrice", e.sell), ("slotType", (int)e.slot), ("requiredLevel", e.lv),
                     ("enhanceBonusPerLevel", 0.1f), ("maxEnhance", 10),
-                    ("description", $"{e.grade} {e.slot.ToString().ToLower()}. Each enhancement level adds 10% to its stats."),
+                    ("description", $"{RPGAuto.UI.GameText.Grade(e.grade)} 등급 {RPGAuto.UI.GameText.Slot(e.slot)}. 강화 단계마다 능력치가 10%씩 증가합니다."),
                     ("stats.physicalAttack", e.atk), ("stats.physicalDefense", e.def), ("stats.accuracy", e.acc),
                     ("stats.maxHp", e.hp), ("stats.maxMp", e.mp), ("stats.magicAttack", e.matk), ("stats.magicDefense", e.mdef));
                 equips[e.id] = data;

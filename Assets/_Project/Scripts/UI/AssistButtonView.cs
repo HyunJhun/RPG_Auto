@@ -46,7 +46,7 @@ namespace RPGAuto.UI
         {
             _lastMode = enabled;
             if (background != null) background.color = enabled ? onColor : offColor;
-            if (label != null) label.text = enabled ? "ASSIST\nON" : "ASSIST\nOFF";
+            if (label != null) label.text = enabled ? "보조\n켜짐" : "보조\n꺼짐";
         }
 
         private void RefreshStatus(string text)

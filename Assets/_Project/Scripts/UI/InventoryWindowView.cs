@@ -42,6 +42,11 @@ namespace RPGAuto.UI
         [SerializeField] private InventorySlotView slotPrefab;
         [SerializeField] private Button[] filterButtons = new Button[5];
 
+        [Header("Sort")]
+        [SerializeField] private Button sortButton;
+        [SerializeField] private Button sortModeButton;
+        [SerializeField] private Text sortModeText;
+
         [Header("Footer")]
         [SerializeField] private Text weightText;
         [SerializeField] private Text slotText;
@@ -51,6 +56,8 @@ namespace RPGAuto.UI
         [SerializeField] private GameObject shopBar;
         [SerializeField] private Button autoFillButton;
         [SerializeField] private Button clearBasketButton;
+        [SerializeField] private Button tradeSettingsButton;
+        [SerializeField] private AutoTradeSettingsView tradeSettingsView;
 
         [Header("Popups")]
         [SerializeField] private ItemDetailPopup detailPopup;
@@ -67,6 +74,7 @@ namespace RPGAuto.UI
         private readonly List<InventorySlotView> _slots = new();
         private readonly List<InventoryEntry> _filtered = new();
         private Filter _filter = Filter.All;
+        private InventorySortMode _sortMode = InventorySortMode.Category;
         private InventoryEntry _selected;
         private IInventoryShopHook _shopHook;
         private bool _dirty;
@@ -80,6 +88,10 @@ namespace RPGAuto.UI
             expandButton?.onClick.AddListener(() => expansionPopup?.Open());
             autoFillButton?.onClick.AddListener(() => _shopHook?.AutoFill());
             clearBasketButton?.onClick.AddListener(() => _shopHook?.ClearBasket());
+            tradeSettingsButton?.onClick.AddListener(() => tradeSettingsView?.Toggle());
+            sortButton?.onClick.AddListener(Sort);
+            sortModeButton?.onClick.AddListener(CycleSortMode);
+            RefreshSortLabel();
             for (int i = 0; i < filterButtons.Length; i++)
             {
                 var f = (Filter)i; // 클로저 캡처용
@@ -141,6 +153,7 @@ namespace RPGAuto.UI
 
             if (detailPopup != null && detailPopup.IsOpen) detailPopup.SetOpen(false);
             if (expansionPopup != null && expansionPopup.IsOpen) expansionPopup.SetOpen(false);
+            if (tradeSettingsView != null && tradeSettingsView.IsOpen) tradeSettingsView.SetOpen(false);
             // 상점과 함께 열려 있었다면 상점도 닫는다
             var hook = _shopHook;
             if (hook != null)
@@ -163,6 +176,24 @@ namespace RPGAuto.UI
         {
             _filter = filter;
             Refresh();
+        }
+
+        // ---------------- Sort ----------------
+
+        /// <summary>현재 정렬 기준(Strategy)으로 칸 순서를 정리</summary>
+        public void Sort() => inventory.Sort(InventorySorters.Get(_sortMode));
+
+        private void CycleSortMode()
+        {
+            int next = ((int)_sortMode + 1) % InventorySorters.All.Length;
+            _sortMode = InventorySorters.All[next];
+            RefreshSortLabel();
+            Sort();
+        }
+
+        private void RefreshSortLabel()
+        {
+            if (sortModeText != null) sortModeText.text = InventorySorters.Label(_sortMode);
         }
 
         // ---------------- View ----------------
@@ -222,7 +253,7 @@ namespace RPGAuto.UI
             if (inventory == null) return;
             if (weightText != null)
             {
-                weightText.text = $"WEIGHT  {inventory.CurrentWeight:#,0.#} / {inventory.MaxWeight:#,0}";
+                weightText.text = $"무게  {inventory.CurrentWeight:#,0.#} / {inventory.MaxWeight:#,0}";
                 weightText.color = inventory.IsOverweight ? weightOver : weightNormal;
             }
             if (slotText != null) slotText.text = $"{inventory.UsedSlots} / {inventory.Capacity}";

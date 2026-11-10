@@ -33,7 +33,7 @@ namespace RPGAuto.Gacha
             public List<Reward> rewards = new();
         }
 
-        [SerializeField] private string displayName = "Supply Summon";
+        [SerializeField] private string displayName = "보급품 소환";
         [SerializeField, TextArea(2, 3)] private string description;
         [SerializeField] private long singleCost = 300;
         [SerializeField] private long tenCost = 2700;
